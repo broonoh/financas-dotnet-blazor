@@ -1,0 +1,38 @@
+# 💰 Minhas Finanças
+
+Sistema de controle de finanças pessoais em desenvolvimento.
+
+## 🏗️ Estrutura do Projeto
+
+
+## 🚀 Tecnologias
+
+- **Backend**: .NET 8, Entity Framework Core, PostgreSQL
+- **Frontend**: Blazor WebAssembly, MudBlazor
+- **Arquitetura**: Clean Architecture, DDD, CQRS
+
+## 📋 Pré-requisitos
+
+- .NET 8 SDK
+- PostgreSQL 15+
+- Docker (opcional)
+
+## 🔧 Configuração Rápida
+
+```bash
+# Restaurar pacotes
+dotnet restore
+
+# Configurar banco de dados
+# Edite appsettings.json com sua connection string
+
+# Executar migrations
+dotnet ef database update --project SRC/MinhasFinancas.Infrastructure --startup-project SRC/MinhasFinancas.API
+
+# Executar API
+cd SRC/MinhasFinancas.API
+dotnet run
+
+# Executar Frontend (outro terminal)
+cd Frontend/MinhasFinancas.Web
+dotnet run

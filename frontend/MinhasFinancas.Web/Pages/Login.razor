@@ -1,0 +1,81 @@
+@page "/login"
+@using MinhasFinancas.Web.Services
+@inject AuthApiService AuthApi
+@inject AuthStateProvider AuthState
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudPaper Elevation="3" Class="pa-8">
+        <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-6">
+            💰 Minhas Finanças
+        </MudText>
+
+        @if (!string.IsNullOrEmpty(_erro))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_erro</MudAlert>
+        }
+
+        <MudTextField @bind-Value="_email" Label="Email" InputType="InputType.Email"
+                      Variant="Variant.Outlined" FullWidth="true" Class="mb-4" />
+
+        <MudTextField @bind-Value="_senha" Label="Senha" InputType="InputType.Password"
+                      Variant="Variant.Outlined" FullWidth="true" Class="mb-6" />
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                   Size="Size.Large" OnClick="Entrar" Disabled="_carregando">
+            @if (_carregando)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Entrar
+        </MudButton>
+
+        <MudDivider Class="my-4" />
+        <MudText Align="Align.Center">
+            Não tem conta? <MudLink Href="/cadastrar">Cadastre-se</MudLink>
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string _email = string.Empty;
+    private string _senha = string.Empty;
+    private string _erro = string.Empty;
+    private bool _carregando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await AuthState.ObterTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+            Nav.NavigateTo("/dashboard");
+    }
+
+    private async Task Entrar()
+    {
+        if (string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_senha)) return;
+
+        _erro = string.Empty;
+        _carregando = true;
+
+        try
+        {
+            var resultado = await AuthApi.LoginAsync(_email, _senha);
+            if (resultado is null)
+            {
+                _erro = "Email ou senha inválidos.";
+                return;
+            }
+
+            await AuthState.MarcarComoAutenticado(resultado.AccessToken, resultado.NomeUsuario, resultado.UsuarioId);
+            Nav.NavigateTo("/dashboard");
+        }
+        catch (Exception ex)
+        {
+            _erro = $"Erro de conexão: {ex.Message}";
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+}

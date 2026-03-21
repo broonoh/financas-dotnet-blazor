@@ -1,0 +1,16 @@
+@using MudBlazor
+
+<MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center">
+    <MudIcon Icon="@Icone" Color="@Cor" Size="Size.Large" Class="mb-2" />
+    <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="text-muted">@Titulo</MudText>
+    <MudText Typo="Typo.h5" Align="Align.Center" Color="@Cor">
+        @Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+    </MudText>
+</MudPaper>
+
+@code {
+    [Parameter] public string Titulo { get; set; } = string.Empty;
+    [Parameter] public decimal Valor { get; set; }
+    [Parameter] public string Icone { get; set; } = Icons.Material.Filled.AttachMoney;
+    [Parameter] public Color Cor { get; set; } = Color.Primary;
+}

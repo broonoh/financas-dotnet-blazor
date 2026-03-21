@@ -1,0 +1,36 @@
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copiar apenas os csproj para restaurar dependências (cache eficiente)
+COPY src/MinhasFinancas.Domain/MinhasFinancas.Domain.csproj src/MinhasFinancas.Domain/
+COPY src/MinhasFinancas.Application/MinhasFinancas.Application.csproj src/MinhasFinancas.Application/
+COPY src/MinhasFinancas.Infrastructure/MinhasFinancas.Infrastructure.csproj src/MinhasFinancas.Infrastructure/
+COPY src/MinhasFinancas.API/MinhasFinancas.API.csproj src/MinhasFinancas.API/
+
+RUN dotnet restore src/MinhasFinancas.API/MinhasFinancas.API.csproj
+
+# Copiar o código-fonte e publicar
+COPY src/ src/
+RUN dotnet publish src/MinhasFinancas.API/MinhasFinancas.API.csproj \
+    -c Release -o /app/publish --no-restore
+
+# Stage 2: Runtime (imagem menor)
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+# Non-root user para segurança
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 --gid 1001 appuser
+
+COPY --from=build /app/publish .
+
+# Definir permissões
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+ENTRYPOINT ["dotnet", "MinhasFinancas.API.dll"]

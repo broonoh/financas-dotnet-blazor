@@ -1,0 +1,106 @@
+@page "/cadastrar"
+@using Fluxor
+@using MinhasFinancas.Web.Services
+@inject AuthApiService AuthApi
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudPaper Elevation="3" Class="pa-8">
+        <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-6">
+            💰 Criar Conta
+        </MudText>
+
+        @if (!string.IsNullOrEmpty(_erro))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_erro</MudAlert>
+        }
+        @if (_sucesso)
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-4">Conta criada! Redirecionando para login...</MudAlert>
+        }
+
+        <MudTextField @bind-Value="_nome" Label="Nome completo" Variant="Variant.Outlined" FullWidth="true" Class="mb-3" />
+        <MudTextField @bind-Value="_email" Label="Email" InputType="InputType.Email" Variant="Variant.Outlined" FullWidth="true" Class="mb-3" />
+        <MudTextField @bind-Value="_senha" Label="Senha" InputType="InputType.Password" Variant="Variant.Outlined" FullWidth="true" Class="mb-1" />
+        <MudText Typo="Typo.caption" Class="mb-3 text-muted">Mínimo 12 caracteres, maiúscula, minúscula, número e caractere especial.</MudText>
+        <MudTextField @bind-Value="_dataNascimento" Label="Data de Nascimento" InputType="InputType.Date" Variant="Variant.Outlined" FullWidth="true" Class="mb-3" />
+        <MudTextField @bind-Value="_telefone" Label="Telefone (opcional)" Variant="Variant.Outlined" FullWidth="true" Class="mb-6" />
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                   Size="Size.Large" OnClick="EnviarCadastro" Disabled="_carregando">
+            @if (_carregando)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Criar Conta
+        </MudButton>
+
+        <MudDivider Class="my-4" />
+        <MudText Align="Align.Center">
+            Já tem conta? <MudLink Href="/login">Entrar</MudLink>
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string _nome = string.Empty;
+    private string _email = string.Empty;
+    private string _senha = string.Empty;
+    private string _telefone = string.Empty;
+    private string _dataNascimento = string.Empty;
+    private string _erro = string.Empty;
+    private bool _sucesso;
+    private bool _carregando;
+
+    private async Task EnviarCadastro()
+    {
+        _erro = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(_nome) || string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_senha))
+        {
+            _erro = "Preencha todos os campos obrigatórios.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_dataNascimento) || !DateTime.TryParse(_dataNascimento, out var dataNasc))
+        {
+            _erro = "Informe sua data de nascimento.";
+            return;
+        }
+
+        _carregando = true;
+
+        try
+        {
+            var payload = new
+            {
+                Nome = _nome,
+                Email = _email,
+                Senha = _senha,
+                DataNascimento = DateOnly.FromDateTime(dataNasc),
+                Telefone = string.IsNullOrWhiteSpace(_telefone) ? null : _telefone
+            };
+
+            var (sucesso, erro) = await AuthApi.CadastrarAsync(payload);
+
+            if (sucesso)
+            {
+                _sucesso = true;
+                await Task.Delay(1500);
+                Nav.NavigateTo("/login");
+            }
+            else
+            {
+                _erro = erro ?? "Erro ao criar conta. Verifique os dados e tente novamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _erro = ex.Message;
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+}

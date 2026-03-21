@@ -1,0 +1,131 @@
+# .gitignore para projeto .NET - Minhas Finanças
+
+##############################
+# Arquivos de build e binários
+##############################
+**/bin/
+**/obj/
+**/out/
+**/publish/
+*.exe
+*.dll
+*.so
+*.dylib
+*.nupkg
+*.snupkg
+
+##############################
+# Arquivos de IDE e Editor
+##############################
+# Rider
+.idea/
+*.sln.iml
+*.DotSettings.user
+*.DotSettings
+*.user
+*.userprefs
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.suo
+*.userosscache
+*.sln.docstates
+
+##############################
+# Arquivos de configuração local
+##############################
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/appsettings.Local.json
+*.local.json
+secrets.json
+*.secrets
+
+##############################
+# Logs
+##############################
+logs/
+**/logs/
+*.log
+*.log.*
+*.txt.log
+
+##############################
+# Testes
+##############################
+TestResults/
+**/TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+##############################
+# Banco de dados local
+##############################
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+
+##############################
+# Migrações temporárias
+##############################
+**/Migrations/*.Designer.cs
+**/Migrations/*.cs
+!**/Migrations/ApplicationDbContextModelSnapshot.cs
+
+##############################
+# Docker
+##############################
+docker-compose.override.yml
+*.pid
+*.pid.lock
+*.env.local
+.env
+
+##############################
+# Documentação (opcional)
+##############################
+docs/*.pdf
+docs/*.docx
+
+##############################
+# Sistema operacional
+##############################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+##############################
+# Arquivos temporários
+##############################
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*~
+
+##############################
+# Arquivos específicos do projeto
+##############################
+# Prompt claude (já movido para docs)
+# Prompt_claude.txt
+
+# Arquivos de configuração sensíveis
+.env
+*.key
+*.pem
+*.cert
+*.pfx
+*.p12

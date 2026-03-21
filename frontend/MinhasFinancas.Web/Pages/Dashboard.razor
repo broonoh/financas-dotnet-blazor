@@ -1,0 +1,112 @@
+@page "/dashboard"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inherits FluxorComponent
+@using Fluxor
+@using MinhasFinancas.Web.Store
+@using MinhasFinancas.Web.Models
+@using MinhasFinancas.Web.Components
+@inject IDispatcher Dispatcher
+@inject IState<DashboardState> DashboardState
+@inject IJSRuntime JS
+
+<MudText Typo="Typo.h4" Class="mb-4">Dashboard</MudText>
+
+<!-- Seletor de Mês/Ano -->
+<MudGrid Class="mb-4">
+    <MudItem xs="12" md="4">
+        <MudDatePicker Date="_dataSelecionada" Label="Mês de Referência"
+                       DateFormat="MM/yyyy" OpenTo="OpenTo.Month"
+                       PickerVariant="PickerVariant.Dialog"
+                       DateChanged="OnMesSelecionado" />
+    </MudItem>
+</MudGrid>
+
+@if (DashboardState.Value.IsLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+}
+else if (DashboardState.Value.Dashboard is { } dash)
+{
+    <!-- Cards de Resumo -->
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <SummaryCard Titulo="Saldo do Mês" Valor="@dash.SaldoMesAtual"
+                         Icone="@Icons.Material.Filled.AccountBalance"
+                         Cor="@(dash.SaldoMesAtual >= 0 ? Color.Success : Color.Error)" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <SummaryCard Titulo="Receitas" Valor="@dash.TotalReceitasMes"
+                         Icone="@Icons.Material.Filled.TrendingUp" Cor="Color.Success" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <SummaryCard Titulo="Despesas" Valor="@dash.TotalDespesasMes"
+                         Icone="@Icons.Material.Filled.TrendingDown" Cor="Color.Error" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <SummaryCard Titulo="Projeção 30 dias" Valor="@dash.ProjecaoProximos30Dias"
+                         Icone="@Icons.Material.Filled.Timeline" Cor="Color.Info" />
+        </MudItem>
+    </MudGrid>
+
+    <!-- Gráficos -->
+    <MudGrid>
+        <MudItem xs="12" md="8">
+            <MudPaper Elevation="2" Class="pa-4">
+                <MudText Typo="Typo.h6" Class="mb-2">Evolução Últimos 12 Meses</MudText>
+                <canvas id="graficoEvolucao" height="120"></canvas>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="2" Class="pa-4">
+                <MudText Typo="Typo.h6" Class="mb-2">Despesas por Categoria</MudText>
+                <canvas id="graficoPizza" height="200"></canvas>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Elevation="2" Class="pa-4">
+                <MudText Typo="Typo.h6" Class="mb-2">Comparativo Últimos 6 Meses</MudText>
+                <canvas id="graficoBarras" height="80"></canvas>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    private DateTime? _dataSelecionada = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var hoje = DateTime.Now;
+        Dispatcher.Dispatch(new CarregarDashboardAction(hoje.Year, hoje.Month));
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var dash = DashboardState.Value.Dashboard;
+        if (dash is null) return;
+
+        // Renderizar gráficos via Chart.js
+        await JS.InvokeVoidAsync("renderizarGraficoLinha", "graficoEvolucao",
+            dash.Evolucao12Meses.Select(e => e.Mes).ToArray(),
+            dash.Evolucao12Meses.Select(e => e.Receitas).ToArray(),
+            dash.Evolucao12Meses.Select(e => e.Despesas).ToArray(),
+            dash.Evolucao12Meses.Select(e => e.Saldo).ToArray());
+
+        await JS.InvokeVoidAsync("renderizarGraficoPizza", "graficoPizza",
+            dash.DistribuicaoCategorias.Select(c => c.Categoria).ToArray(),
+            dash.DistribuicaoCategorias.Select(c => (double)c.Valor).ToArray());
+
+        await JS.InvokeVoidAsync("renderizarGraficoBarras", "graficoBarras",
+            dash.Comparativo6Meses.Select(e => e.Mes).ToArray(),
+            dash.Comparativo6Meses.Select(e => e.Receitas).ToArray(),
+            dash.Comparativo6Meses.Select(e => e.Despesas).ToArray());
+    }
+
+    private void OnMesSelecionado(DateTime? data)
+    {
+        _dataSelecionada = data;
+        if (data.HasValue)
+            Dispatcher.Dispatch(new CarregarDashboardAction(data.Value.Year, data.Value.Month));
+    }
+}

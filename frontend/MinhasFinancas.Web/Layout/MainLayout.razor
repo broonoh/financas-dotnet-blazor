@@ -1,0 +1,62 @@
+@inherits FluxorLayout
+@using Microsoft.AspNetCore.Components.Authorization
+@using Fluxor
+@using MinhasFinancas.Web.Store
+@inject IDispatcher Dispatcher
+@inject IState<AuthState> AuthState
+@inject NavigationManager Nav
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<AuthorizeView>
+    <Authorized>
+        <MudLayout>
+            <MudAppBar Elevation="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                               OnClick="@ToggleDrawer" />
+                <MudText Typo="Typo.h6" Class="ml-3">💰 Minhas Finanças</MudText>
+                <MudSpacer />
+                <MudText Class="mr-2">Olá, @AuthState.Value.NomeUsuario</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit"
+                               OnClick="Sair" />
+            </MudAppBar>
+
+            <MudDrawer Open="_drawerOpen" OpenChanged="@(v => _drawerOpen = v)" ClipMode="DrawerClipMode.Always" Elevation="2">
+                <MudNavMenu>
+                    <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                    <MudNavLink Href="/parcelas" Icon="@Icons.Material.Filled.CreditCard">Parcelas</MudNavLink>
+                    <MudNavLink Href="/receitas" Icon="@Icons.Material.Filled.AttachMoney">Receitas</MudNavLink>
+                    <MudNavLink Href="/despesas" Icon="@Icons.Material.Filled.MoneyOff">Despesas</MudNavLink>
+                </MudNavMenu>
+            </MudDrawer>
+
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
+    </Authorized>
+    <NotAuthorized>
+        <MudLayout>
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+        </MudLayout>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    private void Sair()
+    {
+        Dispatcher.Dispatch(new LogoutAction());
+        Nav.NavigateTo("/login");
+    }
+}

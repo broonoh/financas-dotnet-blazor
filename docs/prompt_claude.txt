@@ -1,0 +1,325 @@
+INSTRUÇÃO PARA CLAUDE
+Você é um arquiteto de software e desenvolvedor sênior especialista em .NET, Blazor, DDD, TDD e boas práticas de UX. Sua tarefa é gerar um guia completo e detalhado para a criação de um sistema web de controle de finanças pessoais chamado "Minhas Finanças", utilizando exclusivamente tecnologias opensource e gratuitas.
+
+STACK TECNOLÓGICO OBRIGATÓRIO
+Backend (100% Opensource)
+.NET 8 (Runtime opensource)
+
+PostgreSQL 15+ (Banco de dados gratuito)
+
+Entity Framework Core com Npgsql
+
+BCrypt.Net-Next para hash de senhas
+
+JWT para autenticação
+
+MediatR para padrão mediator
+
+FluentValidation para validações
+
+Serilog para logs
+
+Swagger para documentação
+
+Frontend
+Blazor WebAssembly
+
+MudBlazor para componentes UI
+
+Chart.js para gráficos
+
+Tailwind CSS para estilização
+
+Fluxor para gerenciamento de estado
+
+Infraestrutura
+Docker + Docker Compose
+
+Nginx como proxy reverso
+
+Let's Encrypt para SSL gratuito
+
+GitHub Actions para CI/CD
+
+REQUISITOS DO SISTEMA
+1. Segurança e Autenticação
+Cadastro de Usuário:
+
+Nome completo, email, senha, data de nascimento (mínimo 18 anos), telefone (opcional)
+
+Senha com política forte: mínimo 12 caracteres, maiúscula, minúscula, número, caractere especial
+
+Impedir senhas comuns (ex: "Senha@123")
+
+Login:
+
+JWT com expiração de 15 minutos + Refresh Token (7 dias em HttpOnly Cookie)
+
+Hash de senha com BCrypt (custo 12)
+
+Rate limiting: 5 tentativas em 15 minutos
+
+Lockout: bloquear por 30 minutos após 5 tentativas falhas
+
+Proteção CSRF em todas as requisições
+
+Recuperação de Senha:
+
+Token único com expiração de 1 hora
+
+Link enviado por email (usar SendGrid gratuito ou SMTP)
+
+2FA (Opcional para fase 2):
+
+Implementar como recurso opcional que usuário pode ativar/desativar
+
+Google Authenticator (TOTP) com Otp.NET
+
+QR Code para configuração com QRCoder
+
+10 códigos de recuperação de uso único
+
+2. Receitas
+Campos:
+
+Descrição (3-100 caracteres)
+
+Valor (decimal, > 0)
+
+Data de recebimento
+
+Categoria (Salário, Freelancer, Presente, Investimento, Outros)
+
+Recorrente (boolean) - se sim, repetir mensalmente por 12 meses
+
+Funcionalidades:
+
+CRUD completo
+
+Edição em série para receitas recorrentes
+
+3. Despesas Fixas (Parceladas)
+Campos:
+
+Descrição (3-100 caracteres)
+
+Valor total (decimal, > 0)
+
+Quantidade de parcelas (2 a 48)
+
+Data da primeira parcela (mês/ano, não pode ser anterior ao mês atual)
+
+Categoria (Alimentação, Moradia, Transporte, Saúde, Educação, Lazer, Outros)
+
+Forma de pagamento (Cartão de Crédito, Pix Parcelado, Boleto Parcelado)
+
+Lógica:
+
+Gerar parcelas automaticamente (valor = total / quantidade)
+
+Última parcela ajustada para soma exata
+
+Ao visualizar mês, mostrar apenas parcelas daquele período
+
+Edição: perguntar "Ajustar apenas esta parcela" ou "Ajustar todas futuras"
+
+4. Despesas Extras (À Vista)
+Campos:
+
+Descrição
+
+Valor
+
+Data da despesa
+
+Categoria (mesmas das despesas fixas)
+
+Forma de pagamento (Cartão de Crédito, Pix, Dinheiro, Boleto)
+
+Lógica:
+
+Registro único que impacta saldo do mês
+
+Não gera parcelas
+
+5. Gerenciamento de Parcelas
+Tela específica "Minhas Parcelas" com:
+
+Lista de parcelas pendentes
+
+Opção de marcar como "Paga" individualmente
+
+Visualização por mês
+
+Indicador visual: vencidas (vermelho), próximas 7 dias (amarelo)
+
+6. Dashboard e Gráficos
+Cards:
+
+Saldo do mês atual
+
+Total de receitas do mês
+
+Total de despesas do mês
+
+Projeção próximos 30 dias
+
+Gráficos:
+
+Evolução Temporal (Linha): últimos 12 meses, 3 linhas (saldo, receitas, despesas)
+
+Distribuição por Categoria (Pizza): despesas do mês por categoria
+
+Comparativo Mês a Mês (Barras): últimos 6 meses
+
+Filtros:
+
+Seletor de mês/ano
+
+Comparação com período anterior
+
+ARQUITETURA E CÓDIGO
+Estrutura de Pastas (Clean Architecture)
+text
+MinhasFinancas/
+├── src/
+│   ├── MinhasFinancas.Domain/
+│   │   ├── Entities/
+│   │   │   ├── Usuario.cs
+│   │   │   ├── Receita.cs
+│   │   │   ├── Despesa.cs (abstract)
+│   │   │   ├── DespesaFixa.cs
+│   │   │   ├── DespesaExtra.cs
+│   │   │   └── Parcela.cs
+│   │   ├── Enums/
+│   │   ├── ValueObjects/
+│   │   │   ├── Email.cs
+│   │   │   └── SenhaHash.cs
+│   │   └── Interfaces/
+│   │
+│   ├── MinhasFinancas.Application/
+│   │   ├── Commands/
+│   │   ├── Queries/
+│   │   ├── DTOs/
+│   │   ├── Validators/
+│   │   └── Services/
+│   │
+│   ├── MinhasFinancas.Infrastructure/
+│   │   ├── Data/
+│   │   ├── Repositories/
+│   │   └── Services/
+│   │
+│   └── MinhasFinancas.API/
+│       ├── Controllers/
+│       └── Middlewares/
+│
+├── frontend/
+│   └── MinhasFinancas.Web/
+│       ├── Pages/
+│       ├── Components/
+│       ├── Services/
+│       └── Store/
+│
+├── tests/
+│   ├── MinhasFinancas.Tests.Unit/
+│   └── MinhasFinancas.Tests.Integration/
+│
+├── docker/
+│   ├── Dockerfile.api
+│   ├── Dockerfile.web
+│   └── docker-compose.yml
+│
+└── .github/workflows/ci-cd.yml
+Modelagem do Banco de Dados (PostgreSQL)
+sql
+CREATE TABLE usuarios (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    telefone VARCHAR(20),
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
+    two_factor_secret VARCHAR(100),
+    refresh_token VARCHAR(500),
+    refresh_token_expiry TIMESTAMP,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE receitas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    descricao VARCHAR(100) NOT NULL,
+    valor DECIMAL(15,2) NOT NULL,
+    data_recebimento DATE NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    recorrente BOOLEAN DEFAULT FALSE,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE despesas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    descricao VARCHAR(100) NOT NULL,
+    valor_total DECIMAL(15,2) NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    forma_pagamento VARCHAR(30) NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE parcelas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    despesa_id UUID NOT NULL REFERENCES despesas(id) ON DELETE CASCADE,
+    numero INTEGER NOT NULL,
+    valor DECIMAL(15,2) NOT NULL,
+    data_vencimento DATE NOT NULL,
+    paga BOOLEAN DEFAULT FALSE,
+    data_pagamento DATE
+);
+
+CREATE INDEX idx_receitas_usuario_data ON receitas(usuario_id, data_recebimento);
+CREATE INDEX idx_parcelas_vencimento ON parcelas(data_vencimento);
+Exemplo de Código Solicitado
+Por favor, forneça os seguintes exemplos de código:
+
+Entidade DespesaFixa na camada Domain com lógica de criação de parcelas
+
+Command CriarDespesaFixaCommand usando MediatR e FluentValidation
+
+Componente Blazor Dashboard.razor com gráficos usando MudBlazor
+
+Testes unitários para a lógica de parcelamento
+
+Docker Compose configurado para PostgreSQL, API e Blazor
+
+Configuração do JWT com Refresh Token em HttpOnly Cookie
+
+Middleware de Rate Limiting para login
+
+O QUE ESPERO COMO RESPOSTA
+A estrutura completa de pastas com arquivos
+
+Código funcional para cada exemplo solicitado
+
+Comentários explicativos nas partes críticas
+
+Instruções passo a passo para executar o projeto
+
+Comandos para migrations do EF Core
+
+Explicação das decisões arquiteturais
+
+OBSERVAÇÕES IMPORTANTES
+Tudo deve ser opensource e gratuito - nenhuma dependência paga
+
+Segurança em primeiro lugar - implementar todas as medidas citadas
+
+Código limpo - seguir padrões DDD, Clean Code, SOLID
+
+Testes - incluir exemplos de testes unitários
+
+Documentação - código auto-documentado e comentários
+
+AGUARDANDO SUA RESPOSTA COM O GUIAS COMPLETO DE IMPLEMENTAÇÃO.
