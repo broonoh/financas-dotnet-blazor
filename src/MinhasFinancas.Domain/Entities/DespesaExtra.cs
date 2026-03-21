@@ -15,7 +15,7 @@ public class DespesaExtra : Despesa
         string descricao,
         decimal valor,
         DateOnly dataDespesa,
-        CategoriaDespesa categoria,
+        string categoria,
         FormaPagamentoDespesaExtra formaPagamento)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
@@ -36,5 +36,19 @@ public class DespesaExtra : Despesa
             TipoDespesa = TipoDespesa.Extra,
             DataCriacao = DateTime.UtcNow
         };
+    }
+
+    public void Atualizar(string descricao, decimal valor, DateOnly dataDespesa, string categoria, FormaPagamentoDespesaExtra formaPagamento)
+    {
+        if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
+            throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
+        if (valor <= 0)
+            throw new ArgumentException("Valor deve ser maior que zero.", nameof(valor));
+
+        Descricao = descricao.Trim();
+        ValorTotal = valor;
+        DataDespesa = dataDespesa;
+        Categoria = categoria;
+        FormaPagamento = formaPagamento;
     }
 }

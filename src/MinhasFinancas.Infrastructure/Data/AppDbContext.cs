@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
     public DbSet<Parcela> Parcelas => Set<Parcela>();
     public DbSet<Divida> Dividas => Set<Divida>();
     public DbSet<ParcelaDivida> ParcelasDivida => Set<ParcelaDivida>();
+    public DbSet<CategoriaReceita> CategoriasReceita => Set<CategoriaReceita>();
+    public DbSet<CategoriaDespesa> CategoriasDespesa => Set<CategoriaDespesa>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,7 +68,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Descricao).HasColumnName("descricao").HasMaxLength(100).IsRequired();
             entity.Property(e => e.Valor).HasColumnName("valor").HasColumnType("decimal(15,2)").IsRequired();
             entity.Property(e => e.DataRecebimento).HasColumnName("data_recebimento").IsRequired();
-            entity.Property(e => e.Categoria).HasColumnName("categoria").HasConversion<string>().HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Categoria).HasColumnName("categoria").HasMaxLength(50).IsRequired();
             entity.Property(e => e.Recorrente).HasColumnName("recorrente");
             entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
 
@@ -84,7 +86,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
             entity.Property(e => e.Descricao).HasColumnName("descricao").HasMaxLength(100).IsRequired();
             entity.Property(e => e.ValorTotal).HasColumnName("valor_total").HasColumnType("decimal(15,2)").IsRequired();
-            entity.Property(e => e.Categoria).HasColumnName("categoria").HasConversion<string>().HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Categoria).HasColumnName("categoria").HasMaxLength(50).IsRequired();
             entity.Property(e => e.TipoDespesa).HasColumnName("tipo").HasConversion<string>().HasMaxLength(20).IsRequired();
             entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
 
@@ -169,6 +171,36 @@ public class AppDbContext : DbContext
             entity.Property(e => e.DataVencimento).HasColumnName("data_vencimento").IsRequired();
             entity.Property(e => e.Paga).HasColumnName("paga");
             entity.Property(e => e.DataPagamento).HasColumnName("data_pagamento");
+        });
+
+        // ==========================
+        // CATEGORIA RECEITA
+        // ==========================
+        modelBuilder.Entity<CategoriaReceita>(entity =>
+        {
+            entity.ToTable("categorias_receita");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
+            entity.Property(e => e.Nome).HasColumnName("nome").HasMaxLength(50).IsRequired();
+            entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
+
+            entity.HasIndex(e => new { e.UsuarioId, e.Nome }).IsUnique().HasDatabaseName("idx_categorias_receita_usuario_nome");
+        });
+
+        // ==========================
+        // CATEGORIA DESPESA
+        // ==========================
+        modelBuilder.Entity<CategoriaDespesa>(entity =>
+        {
+            entity.ToTable("categorias_despesa");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
+            entity.Property(e => e.Nome).HasColumnName("nome").HasMaxLength(50).IsRequired();
+            entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
+
+            entity.HasIndex(e => new { e.UsuarioId, e.Nome }).IsUnique().HasDatabaseName("idx_categorias_despesa_usuario_nome");
         });
     }
 }

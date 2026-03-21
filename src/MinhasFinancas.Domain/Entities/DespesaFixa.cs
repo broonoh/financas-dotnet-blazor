@@ -20,7 +20,7 @@ public class DespesaFixa : Despesa
         decimal valorTotal,
         int quantidadeParcelas,
         DateOnly dataPrimeiraParcela,
-        CategoriaDespesa categoria,
+        string categoria,
         FormaPagamentoDespesaFixa formaPagamento)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
@@ -54,6 +54,16 @@ public class DespesaFixa : Despesa
 
         despesa.GerarParcelas();
         return despesa;
+    }
+
+    public void Atualizar(string descricao, string categoria, FormaPagamentoDespesaFixa formaPagamento)
+    {
+        if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
+            throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
+
+        Descricao = descricao.Trim();
+        Categoria = categoria;
+        FormaPagamento = formaPagamento;
     }
 
     /// <summary>

@@ -5,6 +5,7 @@
 @inject IDispatcher Dispatcher
 @inject IState<AuthState> AuthState
 @inject NavigationManager Nav
+@inject MinhasFinancas.Web.Services.AuthStateProvider _authStateProvider
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -30,6 +31,11 @@
                     <MudNavLink Href="/parcelas" Icon="@Icons.Material.Filled.CreditCard">Parcelas</MudNavLink>
                     <MudNavLink Href="/receitas" Icon="@Icons.Material.Filled.AttachMoney">Receitas</MudNavLink>
                     <MudNavLink Href="/despesas" Icon="@Icons.Material.Filled.MoneyOff">Despesas</MudNavLink>
+                    <MudNavGroup Title="Categorias" Icon="@Icons.Material.Filled.Category" Expanded="false">
+                        <MudNavLink Href="/categorias/receita" Icon="@Icons.Material.Filled.TrendingUp">Cat. Receita</MudNavLink>
+                        <MudNavLink Href="/categorias/despesa" Icon="@Icons.Material.Filled.TrendingDown">Cat. Despesa</MudNavLink>
+                    </MudNavGroup>
+                    <MudNavLink Href="/perfil" Icon="@Icons.Material.Filled.Person">Meu Perfil</MudNavLink>
                 </MudNavMenu>
             </MudDrawer>
 
@@ -54,9 +60,9 @@
 
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 
-    private void Sair()
+    private async Task Sair()
     {
-        Dispatcher.Dispatch(new LogoutAction());
+        await _authStateProvider.MarcarComoDesautenticado();
         Nav.NavigateTo("/login");
     }
 }

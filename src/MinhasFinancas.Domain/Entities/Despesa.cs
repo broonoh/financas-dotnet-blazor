@@ -8,7 +8,7 @@ public abstract class Despesa
     public Guid UsuarioId { get; protected set; }
     public string Descricao { get; protected set; } = string.Empty;
     public decimal ValorTotal { get; protected set; }
-    public CategoriaDespesa Categoria { get; protected set; }
+    public string Categoria { get; protected set; } = string.Empty;
     public TipoDespesa TipoDespesa { get; protected set; }
     public DateTime DataCriacao { get; protected set; }
 }

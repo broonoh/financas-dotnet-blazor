@@ -8,7 +8,7 @@ public record DespesaFixaDto(
     decimal ValorTotal,
     int QuantidadeParcelas,
     DateOnly DataPrimeiraParcela,
-    CategoriaDespesa Categoria,
+    string Categoria,
     FormaPagamentoDespesaFixa FormaPagamento,
     DateTime DataCriacao);
 
@@ -17,6 +17,6 @@ public record DespesaExtraDto(
     string Descricao,
     decimal Valor,
     DateOnly DataDespesa,
-    CategoriaDespesa Categoria,
+    string Categoria,
     FormaPagamentoDespesaExtra FormaPagamento,
     DateTime DataCriacao);

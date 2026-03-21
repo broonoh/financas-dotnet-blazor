@@ -1,5 +1,3 @@
-using MinhasFinancas.Domain.Enums;
-
 namespace MinhasFinancas.Domain.Entities;
 
 public class Receita
@@ -9,7 +7,7 @@ public class Receita
     public string Descricao { get; private set; } = string.Empty;
     public decimal Valor { get; private set; }
     public DateOnly DataRecebimento { get; private set; }
-    public CategoriaReceita Categoria { get; private set; }
+    public string Categoria { get; private set; } = string.Empty;
     public bool Recorrente { get; private set; }
     public DateTime DataCriacao { get; private set; }
 
@@ -21,7 +19,7 @@ public class Receita
         string descricao,
         decimal valor,
         DateOnly dataRecebimento,
-        CategoriaReceita categoria,
+        string categoria,
         bool recorrente = false)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
@@ -43,7 +41,7 @@ public class Receita
         };
     }
 
-    public void Atualizar(string descricao, decimal valor, DateOnly dataRecebimento, CategoriaReceita categoria)
+    public void Atualizar(string descricao, decimal valor, DateOnly dataRecebimento, string categoria)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));

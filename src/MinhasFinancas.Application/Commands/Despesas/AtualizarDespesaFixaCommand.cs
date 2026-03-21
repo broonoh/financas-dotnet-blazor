@@ -4,11 +4,9 @@ using MinhasFinancas.Domain.Enums;
 
 namespace MinhasFinancas.Application.Commands.Despesas;
 
-public record CriarDespesaFixaCommand(
+public record AtualizarDespesaFixaCommand(
+    Guid Id,
     Guid UsuarioId,
     string Descricao,
-    decimal ValorTotal,
-    int QuantidadeParcelas,
-    DateOnly DataPrimeiraParcela,
     string Categoria,
     FormaPagamentoDespesaFixa FormaPagamento) : IRequest<DespesaFixaDto>;

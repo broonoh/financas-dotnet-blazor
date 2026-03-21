@@ -16,7 +16,7 @@ public class CriarDespesaFixaCommandValidatorTests
         12000m,
         36,
         DataFutura,
-        CategoriaDespesa.Transporte,
+        "Transporte",
         FormaPagamentoDespesaFixa.CartaoCredito);
 
     [Fact]

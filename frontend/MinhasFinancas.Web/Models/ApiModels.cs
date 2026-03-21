@@ -78,3 +78,7 @@ public record DividaDto(
     bool Ativa,
     DateTime DataCriacao,
     List<ParcelaDividaDto> Parcelas);
+
+public record PerfilDto(Guid Id, string Nome, string Email, DateOnly DataNascimento, string? Telefone, DateTime DataCadastro);
+
+public record CategoriaDto(Guid Id, string Nome, DateTime DataCriacao);

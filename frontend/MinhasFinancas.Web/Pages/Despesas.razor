@@ -3,6 +3,7 @@
 @using MinhasFinancas.Web.Services
 @using MinhasFinancas.Web.Models
 @inject DashboardApiService ApiService
+@inject IJSRuntime JS
 
 <MudText Typo="Typo.h4" Class="mb-4">Despesas</MudText>
 
@@ -12,13 +13,14 @@
     <MudTabPanel Text="Despesas Fixas">
         <MudPaper Elevation="0" Class="pa-4">
             <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary"
-                       Variant="Variant.Filled" OnClick="@(() => _mostrarFormFixa = !_mostrarFormFixa)" Class="mb-4">
+                       Variant="Variant.Filled" OnClick="@(() => { _mostrarFormFixa = !_mostrarFormFixa; _editandoFixaId = null; })" Class="mb-4">
                 Nova Despesa Fixa
             </MudButton>
 
-            @if (_mostrarFormFixa)
+            @if (_mostrarFormFixa && _editandoFixaId == null)
             {
                 <MudPaper Elevation="1" Class="pa-4 mb-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Nova Despesa Fixa</MudText>
                     <MudGrid>
                         <MudItem xs="12" md="6">
                             <MudTextField @bind-Value="_fixaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
@@ -30,19 +32,24 @@
                             <MudTextField @bind-Value="_fixaParcelas" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_fixaDataStr" Label="Data 1ª Parcela" InputType="InputType.Date"
-                                          Variant="Variant.Outlined" FullWidth="true" />
+                            <MudDatePicker @bind-Date="_fixaDataPrimeiraParcela" Label="Data 1ª Parcela"
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
                         </MudItem>
                         <MudItem xs="12" md="4">
-                            <MudSelect T="string" @bind-Value="_fixaCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
-                                <MudSelectItem Value="@("Alimentacao")">Alimentação</MudSelectItem>
-                                <MudSelectItem Value="@("Moradia")">Moradia</MudSelectItem>
-                                <MudSelectItem Value="@("Transporte")">Transporte</MudSelectItem>
-                                <MudSelectItem Value="@("Saude")">Saúde</MudSelectItem>
-                                <MudSelectItem Value="@("Educacao")">Educação</MudSelectItem>
-                                <MudSelectItem Value="@("Lazer")">Lazer</MudSelectItem>
-                                <MudSelectItem Value="@("Outros")">Outros</MudSelectItem>
-                            </MudSelect>
+                            @if (_categoriasDespesa?.Count > 0)
+                            {
+                                <MudSelect T="string" @bind-Value="_fixaCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
+                                    @foreach (var cat in _categoriasDespesa)
+                                    {
+                                        <MudSelectItem Value="@cat.Nome">@cat.Nome</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                            else
+                            {
+                                <MudTextField @bind-Value="_fixaCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true"
+                                              Placeholder="Nenhuma categoria. Cadastre em Categorias > Despesa" />
+                            }
                         </MudItem>
                         <MudItem xs="12" md="5">
                             <MudSelect T="string" @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
@@ -52,15 +59,12 @@
                             </MudSelect>
                         </MudItem>
                         <MudItem xs="12">
-                            @if (!string.IsNullOrEmpty(_fixaErro))
-                            {
-                                <MudAlert Severity="Severity.Error" Class="mb-2">@_fixaErro</MudAlert>
-                            }
+                            @if (!string.IsNullOrEmpty(_fixaErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_fixaErro</MudAlert> }
                             <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SalvarFixa" Disabled="_fixaSalvando">
                                 @if (_fixaSalvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
                                 Salvar
                             </MudButton>
-                            <MudButton Class="ml-2" OnClick="@(() => _mostrarFormFixa = false)">Cancelar</MudButton>
+                            <MudButton Class="ml-2" OnClick="CancelarFixa">Cancelar</MudButton>
                         </MudItem>
                     </MudGrid>
                 </MudPaper>
@@ -82,22 +86,70 @@
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd>@context.Descricao</MudTd>
-                        <MudTd>@context.ValorTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
-                        <MudTd>@context.QuantidadeParcelas x</MudTd>
-                        <MudTd>@context.DataPrimeiraParcela.ToString("dd/MM/yyyy")</MudTd>
-                        <MudTd>@context.Categoria</MudTd>
-                        <MudTd>
-                            @if (_excluindoFixaId == context.Id)
-                            {
-                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                            }
-                            else
-                            {
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-                                               OnClick="@(() => ExcluirFixa(context.Id))" Title="Excluir" />
-                            }
-                        </MudTd>
+                        @if (_editandoFixaId == context.Id)
+                        {
+                            <MudTd colspan="6">
+                                <MudPaper Elevation="0" Class="pa-3">
+                                    <MudText Typo="Typo.subtitle2" Class="mb-2">Editando — apenas Descrição, Categoria e Forma de Pagamento</MudText>
+                                    <MudGrid>
+                                        <MudItem xs="12" md="6">
+                                            <MudTextField @bind-Value="_fixaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
+                                        </MudItem>
+                                        <MudItem xs="12" md="3">
+                                            @if (_categoriasDespesa?.Count > 0)
+                                            {
+                                                <MudSelect T="string" @bind-Value="_fixaCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
+                                                    @foreach (var cat in _categoriasDespesa)
+                                                    {
+                                                        <MudSelectItem Value="@cat.Nome">@cat.Nome</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            }
+                                            else
+                                            {
+                                                <MudTextField @bind-Value="_fixaCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true" />
+                                            }
+                                        </MudItem>
+                                        <MudItem xs="12" md="3">
+                                            <MudSelect T="string" @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
+                                                <MudSelectItem Value="@("CartaoCredito")">Cartão de Crédito</MudSelectItem>
+                                                <MudSelectItem Value="@("PixParcelado")">Pix Parcelado</MudSelectItem>
+                                                <MudSelectItem Value="@("BoletoParcelado")">Boleto Parcelado</MudSelectItem>
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            @if (!string.IsNullOrEmpty(_fixaErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_fixaErro</MudAlert> }
+                                            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AtualizarFixa" Disabled="_fixaSalvando">
+                                                @if (_fixaSalvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                                                Atualizar
+                                            </MudButton>
+                                            <MudButton Class="ml-2" OnClick="CancelarFixa">Cancelar</MudButton>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudTd>
+                        }
+                        else
+                        {
+                            <MudTd>@context.Descricao</MudTd>
+                            <MudTd>@context.ValorTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
+                            <MudTd>@context.QuantidadeParcelas x</MudTd>
+                            <MudTd>@context.DataPrimeiraParcela.ToString("dd/MM/yyyy")</MudTd>
+                            <MudTd>@context.Categoria</MudTd>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                               OnClick="@(() => IniciarEdicaoFixa(context))" Title="Editar" />
+                                @if (_excluindoFixaId == context.Id)
+                                {
+                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                                   OnClick="@(() => ExcluirFixa(context.Id))" Title="Excluir" />
+                                }
+                            </MudTd>
+                        }
                     </RowTemplate>
                 </MudTable>
             }
@@ -112,55 +164,15 @@
     <MudTabPanel Text="Despesas Extras">
         <MudPaper Elevation="0" Class="pa-4">
             <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Warning"
-                       Variant="Variant.Filled" OnClick="@(() => _mostrarFormExtra = !_mostrarFormExtra)" Class="mb-4">
+                       Variant="Variant.Filled" OnClick="@(() => { _mostrarFormExtra = !_mostrarFormExtra; _editandoExtraId = null; })" Class="mb-4">
                 Nova Despesa Extra
             </MudButton>
 
-            @if (_mostrarFormExtra)
+            @if (_mostrarFormExtra && _editandoExtraId == null)
             {
                 <MudPaper Elevation="1" Class="pa-4 mb-4">
-                    <MudGrid>
-                        <MudItem xs="12" md="6">
-                            <MudTextField @bind-Value="_extraDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
-                        </MudItem>
-                        <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_extraValorStr" Label="Valor (R$)" Variant="Variant.Outlined" FullWidth="true" />
-                        </MudItem>
-                        <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_extraDataStr" Label="Data da Despesa" InputType="InputType.Date"
-                                          Variant="Variant.Outlined" FullWidth="true" />
-                        </MudItem>
-                        <MudItem xs="12" md="4">
-                            <MudSelect T="string" @bind-Value="_extraCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
-                                <MudSelectItem Value="@("Alimentacao")">Alimentação</MudSelectItem>
-                                <MudSelectItem Value="@("Moradia")">Moradia</MudSelectItem>
-                                <MudSelectItem Value="@("Transporte")">Transporte</MudSelectItem>
-                                <MudSelectItem Value="@("Saude")">Saúde</MudSelectItem>
-                                <MudSelectItem Value="@("Educacao")">Educação</MudSelectItem>
-                                <MudSelectItem Value="@("Lazer")">Lazer</MudSelectItem>
-                                <MudSelectItem Value="@("Outros")">Outros</MudSelectItem>
-                            </MudSelect>
-                        </MudItem>
-                        <MudItem xs="12" md="5">
-                            <MudSelect T="string" @bind-Value="_extraFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
-                                <MudSelectItem Value="@("CartaoCredito")">Cartão de Crédito</MudSelectItem>
-                                <MudSelectItem Value="@("Pix")">Pix</MudSelectItem>
-                                <MudSelectItem Value="@("Dinheiro")">Dinheiro</MudSelectItem>
-                                <MudSelectItem Value="@("Boleto")">Boleto</MudSelectItem>
-                            </MudSelect>
-                        </MudItem>
-                        <MudItem xs="12">
-                            @if (!string.IsNullOrEmpty(_extraErro))
-                            {
-                                <MudAlert Severity="Severity.Error" Class="mb-2">@_extraErro</MudAlert>
-                            }
-                            <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="SalvarExtra" Disabled="_extraSalvando">
-                                @if (_extraSalvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
-                                Salvar
-                            </MudButton>
-                            <MudButton Class="ml-2" OnClick="@(() => _mostrarFormExtra = false)">Cancelar</MudButton>
-                        </MudItem>
-                    </MudGrid>
+                    <MudText Typo="Typo.h6" Class="mb-2">Nova Despesa Extra</MudText>
+                    @FormExtra(false)
                 </MudPaper>
             }
 
@@ -179,21 +191,35 @@
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd>@context.Descricao</MudTd>
-                        <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
-                        <MudTd>@context.DataDespesa.ToString("dd/MM/yyyy")</MudTd>
-                        <MudTd>@context.Categoria</MudTd>
-                        <MudTd>
-                            @if (_excluindoExtraId == context.Id)
-                            {
-                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                            }
-                            else
-                            {
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-                                               OnClick="@(() => ExcluirExtra(context.Id))" Title="Excluir" />
-                            }
-                        </MudTd>
+                        @if (_editandoExtraId == context.Id)
+                        {
+                            <MudTd colspan="5">
+                                <MudPaper Elevation="0" Class="pa-3">
+                                    <MudText Typo="Typo.subtitle2" Class="mb-2">Editando despesa extra</MudText>
+                                    @FormExtra(true)
+                                </MudPaper>
+                            </MudTd>
+                        }
+                        else
+                        {
+                            <MudTd>@context.Descricao</MudTd>
+                            <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
+                            <MudTd>@context.DataDespesa.ToString("dd/MM/yyyy")</MudTd>
+                            <MudTd>@context.Categoria</MudTd>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                               OnClick="@(() => IniciarEdicaoExtra(context))" Title="Editar" />
+                                @if (_excluindoExtraId == context.Id)
+                                {
+                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                                   OnClick="@(() => ExcluirExtra(context.Id))" Title="Excluir" />
+                                }
+                            </MudTd>
+                        }
                     </RowTemplate>
                 </MudTable>
             }
@@ -205,14 +231,14 @@
     </MudTabPanel>
 
     <!-- ABA: DÍVIDAS -->
-    <MudTabPanel Text="Dívidas">
+    <MudTabPanel Text="Contas a Receber">
         <MudPaper Elevation="0" Class="pa-4">
             <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Error"
-                       Variant="Variant.Filled" OnClick="@(() => _mostrarFormDivida = !_mostrarFormDivida)" Class="mb-4">
+                       Variant="Variant.Filled" OnClick="@(() => { _mostrarFormDivida = !_mostrarFormDivida; _editandoDividaId = null; })" Class="mb-4">
                 Nova Dívida
             </MudButton>
 
-            @if (_mostrarFormDivida)
+            @if (_mostrarFormDivida && _editandoDividaId == null)
             {
                 <MudPaper Elevation="1" Class="pa-4 mb-4">
                     <MudText Typo="Typo.h6" Class="mb-3">Nova Dívida</MudText>
@@ -230,19 +256,16 @@
                             <MudTextField @bind-Value="_dividaParcelasStr" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_dividaDataStr" Label="Data da Compra" InputType="InputType.Date"
-                                          Variant="Variant.Outlined" FullWidth="true" />
+                            <MudDatePicker @bind-Date="_dividaDataCompra" Label="Data da Compra"
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
                         </MudItem>
                         <MudItem xs="12">
-                            @if (!string.IsNullOrEmpty(_dividaErro))
-                            {
-                                <MudAlert Severity="Severity.Error" Class="mb-2">@_dividaErro</MudAlert>
-                            }
+                            @if (!string.IsNullOrEmpty(_dividaErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_dividaErro</MudAlert> }
                             <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="SalvarDivida" Disabled="_dividaSalvando">
                                 @if (_dividaSalvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
                                 Registrar Dívida
                             </MudButton>
-                            <MudButton Class="ml-2" OnClick="@(() => _mostrarFormDivida = false)">Cancelar</MudButton>
+                            <MudButton Class="ml-2" OnClick="CancelarDivida">Cancelar</MudButton>
                         </MudItem>
                     </MudGrid>
                 </MudPaper>
@@ -254,92 +277,172 @@
             }
             else if (_dividas?.Count > 0)
             {
-                @foreach (var divida in _dividas)
-                {
-                    var parcelasTotal = divida.QuantidadeParcelas;
-                    var parcelasPagas = divida.Parcelas.Count(p => p.Paga);
-                    var progressoPercent = parcelasTotal > 0 ? (double)parcelasPagas / parcelasTotal * 100 : 0;
-                    var expanded = _expandedDividaId == divida.Id;
+                var grupos = _dividas
+                    .GroupBy(d => d.NomeDevedor.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(g => g.Key)
+                    .ToList();
 
-                    <MudCard Class="mb-3" Elevation="2">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <div class="d-flex align-center justify-space-between">
-                                    <div>
-                                        <MudText Typo="Typo.h6">@divida.NomeDevedor</MudText>
-                                        <MudText Typo="Typo.body2" Color="Color.Secondary">@divida.Descricao</MudText>
-                                    </div>
-                                    <div class="d-flex align-center gap-2">
-                                        <div class="text-right">
-                                            <MudText Typo="Typo.body1">
-                                                Total: <strong>@divida.ValorTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
-                                            </MudText>
-                                            <MudText Typo="Typo.body2" Color="@(divida.SaldoRestante > 0 ? Color.Error : Color.Success)">
-                                                Saldo: @divida.SaldoRestante.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                <MudTabs Elevation="1" Rounded="true" Class="mt-2" ActivePanelIndexChanged="@(_ => { _expandedDividaId = null; })">
+                    @foreach (var grupo in grupos)
+                    {
+                        var pessoa = grupo.Key;
+                        var dividasPessoa = grupo.ToList();
+                        var totalPessoa = dividasPessoa.Sum(d => d.ValorTotal);
+                        var saldoPessoa = dividasPessoa.Sum(d => d.SaldoRestante);
+                        var temVencida = dividasPessoa.Any(d => d.Parcelas.Any(p => p.Vencida && !p.Paga));
+
+                        <MudTabPanel>
+                            <TabContent>
+                                <div class="d-flex align-center gap-1">
+                                    <MudText>@pessoa</MudText>
+                                    @if (temVencida)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Size="Size.Small" Title="Parcelas vencidas" />
+                                    }
+                                </div>
+                            </TabContent>
+                            <ChildContent>
+                                <!-- Resumo da pessoa -->
+                                <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background: var(--mud-palette-background-grey);">
+                                    <div class="d-flex gap-4 align-center">
+                                        <div>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Total das dívidas</MudText>
+                                            <MudText Typo="Typo.body1"><strong>@totalPessoa.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong></MudText>
+                                        </div>
+                                        <div>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Saldo restante</MudText>
+                                            <MudText Typo="Typo.body1" Color="@(saldoPessoa > 0 ? Color.Error : Color.Success)">
+                                                <strong>@saldoPessoa.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
                                             </MudText>
                                         </div>
-                                        <MudIconButton Icon="@(expanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
-                                                       OnClick="@(() => ToggleExpand(divida.Id))" />
-                                        @if (_excluindoDividaId == divida.Id)
-                                        {
-                                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                                        }
-                                        else
-                                        {
-                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
-                                                           OnClick="@(() => ExcluirDivida(divida.Id))" Title="Excluir dívida" />
-                                        }
+                                        <div>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Dívidas</MudText>
+                                            <MudText Typo="Typo.body1"><strong>@dividasPessoa.Count</strong></MudText>
+                                        </div>
+                                        <MudSpacer />
+                                        <MudButton StartIcon="@Icons.Material.Filled.PictureAsPdf"
+                                                   Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                                   OnClick="@(() => DownloadPdf(grupo.Key))">
+                                            Baixar PDF
+                                        </MudButton>
                                     </div>
-                                </div>
-                                <MudProgressLinear Color="Color.Success" Value="@progressoPercent" Class="mt-2" />
-                                <MudText Typo="Typo.caption">@parcelasPagas / @parcelasTotal parcelas pagas</MudText>
-                            </CardHeaderContent>
-                        </MudCardHeader>
+                                </MudPaper>
 
-                        @if (expanded)
-                        {
-                            <MudCardContent>
-                                <MudTable Items="@divida.Parcelas" Dense="true" Hover="true">
-                                    <HeaderContent>
-                                        <MudTh>Parcela</MudTh>
-                                        <MudTh>Valor</MudTh>
-                                        <MudTh>Vencimento</MudTh>
-                                        <MudTh>Status</MudTh>
-                                        <MudTh></MudTh>
-                                    </HeaderContent>
-                                    <RowTemplate>
-                                        <MudTd>@context.Numero / @context.TotalParcelas</MudTd>
-                                        <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
-                                        <MudTd>
-                                            <MudText Color="@(context.Vencida ? Color.Error : Color.Default)">
-                                                @context.DataVencimento.ToString("dd/MM/yyyy")
-                                                @if (context.Vencida) { <span> (vencida)</span> }
-                                            </MudText>
-                                        </MudTd>
-                                        <MudTd>
-                                            @if (context.Paga)
-                                            {
-                                                <MudChip T="string" Color="Color.Success" Size="Size.Small">Paga</MudChip>
-                                            }
-                                            else
-                                            {
-                                                <MudChip T="string" Color="@(context.Vencida ? Color.Error : Color.Default)" Size="Size.Small">Pendente</MudChip>
-                                            }
-                                        </MudTd>
-                                        <MudTd>
-                                            <MudButton Size="Size.Small"
-                                                       Color="@(context.Paga ? Color.Default : Color.Success)"
-                                                       Variant="Variant.Outlined"
-                                                       OnClick="@(() => ToggleParcela(context.Id, !context.Paga, divida.Id))">
-                                                @(context.Paga ? "Desfazer" : "Marcar Paga")
-                                            </MudButton>
-                                        </MudTd>
-                                    </RowTemplate>
-                                </MudTable>
-                            </MudCardContent>
-                        }
-                    </MudCard>
-                }
+                                <!-- Lista de dívidas da pessoa -->
+                                @foreach (var divida in dividasPessoa)
+                                {
+                                    var parcelasTotal = divida.QuantidadeParcelas;
+                                    var parcelasPagas = divida.Parcelas.Count(p => p.Paga);
+                                    var progressoPercent = parcelasTotal > 0 ? (double)parcelasPagas / parcelasTotal * 100 : 0;
+                                    var expanded = _expandedDividaId == divida.Id;
+
+                                    <MudCard Class="mb-3" Elevation="2">
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                @if (_editandoDividaId == divida.Id)
+                                                {
+                                                    <MudGrid>
+                                                        <MudItem xs="12" md="4">
+                                                            <MudTextField @bind-Value="_dividaNomeDevedor" Label="Nome do Devedor" Variant="Variant.Outlined" FullWidth="true" />
+                                                        </MudItem>
+                                                        <MudItem xs="12" md="8">
+                                                            <MudTextField @bind-Value="_dividaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
+                                                        </MudItem>
+                                                        <MudItem xs="12">
+                                                            @if (!string.IsNullOrEmpty(_dividaErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_dividaErro</MudAlert> }
+                                                            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AtualizarDivida" Disabled="_dividaSalvando">
+                                                                @if (_dividaSalvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                                                                Atualizar
+                                                            </MudButton>
+                                                            <MudButton Class="ml-2" OnClick="CancelarDivida">Cancelar</MudButton>
+                                                        </MudItem>
+                                                    </MudGrid>
+                                                }
+                                                else
+                                                {
+                                                    <div class="d-flex align-center justify-space-between">
+                                                        <div>
+                                                            <MudText Typo="Typo.subtitle1"><strong>@divida.Descricao</strong></MudText>
+                                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Compra: @divida.DataCompra.ToString("dd/MM/yyyy")</MudText>
+                                                        </div>
+                                                        <div class="d-flex align-center gap-2">
+                                                            <div class="text-right">
+                                                                <MudText Typo="Typo.body2">
+                                                                    Total: <strong>@divida.ValorTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
+                                                                </MudText>
+                                                                <MudText Typo="Typo.body2" Color="@(divida.SaldoRestante > 0 ? Color.Error : Color.Success)">
+                                                                    Saldo: @divida.SaldoRestante.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                                                </MudText>
+                                                            </div>
+                                                            <MudIconButton Icon="@(expanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
+                                                                           OnClick="@(() => ToggleExpand(divida.Id))" />
+                                                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                                                                           OnClick="@(() => IniciarEdicaoDivida(divida))" Title="Editar dívida" />
+                                                            @if (_excluindoDividaId == divida.Id)
+                                                            {
+                                                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                                                                               OnClick="@(() => ExcluirDivida(divida.Id))" Title="Excluir dívida" />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <MudProgressLinear Color="Color.Success" Value="@progressoPercent" Class="mt-2" />
+                                                    <MudText Typo="Typo.caption">@parcelasPagas / @parcelasTotal parcelas pagas</MudText>
+                                                }
+                                            </CardHeaderContent>
+                                        </MudCardHeader>
+
+                                        @if (expanded && _editandoDividaId != divida.Id)
+                                        {
+                                            <MudCardContent>
+                                                <MudTable Items="@divida.Parcelas" Dense="true" Hover="true">
+                                                    <HeaderContent>
+                                                        <MudTh>Parcela</MudTh>
+                                                        <MudTh>Valor</MudTh>
+                                                        <MudTh>Vencimento</MudTh>
+                                                        <MudTh>Status</MudTh>
+                                                        <MudTh></MudTh>
+                                                    </HeaderContent>
+                                                    <RowTemplate>
+                                                        <MudTd>@context.Numero / @context.TotalParcelas</MudTd>
+                                                        <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
+                                                        <MudTd>
+                                                            <MudText Color="@(context.Vencida ? Color.Error : Color.Default)">
+                                                                @context.DataVencimento.ToString("dd/MM/yyyy")
+                                                                @if (context.Vencida) { <span> (vencida)</span> }
+                                                            </MudText>
+                                                        </MudTd>
+                                                        <MudTd>
+                                                            @if (context.Paga)
+                                                            {
+                                                                <MudChip T="string" Color="Color.Success" Size="Size.Small">Paga</MudChip>
+                                                            }
+                                                            else
+                                                            {
+                                                                <MudChip T="string" Color="@(context.Vencida ? Color.Error : Color.Default)" Size="Size.Small">Pendente</MudChip>
+                                                            }
+                                                        </MudTd>
+                                                        <MudTd>
+                                                            <MudButton Size="Size.Small"
+                                                                       Color="@(context.Paga ? Color.Default : Color.Success)"
+                                                                       Variant="Variant.Outlined"
+                                                                       OnClick="@(() => ToggleParcela(context.Id, !context.Paga, divida.Id))">
+                                                                @(context.Paga ? "Desfazer" : "Marcar Paga")
+                                                            </MudButton>
+                                                        </MudTd>
+                                                    </RowTemplate>
+                                                </MudTable>
+                                            </MudCardContent>
+                                        }
+                                    </MudCard>
+                                }
+                            </ChildContent>
+                        </MudTabPanel>
+                    }
+                </MudTabs>
             }
             else if (!_carregandoDividas)
             {
@@ -351,7 +454,58 @@
 </MudTabs>
 
 @code {
+    private RenderFragment FormExtra(bool editando) =>@<MudGrid>
+        <MudItem xs="12" md="6">
+            <MudTextField @bind-Value="_extraDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudTextField @bind-Value="_extraValorStr" Label="Valor (R$)" Variant="Variant.Outlined" FullWidth="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudDatePicker @bind-Date="_extraDataDespesa" Label="Data da Despesa"
+                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            @if (_categoriasDespesa?.Count > 0)
+            {
+                <MudSelect T="string" @bind-Value="_extraCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
+                    @foreach (var cat in _categoriasDespesa)
+                    {
+                        <MudSelectItem Value="@cat.Nome">@cat.Nome</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            else
+            {
+                <MudTextField @bind-Value="_extraCategoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true"
+                              Placeholder="Nenhuma categoria. Cadastre em Categorias > Despesa" />
+            }
+        </MudItem>
+        <MudItem xs="12" md="5">
+            <MudSelect T="string" @bind-Value="_extraFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
+                <MudSelectItem Value="@("CartaoCredito")">Cartão de Crédito</MudSelectItem>
+                <MudSelectItem Value="@("Pix")">Pix</MudSelectItem>
+                <MudSelectItem Value="@("Dinheiro")">Dinheiro</MudSelectItem>
+                <MudSelectItem Value="@("Boleto")">Boleto</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12">
+            @if (!string.IsNullOrEmpty(_extraErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_extraErro</MudAlert> }
+            <MudButton Color="Color.Warning" Variant="Variant.Filled"
+                       OnClick="@(editando ? AtualizarExtra : SalvarExtra)" Disabled="_extraSalvando">
+                @if (_extraSalvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                @(editando ? "Atualizar" : "Salvar")
+            </MudButton>
+            <MudButton Class="ml-2" OnClick="CancelarExtra">Cancelar</MudButton>
+        </MudItem>
+    </MudGrid>;
+}
+
+@code {
     private int _activeTab;
+
+    // Categorias
+    private List<CategoriaDto>? _categoriasDespesa;
 
     // Despesas Fixas
     private List<DespesaFixaListDto>? _despesasFixas;
@@ -360,10 +514,11 @@
     private bool _fixaSalvando;
     private string _fixaErro = string.Empty;
     private Guid? _excluindoFixaId;
+    private Guid? _editandoFixaId;
     private string _fixaDescricao = string.Empty;
     private string _fixaValorStr = string.Empty;
     private string _fixaParcelas = "2";
-    private string _fixaDataStr = string.Empty;
+    private DateTime? _fixaDataPrimeiraParcela;
     private string _fixaCategoria = "Outros";
     private string _fixaFormaPagamento = "CartaoCredito";
 
@@ -374,9 +529,10 @@
     private bool _extraSalvando;
     private string _extraErro = string.Empty;
     private Guid? _excluindoExtraId;
+    private Guid? _editandoExtraId;
     private string _extraDescricao = string.Empty;
     private string _extraValorStr = string.Empty;
-    private string _extraDataStr = string.Empty;
+    private DateTime? _extraDataDespesa;
     private string _extraCategoria = "Outros";
     private string _extraFormaPagamento = "CartaoCredito";
 
@@ -388,15 +544,25 @@
     private string _dividaErro = string.Empty;
     private Guid? _excluindoDividaId;
     private Guid? _expandedDividaId;
+    private Guid? _editandoDividaId;
     private string _dividaNomeDevedor = string.Empty;
     private string _dividaDescricao = string.Empty;
     private string _dividaValorStr = string.Empty;
     private string _dividaParcelasStr = "1";
-    private string _dividaDataStr = string.Empty;
+    private DateTime? _dividaDataCompra;
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.WhenAll(CarregarFixas(), CarregarExtras(), CarregarDividas());
+        await Task.WhenAll(CarregarFixas(), CarregarExtras(), CarregarDividas(), CarregarCategorias());
+    }
+
+    private async Task CarregarCategorias()
+    {
+        _categoriasDespesa = await ApiService.ListarCategoriasDespesaAsync() ?? [];
+        if (_fixaCategoria == "Outros" && _categoriasDespesa.Count > 0)
+            _fixaCategoria = _categoriasDespesa[0].Nome;
+        if (_extraCategoria == "Outros" && _categoriasDespesa.Count > 0)
+            _extraCategoria = _categoriasDespesa[0].Nome;
     }
 
     private async Task CarregarFixas()
@@ -420,32 +586,49 @@
         _carregandoDividas = false;
     }
 
+    // --- FIXAS ---
+
+    private void IniciarEdicaoFixa(DespesaFixaListDto d)
+    {
+        _editandoFixaId = d.Id;
+        _mostrarFormFixa = false;
+        _fixaDescricao = d.Descricao;
+        _fixaCategoria = d.Categoria;
+        _fixaFormaPagamento = d.FormaPagamento;
+        _fixaErro = string.Empty;
+    }
+
+    private void CancelarFixa()
+    {
+        _mostrarFormFixa = false;
+        _editandoFixaId = null;
+        _fixaDescricao = string.Empty;
+        _fixaValorStr = string.Empty;
+        _fixaParcelas = "2";
+        _fixaDataPrimeiraParcela = null;
+        _fixaCategoria = _categoriasDespesa?.FirstOrDefault()?.Nome ?? string.Empty;
+        _fixaFormaPagamento = "CartaoCredito";
+        _fixaErro = string.Empty;
+    }
+
     private async Task SalvarFixa()
     {
         _fixaErro = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(_fixaDescricao) || string.IsNullOrWhiteSpace(_fixaValorStr) || string.IsNullOrWhiteSpace(_fixaDataStr))
+        if (string.IsNullOrWhiteSpace(_fixaDescricao) || string.IsNullOrWhiteSpace(_fixaValorStr) || _fixaDataPrimeiraParcela is null)
         {
             _fixaErro = "Preencha todos os campos obrigatórios.";
             return;
         }
-
         if (!decimal.TryParse(_fixaValorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
         {
             _fixaErro = "Valor inválido.";
             return;
         }
-
         if (!int.TryParse(_fixaParcelas, out var parcelas) || parcelas < 2)
         {
             _fixaErro = "Número de parcelas deve ser pelo menos 2.";
-            return;
-        }
-
-        if (!DateTime.TryParse(_fixaDataStr, out var data))
-        {
-            _fixaErro = "Data inválida.";
             return;
         }
 
@@ -455,7 +638,7 @@
             Descricao = _fixaDescricao,
             ValorTotal = valor,
             QuantidadeParcelas = parcelas,
-            DataPrimeiraParcela = DateOnly.FromDateTime(data),
+            DataPrimeiraParcela = DateOnly.FromDateTime(_fixaDataPrimeiraParcela!.Value),
             Categoria = _fixaCategoria,
             FormaPagamento = _fixaFormaPagamento
         };
@@ -463,128 +646,26 @@
         var (sucesso, erro) = await ApiService.CriarDespesaFixaAsync(payload);
         _fixaSalvando = false;
 
-        if (sucesso)
-        {
-            _mostrarFormFixa = false;
-            _fixaDescricao = string.Empty;
-            _fixaValorStr = string.Empty;
-            _fixaParcelas = "2";
-            _fixaDataStr = string.Empty;
-            await CarregarFixas();
-        }
-        else
-        {
-            _fixaErro = erro ?? "Erro ao salvar despesa.";
-        }
+        if (sucesso) { CancelarFixa(); await CarregarFixas(); }
+        else _fixaErro = erro ?? "Erro ao salvar despesa.";
     }
 
-    private async Task SalvarExtra()
+    private async Task AtualizarFixa()
     {
-        _extraErro = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(_extraDescricao) || string.IsNullOrWhiteSpace(_extraValorStr) || string.IsNullOrWhiteSpace(_extraDataStr))
+        _fixaErro = string.Empty;
+        if (string.IsNullOrWhiteSpace(_fixaDescricao))
         {
-            _extraErro = "Preencha todos os campos obrigatórios.";
+            _fixaErro = "Descrição é obrigatória.";
             return;
         }
 
-        if (!decimal.TryParse(_extraValorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
-        {
-            _extraErro = "Valor inválido.";
-            return;
-        }
+        _fixaSalvando = true;
+        var payload = new { Descricao = _fixaDescricao, Categoria = _fixaCategoria, FormaPagamento = _fixaFormaPagamento };
+        var (sucesso, erro) = await ApiService.AtualizarDespesaFixaAsync(_editandoFixaId!.Value, payload);
+        _fixaSalvando = false;
 
-        if (!DateTime.TryParse(_extraDataStr, out var data))
-        {
-            _extraErro = "Data inválida.";
-            return;
-        }
-
-        _extraSalvando = true;
-        var payload = new
-        {
-            Descricao = _extraDescricao,
-            Valor = valor,
-            DataDespesa = DateOnly.FromDateTime(data),
-            Categoria = _extraCategoria,
-            FormaPagamento = _extraFormaPagamento
-        };
-
-        var (sucesso, erro) = await ApiService.CriarDespesaExtraAsync(payload);
-        _extraSalvando = false;
-
-        if (sucesso)
-        {
-            _mostrarFormExtra = false;
-            _extraDescricao = string.Empty;
-            _extraValorStr = string.Empty;
-            _extraDataStr = string.Empty;
-            await CarregarExtras();
-        }
-        else
-        {
-            _extraErro = erro ?? "Erro ao salvar despesa.";
-        }
-    }
-
-    private async Task SalvarDivida()
-    {
-        _dividaErro = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(_dividaNomeDevedor) || string.IsNullOrWhiteSpace(_dividaDescricao)
-            || string.IsNullOrWhiteSpace(_dividaValorStr) || string.IsNullOrWhiteSpace(_dividaDataStr))
-        {
-            _dividaErro = "Preencha todos os campos obrigatórios.";
-            return;
-        }
-
-        if (!decimal.TryParse(_dividaValorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
-        {
-            _dividaErro = "Valor inválido.";
-            return;
-        }
-
-        if (!int.TryParse(_dividaParcelasStr, out var parcelas) || parcelas < 1)
-        {
-            _dividaErro = "Número de parcelas inválido.";
-            return;
-        }
-
-        if (!DateTime.TryParse(_dividaDataStr, out var data))
-        {
-            _dividaErro = "Data inválida.";
-            return;
-        }
-
-        _dividaSalvando = true;
-        var payload = new
-        {
-            NomeDevedor = _dividaNomeDevedor,
-            Descricao = _dividaDescricao,
-            ValorTotal = valor,
-            QuantidadeParcelas = parcelas,
-            DataCompra = DateOnly.FromDateTime(data)
-        };
-
-        var (sucesso, erro) = await ApiService.CriarDividaAsync(payload);
-        _dividaSalvando = false;
-
-        if (sucesso)
-        {
-            _mostrarFormDivida = false;
-            _dividaNomeDevedor = string.Empty;
-            _dividaDescricao = string.Empty;
-            _dividaValorStr = string.Empty;
-            _dividaParcelasStr = "1";
-            _dividaDataStr = string.Empty;
-            await CarregarDividas();
-        }
-        else
-        {
-            _dividaErro = erro ?? "Erro ao salvar dívida.";
-        }
+        if (sucesso) { CancelarFixa(); await CarregarFixas(); }
+        else _fixaErro = erro ?? "Erro ao atualizar despesa.";
     }
 
     private async Task ExcluirFixa(Guid id)
@@ -595,12 +676,181 @@
         await CarregarFixas();
     }
 
+    // --- EXTRAS ---
+
+    private void IniciarEdicaoExtra(DespesaExtraListDto d)
+    {
+        _editandoExtraId = d.Id;
+        _mostrarFormExtra = false;
+        _extraDescricao = d.Descricao;
+        _extraValorStr = d.Valor.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+        _extraDataDespesa = d.DataDespesa.ToDateTime(TimeOnly.MinValue);
+        _extraCategoria = d.Categoria;
+        _extraFormaPagamento = d.FormaPagamento;
+        _extraErro = string.Empty;
+    }
+
+    private void CancelarExtra()
+    {
+        _mostrarFormExtra = false;
+        _editandoExtraId = null;
+        _extraDescricao = string.Empty;
+        _extraValorStr = string.Empty;
+        _extraDataDespesa = null;
+        _extraCategoria = _categoriasDespesa?.FirstOrDefault()?.Nome ?? string.Empty;
+        _extraFormaPagamento = "CartaoCredito";
+        _extraErro = string.Empty;
+    }
+
+    private async Task SalvarExtra()
+    {
+        _extraErro = string.Empty;
+        if (string.IsNullOrWhiteSpace(_extraDescricao) || string.IsNullOrWhiteSpace(_extraValorStr) || _extraDataDespesa is null)
+        {
+            _extraErro = "Preencha todos os campos obrigatórios.";
+            return;
+        }
+        if (!decimal.TryParse(_extraValorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
+        {
+            _extraErro = "Valor inválido.";
+            return;
+        }
+
+        _extraSalvando = true;
+        var payload = new
+        {
+            Descricao = _extraDescricao,
+            Valor = valor,
+            DataDespesa = DateOnly.FromDateTime(_extraDataDespesa!.Value),
+            Categoria = _extraCategoria,
+            FormaPagamento = _extraFormaPagamento
+        };
+
+        var (sucesso, erro) = await ApiService.CriarDespesaExtraAsync(payload);
+        _extraSalvando = false;
+
+        if (sucesso) { CancelarExtra(); await CarregarExtras(); }
+        else _extraErro = erro ?? "Erro ao salvar despesa.";
+    }
+
+    private async Task AtualizarExtra()
+    {
+        _extraErro = string.Empty;
+        if (string.IsNullOrWhiteSpace(_extraDescricao) || string.IsNullOrWhiteSpace(_extraValorStr) || _extraDataDespesa is null)
+        {
+            _extraErro = "Preencha todos os campos obrigatórios.";
+            return;
+        }
+        if (!decimal.TryParse(_extraValorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
+        {
+            _extraErro = "Valor inválido.";
+            return;
+        }
+
+        _extraSalvando = true;
+        var payload = new
+        {
+            Descricao = _extraDescricao,
+            Valor = valor,
+            DataDespesa = DateOnly.FromDateTime(_extraDataDespesa!.Value),
+            Categoria = _extraCategoria,
+            FormaPagamento = _extraFormaPagamento
+        };
+
+        var (sucesso, erro) = await ApiService.AtualizarDespesaExtraAsync(_editandoExtraId!.Value, payload);
+        _extraSalvando = false;
+
+        if (sucesso) { CancelarExtra(); await CarregarExtras(); }
+        else _extraErro = erro ?? "Erro ao atualizar despesa.";
+    }
+
     private async Task ExcluirExtra(Guid id)
     {
         _excluindoExtraId = id;
         await ApiService.ExcluirDespesaExtraAsync(id);
         _excluindoExtraId = null;
         await CarregarExtras();
+    }
+
+    // --- DÍVIDAS ---
+
+    private void IniciarEdicaoDivida(DividaDto d)
+    {
+        _editandoDividaId = d.Id;
+        _mostrarFormDivida = false;
+        _dividaNomeDevedor = d.NomeDevedor;
+        _dividaDescricao = d.Descricao;
+        _dividaErro = string.Empty;
+    }
+
+    private void CancelarDivida()
+    {
+        _mostrarFormDivida = false;
+        _editandoDividaId = null;
+        _dividaNomeDevedor = string.Empty;
+        _dividaDescricao = string.Empty;
+        _dividaValorStr = string.Empty;
+        _dividaParcelasStr = "1";
+        _dividaDataCompra = null;
+        _dividaErro = string.Empty;
+    }
+
+    private async Task SalvarDivida()
+    {
+        _dividaErro = string.Empty;
+        if (string.IsNullOrWhiteSpace(_dividaNomeDevedor) || string.IsNullOrWhiteSpace(_dividaDescricao)
+            || string.IsNullOrWhiteSpace(_dividaValorStr) || _dividaDataCompra is null)
+        {
+            _dividaErro = "Preencha todos os campos obrigatórios.";
+            return;
+        }
+        if (!decimal.TryParse(_dividaValorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
+        {
+            _dividaErro = "Valor inválido.";
+            return;
+        }
+        if (!int.TryParse(_dividaParcelasStr, out var parcelas) || parcelas < 1)
+        {
+            _dividaErro = "Número de parcelas inválido.";
+            return;
+        }
+
+        _dividaSalvando = true;
+        var payload = new
+        {
+            NomeDevedor = _dividaNomeDevedor,
+            Descricao = _dividaDescricao,
+            ValorTotal = valor,
+            QuantidadeParcelas = parcelas,
+            DataCompra = DateOnly.FromDateTime(_dividaDataCompra!.Value)
+        };
+
+        var (sucesso, erro) = await ApiService.CriarDividaAsync(payload);
+        _dividaSalvando = false;
+
+        if (sucesso) { CancelarDivida(); await CarregarDividas(); }
+        else _dividaErro = erro ?? "Erro ao salvar dívida.";
+    }
+
+    private async Task AtualizarDivida()
+    {
+        _dividaErro = string.Empty;
+        if (string.IsNullOrWhiteSpace(_dividaNomeDevedor) || string.IsNullOrWhiteSpace(_dividaDescricao))
+        {
+            _dividaErro = "Preencha todos os campos obrigatórios.";
+            return;
+        }
+
+        _dividaSalvando = true;
+        var payload = new { NomeDevedor = _dividaNomeDevedor, Descricao = _dividaDescricao };
+        var (sucesso, erro) = await ApiService.AtualizarDividaAsync(_editandoDividaId!.Value, payload);
+        _dividaSalvando = false;
+
+        if (sucesso) { CancelarDivida(); await CarregarDividas(); }
+        else _dividaErro = erro ?? "Erro ao atualizar dívida.";
     }
 
     private async Task ExcluirDivida(Guid id)
@@ -621,5 +871,13 @@
     private void ToggleExpand(Guid dividaId)
     {
         _expandedDividaId = _expandedDividaId == dividaId ? null : dividaId;
+    }
+
+    private async Task DownloadPdf(string nomeDevedor)
+    {
+        var bytes = await ApiService.DownloadDividasPdfAsync(nomeDevedor);
+        if (bytes == null) return;
+        var fileName = $"dividas_{nomeDevedor.Replace(" ", "_")}.pdf";
+        await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, "application/pdf", Convert.ToBase64String(bytes));
     }
 }

@@ -7,49 +7,15 @@
 <MudText Typo="Typo.h4" Class="mb-4">Receitas</MudText>
 
 <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary"
-           Variant="Variant.Filled" OnClick="@(() => _mostrarForm = !_mostrarForm)" Class="mb-4">
+           Variant="Variant.Filled" OnClick="@(() => { _mostrarForm = !_mostrarForm; _editandoId = null; })" Class="mb-4">
     Nova Receita
 </MudButton>
 
-@if (_mostrarForm)
+@if (_mostrarForm && _editandoId == null)
 {
     <MudPaper Elevation="2" Class="pa-4 mb-4">
         <MudText Typo="Typo.h6" Class="mb-3">Nova Receita</MudText>
-        <MudGrid>
-            <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_descricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
-            </MudItem>
-            <MudItem xs="12" md="3">
-                <MudTextField @bind-Value="_valorStr" Label="Valor (R$)" Variant="Variant.Outlined" FullWidth="true" />
-            </MudItem>
-            <MudItem xs="12" md="3">
-                <MudTextField @bind-Value="_dataStr" Label="Data de Recebimento" InputType="InputType.Date"
-                              Variant="Variant.Outlined" FullWidth="true" />
-            </MudItem>
-            <MudItem xs="12" md="4">
-                <MudSelect T="string" @bind-Value="_categoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
-                    <MudSelectItem Value="@("Salario")">Salário</MudSelectItem>
-                    <MudSelectItem Value="@("Freelancer")">Freelancer</MudSelectItem>
-                    <MudSelectItem Value="@("Investimento")">Investimento</MudSelectItem>
-                    <MudSelectItem Value="@("Presente")">Presente</MudSelectItem>
-                    <MudSelectItem Value="@("Outros")">Outros</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" md="2" Class="d-flex align-center">
-                <MudCheckBox @bind-Value="_recorrente" Label="Recorrente" />
-            </MudItem>
-            <MudItem xs="12">
-                @if (!string.IsNullOrEmpty(_erro))
-                {
-                    <MudAlert Severity="Severity.Error" Class="mb-2">@_erro</MudAlert>
-                }
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Salvar" Disabled="_salvando">
-                    @if (_salvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
-                    Salvar
-                </MudButton>
-                <MudButton Class="ml-2" OnClick="@(() => _mostrarForm = false)">Cancelar</MudButton>
-            </MudItem>
-        </MudGrid>
+        @FormContent(false)
     </MudPaper>
 }
 
@@ -69,22 +35,36 @@ else if (_receitas?.Count > 0)
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.Descricao</MudTd>
-            <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
-            <MudTd>@context.DataRecebimento.ToString("dd/MM/yyyy")</MudTd>
-            <MudTd>@context.Categoria</MudTd>
-            <MudTd>@(context.Recorrente ? "Sim" : "Não")</MudTd>
-            <MudTd>
-                @if (_excluindoId == context.Id)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                }
-                else
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-                                   OnClick="@(() => Excluir(context.Id))" Title="Excluir" />
-                }
-            </MudTd>
+            @if (_editandoId == context.Id)
+            {
+                <MudTd colspan="6">
+                    <MudPaper Elevation="0" Class="pa-3">
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Editando receita</MudText>
+                        @FormContent(true)
+                    </MudPaper>
+                </MudTd>
+            }
+            else
+            {
+                <MudTd>@context.Descricao</MudTd>
+                <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
+                <MudTd>@context.DataRecebimento.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd>@context.Categoria</MudTd>
+                <MudTd>@(context.Recorrente ? "Sim" : "Não")</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                   OnClick="@(() => IniciarEdicao(context))" Title="Editar" />
+                    @if (_excluindoId == context.Id)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                    }
+                    else
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                       OnClick="@(() => Excluir(context.Id))" Title="Excluir" />
+                    }
+                </MudTd>
+            }
         </RowTemplate>
     </MudTable>
 }
@@ -94,22 +74,73 @@ else if (!_carregando)
 }
 
 @code {
+    private RenderFragment FormContent(bool editando) =>@<MudGrid>
+        <MudItem xs="12" md="6">
+            <MudTextField @bind-Value="_descricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudTextField @bind-Value="_valorStr" Label="Valor (R$)" Variant="Variant.Outlined" FullWidth="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudDatePicker @bind-Date="_dataRecebimento" Label="Data de Recebimento"
+                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            @if (_categorias?.Count > 0)
+            {
+                <MudSelect T="string" @bind-Value="_categoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true">
+                    @foreach (var cat in _categorias)
+                    {
+                        <MudSelectItem Value="@cat.Nome">@cat.Nome</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            else
+            {
+                <MudTextField @bind-Value="_categoria" Label="Categoria" Variant="Variant.Outlined" FullWidth="true"
+                              Placeholder="Nenhuma categoria. Cadastre em Categorias > Receita" />
+            }
+        </MudItem>
+        @if (!editando)
+        {
+            <MudItem xs="12" md="2" Class="d-flex align-center">
+                <MudCheckBox @bind-Value="_recorrente" Label="Recorrente" />
+            </MudItem>
+        }
+        <MudItem xs="12">
+            @if (!string.IsNullOrEmpty(_erro))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-2">@_erro</MudAlert>
+            }
+            <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                       OnClick="@(editando ? Atualizar : Salvar)" Disabled="_salvando">
+                @if (_salvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                @(editando ? "Atualizar" : "Salvar")
+            </MudButton>
+            <MudButton Class="ml-2" OnClick="Cancelar">Cancelar</MudButton>
+        </MudItem>
+    </MudGrid>;
+}
+
+@code {
     private List<ReceitaDto>? _receitas;
+    private List<CategoriaDto>? _categorias;
     private bool _carregando = true;
     private bool _mostrarForm;
     private bool _salvando;
     private string _erro = string.Empty;
     private Guid? _excluindoId;
+    private Guid? _editandoId;
 
     private string _descricao = string.Empty;
     private string _valorStr = string.Empty;
-    private string _dataStr = string.Empty;
-    private string _categoria = "Salario";
+    private DateTime? _dataRecebimento;
+    private string _categoria = string.Empty;
     private bool _recorrente;
 
     protected override async Task OnInitializedAsync()
     {
-        await Carregar();
+        await Task.WhenAll(Carregar(), CarregarCategorias());
     }
 
     private async Task Carregar()
@@ -119,35 +150,67 @@ else if (!_carregando)
         _carregando = false;
     }
 
+    private async Task CarregarCategorias()
+    {
+        _categorias = await ApiService.ListarCategoriasReceitaAsync() ?? [];
+        if (_categoria == string.Empty && _categorias.Count > 0)
+            _categoria = _categorias[0].Nome;
+    }
+
+    private void IniciarEdicao(ReceitaDto receita)
+    {
+        _editandoId = receita.Id;
+        _mostrarForm = false;
+        _descricao = receita.Descricao;
+        _valorStr = receita.Valor.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+        _dataRecebimento = receita.DataRecebimento.ToDateTime(TimeOnly.MinValue);
+        _categoria = receita.Categoria;
+        _recorrente = receita.Recorrente;
+        _erro = string.Empty;
+    }
+
+    private void Cancelar()
+    {
+        _mostrarForm = false;
+        _editandoId = null;
+        _descricao = string.Empty;
+        _valorStr = string.Empty;
+        _dataRecebimento = null;
+        _categoria = _categorias?.FirstOrDefault()?.Nome ?? string.Empty;
+        _recorrente = false;
+        _erro = string.Empty;
+    }
+
+    private bool ValidarForm()
+    {
+        if (string.IsNullOrWhiteSpace(_descricao) || string.IsNullOrWhiteSpace(_valorStr) || _dataRecebimento is null)
+        {
+            _erro = "Preencha todos os campos obrigatórios.";
+            return false;
+        }
+        if (!decimal.TryParse(_valorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var v) || v <= 0)
+        {
+            _erro = "Valor inválido.";
+            return false;
+        }
+        return true;
+    }
+
     private async Task Salvar()
     {
         _erro = string.Empty;
+        if (!ValidarForm()) return;
 
-        if (string.IsNullOrWhiteSpace(_descricao) || string.IsNullOrWhiteSpace(_valorStr) || string.IsNullOrWhiteSpace(_dataStr))
-        {
-            _erro = "Preencha todos os campos obrigatórios.";
-            return;
-        }
-
-        if (!decimal.TryParse(_valorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out var valor) || valor <= 0)
-        {
-            _erro = "Valor inválido.";
-            return;
-        }
-
-        if (!DateTime.TryParse(_dataStr, out var data))
-        {
-            _erro = "Data inválida.";
-            return;
-        }
+        decimal.TryParse(_valorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var valor);
 
         _salvando = true;
         var payload = new
         {
             Descricao = _descricao,
             Valor = valor,
-            DataRecebimento = DateOnly.FromDateTime(data),
+            DataRecebimento = DateOnly.FromDateTime(_dataRecebimento!.Value),
             Categoria = _categoria,
             Recorrente = _recorrente
         };
@@ -157,17 +220,43 @@ else if (!_carregando)
 
         if (sucesso)
         {
-            _mostrarForm = false;
-            _descricao = string.Empty;
-            _valorStr = string.Empty;
-            _dataStr = string.Empty;
-            _categoria = "Salario";
-            _recorrente = false;
+            Cancelar();
             await Carregar();
         }
         else
         {
             _erro = erro ?? "Erro ao salvar receita.";
+        }
+    }
+
+    private async Task Atualizar()
+    {
+        _erro = string.Empty;
+        if (!ValidarForm()) return;
+
+        decimal.TryParse(_valorStr.Replace(",", "."), System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var valor);
+
+        _salvando = true;
+        var payload = new
+        {
+            Descricao = _descricao,
+            Valor = valor,
+            DataRecebimento = DateOnly.FromDateTime(_dataRecebimento!.Value),
+            Categoria = _categoria
+        };
+
+        var (sucesso, erro) = await ApiService.AtualizarReceitaAsync(_editandoId!.Value, payload);
+        _salvando = false;
+
+        if (sucesso)
+        {
+            Cancelar();
+            await Carregar();
+        }
+        else
+        {
+            _erro = erro ?? "Erro ao atualizar receita.";
         }
     }
 

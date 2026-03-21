@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using MinhasFinancas.Application.Commands.Receitas;
 using MinhasFinancas.Application.DTOs;
 using MinhasFinancas.Application.Queries;
-using MinhasFinancas.Domain.Enums;
 using System.Security.Claims;
 
 namespace MinhasFinancas.API.Controllers;
@@ -59,6 +58,31 @@ public class ReceitasController : ControllerBase
         }
     }
 
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(ReceitaDto), 200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] AtualizarReceitaRequest request, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        try
+        {
+            var command = new AtualizarReceitaCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataRecebimento, request.Categoria);
+            var resultado = await _mediator.Send(command, ct);
+            return Ok(resultado);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (FluentValidation.ValidationException ex)
+        {
+            return BadRequest(new { errors = ex.Errors.Select(e => e.ErrorMessage) });
+        }
+    }
+
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
@@ -85,9 +109,15 @@ public class ReceitasController : ControllerBase
     }
 }
 
+public record AtualizarReceitaRequest(
+    string Descricao,
+    decimal Valor,
+    DateOnly DataRecebimento,
+    string Categoria);
+
 public record CriarReceitaRequest(
     string Descricao,
     decimal Valor,
     DateOnly DataRecebimento,
-    CategoriaReceita Categoria,
+    string Categoria,
     bool Recorrente = false);

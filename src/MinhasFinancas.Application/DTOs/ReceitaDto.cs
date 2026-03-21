@@ -1,5 +1,3 @@
-using MinhasFinancas.Domain.Enums;
-
 namespace MinhasFinancas.Application.DTOs;
 
 public record ReceitaDto(
@@ -7,6 +5,6 @@ public record ReceitaDto(
     string Descricao,
     decimal Valor,
     DateOnly DataRecebimento,
-    CategoriaReceita Categoria,
+    string Categoria,
     bool Recorrente,
     DateTime DataCriacao);

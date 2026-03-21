@@ -1,0 +1,145 @@
+@page "/categorias/despesa"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using MinhasFinancas.Web.Services
+@using MinhasFinancas.Web.Models
+@inject DashboardApiService ApiService
+
+<MudText Typo="Typo.h4" Class="mb-1">Categorias de Despesa</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+    Gerencie as categorias disponíveis ao cadastrar despesas.
+</MudText>
+
+<MudPaper Elevation="2" Class="pa-4 mb-4">
+    <MudText Typo="Typo.h6" Class="mb-3">@(_editandoId == null ? "Nova Categoria" : "Editar Categoria")</MudText>
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudTextField @bind-Value="_nome" Label="Nome" Variant="Variant.Outlined" FullWidth="true"
+                          Placeholder="Ex: Academia, Streaming, Pet..." />
+        </MudItem>
+        <MudItem xs="12" Class="d-flex align-center gap-2">
+            @if (!string.IsNullOrEmpty(_erro))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-0 flex-grow-1">@_erro</MudAlert>
+            }
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Salvar" Disabled="_salvando">
+                @if (_salvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                @(_editandoId == null ? "Adicionar" : "Salvar")
+            </MudButton>
+            @if (_editandoId != null)
+            {
+                <MudButton OnClick="Cancelar">Cancelar</MudButton>
+            }
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_carregando)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+else if (_categorias?.Count > 0)
+{
+    <MudTable Items="_categorias" Hover="true" Striped="true" Dense="true">
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Criado em</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Nome</MudTd>
+            <MudTd>@context.DataCriacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                               OnClick="@(() => IniciarEdicao(context))" Title="Editar" />
+                @if (_excluindoId == context.Id)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                   OnClick="@(() => Excluir(context.Id))" Title="Excluir" />
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else if (!_carregando)
+{
+    <MudAlert Severity="Severity.Info">Nenhuma categoria cadastrada. Adicione a primeira acima.</MudAlert>
+}
+
+@code {
+    private List<CategoriaDto>? _categorias;
+    private bool _carregando = true;
+    private bool _salvando;
+    private string _erro = string.Empty;
+    private Guid? _excluindoId;
+    private Guid? _editandoId;
+    private string _nome = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Carregar();
+    }
+
+    private async Task Carregar()
+    {
+        _carregando = true;
+        _categorias = await ApiService.ListarCategoriasDespesaAsync() ?? [];
+        _carregando = false;
+    }
+
+    private void IniciarEdicao(CategoriaDto cat)
+    {
+        _editandoId = cat.Id;
+        _nome = cat.Nome;
+        _erro = string.Empty;
+    }
+
+    private void Cancelar()
+    {
+        _editandoId = null;
+        _nome = string.Empty;
+        _erro = string.Empty;
+    }
+
+    private async Task Salvar()
+    {
+        _erro = string.Empty;
+        if (string.IsNullOrWhiteSpace(_nome) || _nome.Trim().Length < 2)
+        {
+            _erro = "Nome deve ter pelo menos 2 caracteres.";
+            return;
+        }
+
+        _salvando = true;
+        bool sucesso;
+        string? erro;
+
+        if (_editandoId == null)
+            (sucesso, erro) = await ApiService.CriarCategoriaDespesaAsync(_nome.Trim());
+        else
+            (sucesso, erro) = await ApiService.AtualizarCategoriaDespesaAsync(_editandoId.Value, _nome.Trim());
+
+        _salvando = false;
+
+        if (sucesso)
+        {
+            Cancelar();
+            await Carregar();
+        }
+        else
+        {
+            _erro = erro ?? "Erro ao salvar categoria.";
+        }
+    }
+
+    private async Task Excluir(Guid id)
+    {
+        _excluindoId = id;
+        await ApiService.ExcluirCategoriaDespesaAsync(id);
+        _excluindoId = null;
+        await Carregar();
+    }
+}

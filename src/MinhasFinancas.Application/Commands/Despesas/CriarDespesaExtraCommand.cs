@@ -9,5 +9,5 @@ public record CriarDespesaExtraCommand(
     string Descricao,
     decimal Valor,
     DateOnly DataDespesa,
-    CategoriaDespesa Categoria,
+    string Categoria,
     FormaPagamentoDespesaExtra FormaPagamento) : IRequest<DespesaExtraDto>;

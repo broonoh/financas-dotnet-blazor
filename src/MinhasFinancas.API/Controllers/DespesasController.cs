@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MinhasFinancas.Application.Commands.Despesas;
+using MinhasFinancas.Domain.Enums;
 using MinhasFinancas.Application.DTOs;
 using MinhasFinancas.Application.Queries;
 using System.Security.Claims;
@@ -101,6 +102,56 @@ public class DespesasController : ControllerBase
         }
     }
 
+    [HttpPut("fixas/{id:guid}")]
+    [ProducesResponseType(typeof(DespesaFixaDto), 200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> AtualizarFixa(Guid id, [FromBody] AtualizarDespesaFixaRequest request, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        try
+        {
+            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.Categoria, request.FormaPagamento);
+            var resultado = await _mediator.Send(command, ct);
+            return Ok(resultado);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPut("extras/{id:guid}")]
+    [ProducesResponseType(typeof(DespesaExtraDto), 200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> AtualizarExtra(Guid id, [FromBody] AtualizarDespesaExtraRequest request, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        try
+        {
+            var command = new AtualizarDespesaExtraCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento);
+            var resultado = await _mediator.Send(command, ct);
+            return Ok(resultado);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPatch("parcelas/{parcelaId:guid}/pagar")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
@@ -166,19 +217,31 @@ public class DespesasController : ControllerBase
 }
 
 // Request DTOs (separados do domínio)
+public record AtualizarDespesaFixaRequest(
+    string Descricao,
+    string Categoria,
+    FormaPagamentoDespesaFixa FormaPagamento);
+
+public record AtualizarDespesaExtraRequest(
+    string Descricao,
+    decimal Valor,
+    DateOnly DataDespesa,
+    string Categoria,
+    FormaPagamentoDespesaExtra FormaPagamento);
+
 public record CriarDespesaFixaRequest(
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,
     DateOnly DataPrimeiraParcela,
-    MinhasFinancas.Domain.Enums.CategoriaDespesa Categoria,
-    MinhasFinancas.Domain.Enums.FormaPagamentoDespesaFixa FormaPagamento);
+    string Categoria,
+    FormaPagamentoDespesaFixa FormaPagamento);
 
 public record CriarDespesaExtraRequest(
     string Descricao,
     decimal Valor,
     DateOnly DataDespesa,
-    MinhasFinancas.Domain.Enums.CategoriaDespesa Categoria,
-    MinhasFinancas.Domain.Enums.FormaPagamentoDespesaExtra FormaPagamento);
+    string Categoria,
+    FormaPagamentoDespesaExtra FormaPagamento);
 
 public record MarcarParcelaRequest(bool Paga, DateOnly? DataPagamento = null);
