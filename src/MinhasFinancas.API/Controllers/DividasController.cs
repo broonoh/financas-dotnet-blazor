@@ -267,7 +267,8 @@ public class DividasController : ControllerBase
                 request.Descricao,
                 request.ValorTotal,
                 request.QuantidadeParcelas,
-                request.DataCompra);
+                request.DataCompra,
+                request.DataPrimeiraParcela);
 
             var resultado = await _mediator.Send(command, ct);
             return CreatedAtAction(nameof(Criar), new { id = resultado.Id }, resultado);
@@ -359,6 +360,7 @@ public record CriarDividaRequest(
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,
-    DateOnly DataCompra);
+    DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela);
 
 public record MarcarParcelaDividaRequest(bool Paga, DateOnly? DataPagamento = null);

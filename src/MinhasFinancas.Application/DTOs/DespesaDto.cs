@@ -11,7 +11,8 @@ public record DespesaFixaDto(
     DateOnly DataPrimeiraParcela,
     string Categoria,
     FormaPagamentoDespesaFixa FormaPagamento,
-    DateTime DataCriacao);
+    DateTime DataCriacao,
+    List<ParcelaDto> Parcelas);
 
 public record DespesaExtraDto(
     Guid Id,

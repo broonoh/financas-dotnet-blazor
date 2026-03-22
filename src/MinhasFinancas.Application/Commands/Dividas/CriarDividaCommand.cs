@@ -9,4 +9,5 @@ public record CriarDividaCommand(
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,
-    DateOnly DataCompra) : IRequest<DividaDto>;
+    DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela) : IRequest<DividaDto>;

@@ -25,6 +25,6 @@ public class AtualizarDespesaFixaCommandHandler : IRequestHandler<AtualizarDespe
         await _uow.CommitAsync(cancellationToken);
 
         return new DespesaFixaDto(despesa.Id, despesa.Descricao, despesa.ValorTotal, despesa.QuantidadeParcelas,
-            despesa.DataCompra, despesa.DataPrimeiraParcela, despesa.Categoria, despesa.FormaPagamento, despesa.DataCriacao);
+            despesa.DataCompra, despesa.DataPrimeiraParcela, despesa.Categoria, despesa.FormaPagamento, despesa.DataCriacao, []);
     }
 }

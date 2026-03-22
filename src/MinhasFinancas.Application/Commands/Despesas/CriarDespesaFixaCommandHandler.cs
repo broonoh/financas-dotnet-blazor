@@ -40,6 +40,7 @@ public class CriarDespesaFixaCommandHandler : IRequestHandler<CriarDespesaFixaCo
             despesa.DataPrimeiraParcela,
             despesa.Categoria,
             despesa.FormaPagamento,
-            despesa.DataCriacao);
+            despesa.DataCriacao,
+            []);
     }
 }

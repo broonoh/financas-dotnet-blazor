@@ -147,6 +147,9 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_criacao");
 
+                    b.Property<DateOnly>("DataPrimeiraParcela")
+                        .HasColumnType("date");
+
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(200)

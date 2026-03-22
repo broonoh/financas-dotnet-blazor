@@ -25,7 +25,7 @@ public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaComm
         await _uow.CommitAsync(cancellationToken);
 
         var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
-        var parcelas = divida.Parcelas.Select(p => new ParcelaDividaDto(
+        var parcelas = divida.Parcelas.OrderBy(p => p.Numero).Select(p => new ParcelaDividaDto(
             p.Id, p.DividaId, p.Numero, divida.QuantidadeParcelas,
             p.Valor, p.DataVencimento, p.Paga, p.DataPagamento,
             !p.Paga && p.DataVencimento < hoje)).ToList();

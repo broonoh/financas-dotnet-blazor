@@ -9,6 +9,7 @@ public class Divida
     public decimal ValorTotal { get; private set; }
     public int QuantidadeParcelas { get; private set; }
     public DateOnly DataCompra { get; private set; }
+    public DateOnly DataPrimeiraParcela { get; private set; }
     public bool Ativa { get; private set; }
     public DateTime DataCriacao { get; private set; }
 
@@ -24,7 +25,8 @@ public class Divida
         string descricao,
         decimal valorTotal,
         int quantidadeParcelas,
-        DateOnly dataCompra)
+        DateOnly dataCompra,
+        DateOnly dataPrimeiraParcela)
     {
         if (string.IsNullOrWhiteSpace(nomeDevedor) || nomeDevedor.Length < 2 || nomeDevedor.Length > 100)
             throw new ArgumentException("Nome do devedor deve ter entre 2 e 100 caracteres.", nameof(nomeDevedor));
@@ -47,6 +49,7 @@ public class Divida
             ValorTotal = valorTotal,
             QuantidadeParcelas = quantidadeParcelas,
             DataCompra = dataCompra,
+            DataPrimeiraParcela = dataPrimeiraParcela,
             Ativa = true,
             DataCriacao = DateTime.UtcNow
         };
@@ -69,7 +72,7 @@ public class Divida
             if (i == QuantidadeParcelas)
                 centavosEstaParcela += restoCentavos;
 
-            var dataVencimento = DataCompra.AddMonths(i - 1);
+            var dataVencimento = DataPrimeiraParcela.AddMonths(i - 1);
             var valorParcela = centavosEstaParcela / 100m;
 
             _parcelas.Add(ParcelaDivida.Criar(Id, i, valorParcela, dataVencimento));

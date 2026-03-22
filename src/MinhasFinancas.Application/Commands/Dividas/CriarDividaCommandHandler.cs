@@ -24,7 +24,8 @@ public class CriarDividaCommandHandler : IRequestHandler<CriarDividaCommand, Div
             request.Descricao,
             request.ValorTotal,
             request.QuantidadeParcelas,
-            request.DataCompra);
+            request.DataCompra,
+            request.DataPrimeiraParcela);
 
         await _dividaRepository.AdicionarAsync(divida);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -35,7 +36,7 @@ public class CriarDividaCommandHandler : IRequestHandler<CriarDividaCommand, Div
     private static DividaDto MapToDto(Divida divida)
     {
         var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
-        var parcelas = divida.Parcelas.Select(p => new ParcelaDividaDto(
+        var parcelas = divida.Parcelas.OrderBy(p => p.Numero).Select(p => new ParcelaDividaDto(
             p.Id, p.DividaId, p.Numero, divida.QuantidadeParcelas,
             p.Valor, p.DataVencimento, p.Paga, p.DataPagamento,
             !p.Paga && p.DataVencimento < hoje)).ToList();

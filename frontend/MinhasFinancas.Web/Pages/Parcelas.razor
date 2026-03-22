@@ -1,97 +1,151 @@
 @page "/parcelas"
 @attribute [Microsoft.AspNetCore.Authorization.Authorize]
-@inherits FluxorComponent
-@using Fluxor
-@using MinhasFinancas.Web.Store
 @using MinhasFinancas.Web.Models
-@inject IDispatcher Dispatcher
-@inject IState<DashboardState> DashboardState
+@using MinhasFinancas.Web.Services
+@inject DashboardApiService ApiService
 
 <MudText Typo="Typo.h4" Class="mb-4">Minhas Parcelas</MudText>
 
-<MudGrid Class="mb-4">
-    <MudItem xs="12" md="4">
-        <MudDatePicker Date="_dataSelecionada" Label="Mês de Referência"
-                       DateFormat="MM/yyyy" OpenTo="OpenTo.Month"
-                       PickerVariant="PickerVariant.Dialog"
-                       DateChanged="OnMesSelecionado" />
-    </MudItem>
-</MudGrid>
+<!-- Seletor de mês/ano -->
+<MudPaper Elevation="1" Class="pa-3 mb-4 d-flex align-center gap-3 flex-wrap">
+    <MudText Typo="Typo.body1" Class="mr-2"><strong>Mês de referência:</strong></MudText>
+    <MudSelect T="int" Value="_mesSelecionado" ValueChanged="OnMesChanged"
+               Label="Mês" Variant="Variant.Outlined" Style="min-width:150px" Dense="true">
+        @foreach (var (nome, num) in _meses)
+        {
+            <MudSelectItem Value="@num">@nome</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="int" Value="_anoSelecionado" ValueChanged="OnAnoChanged"
+               Label="Ano" Variant="Variant.Outlined" Style="min-width:110px" Dense="true">
+        @for (int a = DateTime.Now.Year - 1; a <= DateTime.Now.Year + 2; a++)
+        {
+            var ano = a;
+            <MudSelectItem Value="@ano">@ano</MudSelectItem>
+        }
+    </MudSelect>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Refresh"
+               OnClick="Carregar" Disabled="_carregando">
+        Atualizar
+    </MudButton>
+</MudPaper>
 
-@if (DashboardState.Value.IsLoading)
+@if (_carregando)
 {
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
 }
-else if (DashboardState.Value.Parcelas is { } parcelas)
+else if (!string.IsNullOrEmpty(_erro))
 {
-    <MudTable Items="@parcelas" Hover="true" Striped="true" Dense="true">
-        <HeaderContent>
-            <MudTh>Descrição</MudTh>
-            <MudTh>Parcela</MudTh>
-            <MudTh>Valor</MudTh>
-            <MudTh>Vencimento</MudTh>
-            <MudTh>Status</MudTh>
-            <MudTh>Ação</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.DescricaoDespesa</MudTd>
-            <MudTd>@context.Numero/@context.TotalParcelas</MudTd>
-            <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
-            <MudTd>
-                <MudText Color="@GetCorVencimento(context)">
-                    @context.DataVencimento.ToString("dd/MM/yyyy")
-                </MudText>
-            </MudTd>
-            <MudTd>
-                @if (context.Paga)
-                {
-                    <MudChip T="string" Color="Color.Success" Size="Size.Small">Paga</MudChip>
-                }
-                else if (context.Vencida)
-                {
-                    <MudChip T="string" Color="Color.Error" Size="Size.Small">Vencida</MudChip>
-                }
-                else if (context.VenceEm7Dias)
-                {
-                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">Vence em breve</MudChip>
-                }
-                else
-                {
-                    <MudChip T="string" Color="Color.Default" Size="Size.Small">Pendente</MudChip>
-                }
-            </MudTd>
-            <MudTd>
-                <MudIconButton Icon="@(context.Paga ? Icons.Material.Filled.Close : Icons.Material.Filled.Check)"
-                               Color="@(context.Paga ? Color.Error : Color.Success)"
-                               Size="Size.Small"
-                               OnClick="@(() => ToggleParcela(context))" />
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_erro</MudAlert>
+}
+else if (_parcelas != null)
+{
+    var pagas       = _parcelas.Where(p => p.Paga).ToList();
+    var vencidas    = _parcelas.Where(p => !p.Paga && p.Vencida).ToList();
+    var pendentes   = _parcelas.Where(p => !p.Paga).ToList();
+
+    <!-- Cards de resumo -->
+    <MudGrid Class="mb-4">
+        <MudItem xs="6" sm="3">
+            <MudPaper Elevation="2" Class="pa-3 text-center" Style="border-top:4px solid var(--mud-palette-primary)">
+                <MudText Typo="Typo.h5"><strong>@_parcelas.Count</strong></MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Total do mês</MudText>
+                <MudText Typo="Typo.body2">@_parcelas.Sum(p => p.Valor).ToString("C2", _ptBR)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="3">
+            <MudPaper Elevation="2" Class="pa-3 text-center" Style="border-top:4px solid var(--mud-palette-success)">
+                <MudText Typo="Typo.h5" Color="Color.Success"><strong>@pagas.Count</strong></MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Pagas</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Success">@pagas.Sum(p => p.Valor).ToString("C2", _ptBR)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="3">
+            <MudPaper Elevation="2" Class="pa-3 text-center" Style="border-top:4px solid var(--mud-palette-warning)">
+                <MudText Typo="Typo.h5" Color="Color.Warning"><strong>@pendentes.Count</strong></MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Pendentes</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Warning">@pendentes.Sum(p => p.Valor).ToString("C2", _ptBR)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="3">
+            <MudPaper Elevation="2" Class="pa-3 text-center" Style="border-top:4px solid var(--mud-palette-error)">
+                <MudText Typo="Typo.h5" Color="Color.Error"><strong>@vencidas.Count</strong></MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Vencidas</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Error">@vencidas.Sum(p => p.Valor).ToString("C2", _ptBR)</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudTabs @bind-ActivePanelIndex="_tabIndex" Elevation="1" Rounded="true" ApplyEffectsToContainer="true">
+        <MudTabPanel Text="@($"Todas ({_parcelas.Count})")">
+            @TabelaParcelas(_parcelas)
+        </MudTabPanel>
+        <MudTabPanel Text="@($"Vencidas ({vencidas.Count})")">
+            @TabelaParcelas(vencidas)
+        </MudTabPanel>
+        <MudTabPanel Text="@($"Pendentes ({pendentes.Count})")">
+            @TabelaParcelas(pendentes)
+        </MudTabPanel>
+        <MudTabPanel Text="@($"Pagas ({pagas.Count})")">
+            @TabelaParcelas(pagas)
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
-    private DateTime? _dataSelecionada = DateTime.Now;
+    private List<ParcelaDto>? _parcelas;
+    private bool _carregando;
+    private string _erro = string.Empty;
+    private int _mesSelecionado = DateTime.Now.Month;
+    private int _anoSelecionado = DateTime.Now.Year;
+    private int _tabIndex;
 
-    protected override void OnInitialized()
+    private static readonly System.Globalization.CultureInfo _ptBR = new("pt-BR");
+
+    private static readonly (string Nome, int Num)[] _meses =
+    [
+        ("Janeiro", 1), ("Fevereiro", 2), ("Março", 3),
+        ("Abril", 4), ("Maio", 5), ("Junho", 6),
+        ("Julho", 7), ("Agosto", 8), ("Setembro", 9),
+        ("Outubro", 10), ("Novembro", 11), ("Dezembro", 12)
+    ];
+
+    protected override async Task OnInitializedAsync() => await Carregar();
+
+    private async Task OnMesChanged(int mes)
     {
-        var hoje = DateTime.Now;
-        Dispatcher.Dispatch(new CarregarDashboardAction(hoje.Year, hoje.Month));
+        _mesSelecionado = mes;
+        await Carregar();
     }
 
-    private void OnMesSelecionado(DateTime? data)
+    private async Task OnAnoChanged(int ano)
     {
-        _dataSelecionada = data;
-        if (data.HasValue)
-            Dispatcher.Dispatch(new CarregarDashboardAction(data.Value.Year, data.Value.Month));
+        _anoSelecionado = ano;
+        await Carregar();
     }
 
-    private void ToggleParcela(ParcelaDto parcela)
+    private async Task Carregar()
     {
-        Dispatcher.Dispatch(new MarcarParcelaPagaAction(parcela.Id, !parcela.Paga));
-        // Recarregar dados após toggle
-        var data = _dataSelecionada ?? DateTime.Now;
-        Dispatcher.Dispatch(new CarregarDashboardAction(data.Year, data.Month));
+        _carregando = true;
+        _erro = string.Empty;
+        StateHasChanged();
+        try
+        {
+            _parcelas = await ApiService.ListarParcelasAsync(_anoSelecionado, _mesSelecionado) ?? [];
+        }
+        catch (Exception ex)
+        {
+            _erro = $"Erro ao carregar parcelas: {ex.Message}";
+            _parcelas = [];
+        }
+        _carregando = false;
+    }
+
+    private async Task ToggleParcela(ParcelaDto parcela)
+    {
+        await ApiService.MarcarParcelaPagaAsync(parcela.Id, !parcela.Paga);
+        await Carregar();
     }
 
     private Color GetCorVencimento(ParcelaDto p)
@@ -101,4 +155,70 @@ else if (DashboardState.Value.Parcelas is { } parcelas)
         if (p.VenceEm7Dias) return Color.Warning;
         return Color.Default;
     }
+
+    private RenderFragment TabelaParcelas(List<ParcelaDto> lista) =>
+    @<div>
+        @if (!lista.Any())
+        {
+            <MudPaper Elevation="0" Class="pa-8 d-flex flex-column align-center" Style="min-height:160px">
+                <MudIcon Icon="@Icons.Material.Filled.EventAvailable" Style="font-size:3rem;opacity:.3" Class="mb-3" />
+                <MudText Typo="Typo.h6" Style="opacity:.5">Nenhuma parcela nesta categoria</MudText>
+                @if (_tabIndex == 0)
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">
+                        Não há parcelas com vencimento em @(_meses[_mesSelecionado - 1].Nome)/@_anoSelecionado.
+                        Cadastre despesas fixas em <strong>Despesas &gt; Despesas Fixas</strong>.
+                    </MudText>
+                }
+            </MudPaper>
+        }
+        else
+        {
+            <MudTable Items="@lista" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>Descrição</MudTh>
+                    <MudTh>Parcela</MudTh>
+                    <MudTh>Valor</MudTh>
+                    <MudTh>Vencimento</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Descrição">@context.DescricaoDespesa</MudTd>
+                    <MudTd DataLabel="Parcela">@context.Numero / @context.TotalParcelas</MudTd>
+                    <MudTd DataLabel="Valor">@context.Valor.ToString("C2", _ptBR)</MudTd>
+                    <MudTd DataLabel="Vencimento">
+                        <MudText Color="@GetCorVencimento(context)">
+                            @context.DataVencimento.ToString("dd/MM/yyyy")
+                        </MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        @if (context.Paga)
+                        {
+                            <MudChip T="string" Color="Color.Success" Size="Size.Small">Paga</MudChip>
+                        }
+                        else if (context.Vencida)
+                        {
+                            <MudChip T="string" Color="Color.Error" Size="Size.Small">Vencida</MudChip>
+                        }
+                        else if (context.VenceEm7Dias)
+                        {
+                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">Vence em breve</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip T="string" Color="Color.Default" Size="Size.Small">Pendente</MudChip>
+                        }
+                    </MudTd>
+                    <MudTd>
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                                   Color="@(context.Paga ? Color.Default : Color.Success)"
+                                   OnClick="@(() => ToggleParcela(context))">
+                            @(context.Paga ? "Desfazer" : "Marcar Paga")
+                        </MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </div>;
 }
