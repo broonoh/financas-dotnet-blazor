@@ -1,0 +1,95 @@
+@page "/perfil"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using MinhasFinancas.Web.Services
+@using MinhasFinancas.Web.Models
+@inject DashboardApiService ApiService
+
+<MudText Typo="Typo.h4" Class="mb-4">Meu Perfil</MudText>
+
+@if (_carregando)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+else if (_perfil != null)
+{
+    <MudPaper Elevation="2" Class="pa-6" Style="max-width:600px">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_nome" Label="Nome" Variant="Variant.Outlined" FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Value="@_perfil.Email" Label="Email" Variant="Variant.Outlined" FullWidth="true" ReadOnly="true" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Value="@_perfil.DataNascimento.ToString("dd/MM/yyyy")" Label="Data de Nascimento" Variant="Variant.Outlined" ReadOnly="true" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_telefone" Label="Telefone" Variant="Variant.Outlined" FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Value="@_perfil.DataCadastro.ToString("dd/MM/yyyy")" Label="Membro desde" Variant="Variant.Outlined" ReadOnly="true" />
+            </MudItem>
+            @if (!string.IsNullOrEmpty(_erro))
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Error">@_erro</MudAlert>
+                </MudItem>
+            }
+            @if (!string.IsNullOrEmpty(_sucesso))
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Success">@_sucesso</MudAlert>
+                </MudItem>
+            }
+            <MudItem xs="12">
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Salvar" Disabled="_salvando">
+                    @if (_salvando) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                    Salvar Alterações
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+
+@code {
+    private PerfilDto? _perfil;
+    private bool _carregando = true;
+    private bool _salvando;
+    private string _nome = string.Empty;
+    private string _telefone = string.Empty;
+    private string _erro = string.Empty;
+    private string _sucesso = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _perfil = await ApiService.ObterPerfilAsync();
+        if (_perfil != null)
+        {
+            _nome = _perfil.Nome;
+            _telefone = _perfil.Telefone ?? string.Empty;
+        }
+        _carregando = false;
+    }
+
+    private async Task Salvar()
+    {
+        _erro = string.Empty;
+        _sucesso = string.Empty;
+        if (string.IsNullOrWhiteSpace(_nome)) { _erro = "Nome é obrigatório."; return; }
+
+        _salvando = true;
+        var payload = new { Nome = _nome, Telefone = string.IsNullOrWhiteSpace(_telefone) ? (string?)null : _telefone };
+        var (sucesso, erro) = await ApiService.AtualizarPerfilAsync(payload);
+        _salvando = false;
+
+        if (sucesso)
+        {
+            _perfil = await ApiService.ObterPerfilAsync();
+            _sucesso = "Perfil atualizado com sucesso!";
+        }
+        else
+        {
+            _erro = erro ?? "Erro ao atualizar perfil.";
+        }
+    }
+}

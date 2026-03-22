@@ -3,12 +3,18 @@
 @using MinhasFinancas.Web.Services
 @using MinhasFinancas.Web.Models
 @inject DashboardApiService ApiService
+@inject IJSRuntime JS
 
 <MudText Typo="Typo.h4" Class="mb-4">Receitas</MudText>
 
 <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary"
            Variant="Variant.Filled" OnClick="@(() => { _mostrarForm = !_mostrarForm; _editandoId = null; })" Class="mb-4">
     Nova Receita
+</MudButton>
+<MudButton StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Success"
+           Variant="Variant.Outlined" OnClick="DownloadPdf" Disabled="_baixandoPdf" Class="mb-4 ml-2">
+    @if (_baixandoPdf) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+    Exportar PDF
 </MudButton>
 
 @if (_mostrarForm && _editandoId == null)
@@ -128,6 +134,7 @@ else if (!_carregando)
     private bool _carregando = true;
     private bool _mostrarForm;
     private bool _salvando;
+    private bool _baixandoPdf;
     private string _erro = string.Empty;
     private Guid? _excluindoId;
     private Guid? _editandoId;
@@ -266,5 +273,14 @@ else if (!_carregando)
         await ApiService.ExcluirReceitaAsync(id);
         _excluindoId = null;
         await Carregar();
+    }
+
+    private async Task DownloadPdf()
+    {
+        _baixandoPdf = true;
+        var bytes = await ApiService.DownloadReceitasPdfAsync();
+        _baixandoPdf = false;
+        if (bytes is not null)
+            await JS.InvokeVoidAsync("downloadFileFromBytes", "receitas.pdf", "application/pdf", Convert.ToBase64String(bytes));
     }
 }

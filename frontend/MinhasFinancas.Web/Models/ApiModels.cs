@@ -42,6 +42,7 @@ public record DespesaFixaListDto(
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,
+    DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,
     string Categoria,
     string FormaPagamento,

@@ -89,6 +89,92 @@ window.renderizarGraficoPizza = (id, labels, valores) => {
     });
 };
 
+window.renderizarGraficoPizzaFinancas = (id, labels, valores) => {
+    destroyChart(id);
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+
+    const cores = ['#4CAF50', '#5C35CC', '#E65100'];
+
+    charts[id] = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: valores,
+                backgroundColor: cores,
+                hoverOffset: 6,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                            return `${ctx.label}: R$ ${ctx.parsed.toFixed(2).replace('.', ',')} (${pct}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+};
+
+window.renderizarGraficoDevedores = (id, labels, totais, saldos) => {
+    destroyChart(id);
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+
+    charts[id] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Total Emprestado',
+                    data: totais,
+                    backgroundColor: 'rgba(33, 150, 243, 0.8)',
+                    borderColor: '#1565C0',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: 'Saldo Restante',
+                    data: saldos,
+                    backgroundColor: 'rgba(244, 67, 54, 0.8)',
+                    borderColor: '#B71C1C',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.dataset.label}: R$ ${ctx.parsed.x.toFixed(2).replace('.', ',')}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        callback: val => 'R$ ' + val.toFixed(2).replace('.', ',')
+                    }
+                }
+            }
+        }
+    });
+};
+
 window.renderizarGraficoBarras = (id, labels, receitas, despesas) => {
     destroyChart(id);
     const ctx = document.getElementById(id);

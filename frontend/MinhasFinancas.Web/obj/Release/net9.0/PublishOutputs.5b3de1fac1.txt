@@ -1,0 +1,1 @@
+/home/broonoh/.local/share/minhas-financas/web/web.config

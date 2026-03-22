@@ -10,11 +10,14 @@ public class CriarDespesaFixaCommandValidatorTests
     private readonly CriarDespesaFixaCommandValidator _validator = new();
     private static readonly DateOnly DataFutura = DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(1));
 
+    private static readonly DateOnly DataCompra = DateOnly.FromDateTime(DateTime.UtcNow);
+
     private CriarDespesaFixaCommand ComandoValido() => new(
         Guid.NewGuid(),
         "Financiamento Veículo",
         12000m,
         36,
+        DataCompra,
         DataFutura,
         "Transporte",
         FormaPagamentoDespesaFixa.CartaoCredito);

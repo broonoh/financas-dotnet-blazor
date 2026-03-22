@@ -99,6 +99,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DespesaFixa>(entity =>
         {
             entity.Property(e => e.QuantidadeParcelas).HasColumnName("quantidade_parcelas");
+            entity.Property(e => e.DataCompra).HasColumnName("data_compra").IsRequired();
             entity.Property(e => e.DataPrimeiraParcela).HasColumnName("data_primeira_parcela");
             entity.Property(e => e.FormaPagamento).HasColumnName("forma_pagamento").HasConversion<string>().HasMaxLength(30);
 

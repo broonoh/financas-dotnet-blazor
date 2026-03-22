@@ -23,6 +23,12 @@ public class AuthStateProvider : AuthenticationStateProvider
             if (string.IsNullOrWhiteSpace(token))
                 return new AuthenticationState(_anonymous);
 
+            if (TokenExpirado(token))
+            {
+                await MarcarComoDesautenticado();
+                return new AuthenticationState(_anonymous);
+            }
+
             var claims = ParseClaimsFromJwt(token);
             var identity = new ClaimsIdentity(claims, "jwt");
             return new AuthenticationState(new ClaimsPrincipal(identity));
@@ -31,6 +37,19 @@ public class AuthStateProvider : AuthenticationStateProvider
         {
             return new AuthenticationState(_anonymous);
         }
+    }
+
+    private static bool TokenExpirado(string token)
+    {
+        try
+        {
+            var claims = ParseClaimsFromJwt(token);
+            var exp = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
+            if (exp == null) return false;
+            var expDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(exp));
+            return expDate.UtcDateTime < DateTime.UtcNow;
+        }
+        catch { return false; }
     }
 
     public async Task MarcarComoAutenticado(string token, string nome, Guid id)

@@ -45,6 +45,16 @@
 
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        window.downloadFileFromBytes = function(fileName, contentType, base64) {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = 'data:' + contentType + ';base64,' + base64;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    </script>
 </body>
 
 </html>

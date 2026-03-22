@@ -32,6 +32,9 @@ public class DividaRepository : IDividaRepository
     public Task AdicionarAsync(Divida divida)
         => _context.Dividas.AddAsync(divida).AsTask();
 
+    public void Atualizar(Divida divida)
+        => _context.Dividas.Update(divida);
+
     public void Remover(Divida divida)
         => _context.Dividas.Remove(divida);
 

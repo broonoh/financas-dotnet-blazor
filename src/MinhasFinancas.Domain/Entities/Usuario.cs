@@ -58,5 +58,13 @@ public class Usuario
     public bool RefreshTokenValido(string token)
         => RefreshToken == token && RefreshTokenExpiry > DateTime.UtcNow;
 
+    public void AtualizarPerfil(string nome, string? telefone)
+    {
+        if (string.IsNullOrWhiteSpace(nome) || nome.Length < 3 || nome.Length > 100)
+            throw new ArgumentException("Nome deve ter entre 3 e 100 caracteres.", nameof(nome));
+        Nome = nome.Trim();
+        Telefone = telefone?.Trim();
+    }
+
     public void Desativar() => Ativo = false;
 }

@@ -28,6 +28,13 @@ public class DespesaRepository : IDespesaRepository
             .OrderByDescending(d => d.DataCriacao)
             .ToListAsync(ct);
 
+    public async Task<IEnumerable<DespesaFixa>> ListarFixasComParcelasAsync(Guid usuarioId, CancellationToken ct = default)
+        => await _context.DespesasFixas
+            .Include(d => d.Parcelas)
+            .Where(d => d.UsuarioId == usuarioId)
+            .OrderByDescending(d => d.DataCriacao)
+            .ToListAsync(ct);
+
     public async Task<IEnumerable<DespesaExtra>> ListarExtrasPorUsuarioAsync(Guid usuarioId, CancellationToken ct = default)
         => await _context.DespesasExtras
             .Where(d => d.UsuarioId == usuarioId)
@@ -55,6 +62,12 @@ public class DespesaRepository : IDespesaRepository
 
     public Task AdicionarExtraAsync(DespesaExtra despesa, CancellationToken ct = default)
         => _context.DespesasExtras.AddAsync(despesa, ct).AsTask();
+
+    public void AtualizarFixa(DespesaFixa despesa)
+        => _context.DespesasFixas.Update(despesa);
+
+    public void AtualizarExtra(DespesaExtra despesa)
+        => _context.DespesasExtras.Update(despesa);
 
     public void Remover(Despesa despesa)
         => _context.Despesas.Remove(despesa);

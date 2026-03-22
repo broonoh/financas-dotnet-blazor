@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Minhas Finanças
+Comment=Controle de finanças pessoais
+Exec=/home/broonoh/.local/share/minhas-financas/minhas-financas-abrir.sh
+Icon=/home/broonoh/.local/share/minhas-financas/minhas-financas.svg
+Terminal=false
+Categories=Finance;Office;
+StartupNotify=true
+Keywords=financas;dinheiro;receitas;despesas;

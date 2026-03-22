@@ -1,17 +1,21 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace MinhasFinancas.Web.Services;
 
 /// <summary>
 /// DelegatingHandler que injeta o Bearer token JWT em cada requisição HTTP autenticada.
+/// Faz logout automático quando a API retorna 401.
 /// </summary>
 public class AuthenticatedHttpHandler : DelegatingHandler
 {
     private readonly AuthStateProvider _authState;
+    private readonly NavigationManager _navigation;
 
-    public AuthenticatedHttpHandler(AuthStateProvider authState)
+    public AuthenticatedHttpHandler(AuthStateProvider authState, NavigationManager navigation)
     {
         _authState = authState;
+        _navigation = navigation;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -20,6 +24,14 @@ public class AuthenticatedHttpHandler : DelegatingHandler
         if (!string.IsNullOrEmpty(token))
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        return await base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            await _authState.MarcarComoDesautenticado();
+            _navigation.NavigateTo("/login", forceLoad: false);
+        }
+
+        return response;
     }
 }

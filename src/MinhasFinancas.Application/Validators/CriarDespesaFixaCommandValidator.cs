@@ -18,6 +18,9 @@ public class CriarDespesaFixaCommandValidator : AbstractValidator<CriarDespesaFi
         RuleFor(x => x.QuantidadeParcelas)
             .InclusiveBetween(2, 48).WithMessage("Quantidade de parcelas deve ser entre 2 e 48.");
 
+        RuleFor(x => x.DataCompra)
+            .NotEmpty().WithMessage("Data da compra é obrigatória.");
+
         RuleFor(x => x.DataPrimeiraParcela)
             .Must(d => {
                 var hoje = DateOnly.FromDateTime(DateTime.UtcNow);

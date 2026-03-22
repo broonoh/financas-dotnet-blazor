@@ -5,6 +5,7 @@ namespace MinhasFinancas.Domain.Entities;
 public class DespesaFixa : Despesa
 {
     public int QuantidadeParcelas { get; private set; }
+    public DateOnly DataCompra { get; private set; }
     public DateOnly DataPrimeiraParcela { get; private set; }
     public FormaPagamentoDespesaFixa FormaPagamento { get; private set; }
 
@@ -19,6 +20,7 @@ public class DespesaFixa : Despesa
         string descricao,
         decimal valorTotal,
         int quantidadeParcelas,
+        DateOnly dataCompra,
         DateOnly dataPrimeiraParcela,
         string categoria,
         FormaPagamentoDespesaFixa formaPagamento)
@@ -45,6 +47,7 @@ public class DespesaFixa : Despesa
             Descricao = descricao.Trim(),
             ValorTotal = valorTotal,
             QuantidadeParcelas = quantidadeParcelas,
+            DataCompra = dataCompra,
             DataPrimeiraParcela = dataPrimeiraParcela,
             Categoria = categoria,
             FormaPagamento = formaPagamento,

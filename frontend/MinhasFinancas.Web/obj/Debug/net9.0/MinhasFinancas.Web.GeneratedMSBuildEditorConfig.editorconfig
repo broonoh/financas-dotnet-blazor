@@ -1,0 +1,92 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.MudDebugAnalyzer = 
+build_property.MudAllowedAttributePattern = 
+build_property.MudAllowedAttributeList = 
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = MinhasFinancas.Web
+build_property.RootNamespace = MinhasFinancas.Web
+build_property.ProjectDir = /home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Components/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9SZWRpcmVjdFRvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Components/SummaryCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TdW1tYXJ5Q2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Cadastrar.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2FkYXN0cmFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/CategoriasDespesa.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2F0ZWdvcmlhc0Rlc3Blc2EucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/CategoriasReceita.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2F0ZWdvcmlhc1JlY2VpdGEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRGFzaGJvYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Despesas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRGVzcGVzYXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Graficos.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR3JhZmljb3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Parcelas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUGFyY2VsYXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Perfil.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUGVyZmlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/Pages/Receitas.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUmVjZWl0YXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/broonoh/Workspace/financas/frontend/MinhasFinancas.Web/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

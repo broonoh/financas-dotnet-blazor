@@ -45,8 +45,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var token = await AuthState.ObterTokenAsync();
-        if (!string.IsNullOrEmpty(token))
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
             Nav.NavigateTo("/dashboard");
     }
 

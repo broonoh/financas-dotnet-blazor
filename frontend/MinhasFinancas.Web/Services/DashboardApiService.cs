@@ -186,6 +186,27 @@ public class DashboardApiService
         return (false, "Erro ao excluir categoria.");
     }
 
+    public async Task<byte[]?> DownloadReceitasPdfAsync()
+    {
+        var response = await _http.GetAsync("api/receitas/export/pdf");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
+    public async Task<byte[]?> DownloadDespesasFixasPdfAsync()
+    {
+        var response = await _http.GetAsync("api/despesas/fixas/export/pdf");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
+    public async Task<byte[]?> DownloadDespesasExtrasPdfAsync()
+    {
+        var response = await _http.GetAsync("api/despesas/extras/export/pdf");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
     public async Task<byte[]?> DownloadDividasPdfAsync(string nomeDevedor)
     {
         var response = await _http.GetAsync($"api/dividas/export/pdf?nomeDevedor={Uri.EscapeDataString(nomeDevedor)}");

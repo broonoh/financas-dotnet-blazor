@@ -1,0 +1,20 @@
+[Unit]
+Description=Minhas Finanças – API Backend
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/minhas-financas/api
+ExecStart=/usr/bin/dotnet %h/.local/share/minhas-financas/api/MinhasFinancas.API.dll
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=minhas-financas-api
+
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:5090
+
+[Install]
+WantedBy=default.target

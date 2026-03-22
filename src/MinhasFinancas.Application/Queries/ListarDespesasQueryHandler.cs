@@ -19,7 +19,7 @@ public class ListarDespesasFixasQueryHandler : IRequestHandler<ListarDespesasFix
 
         return despesas.Select(d => new DespesaFixaDto(
             d.Id, d.Descricao, d.ValorTotal, d.QuantidadeParcelas,
-            d.DataPrimeiraParcela, d.Categoria, d.FormaPagamento, d.DataCriacao));
+            d.DataCompra, d.DataPrimeiraParcela, d.Categoria, d.FormaPagamento, d.DataCriacao));
     }
 }
 

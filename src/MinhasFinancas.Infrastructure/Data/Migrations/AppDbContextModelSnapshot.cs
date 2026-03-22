@@ -379,6 +379,10 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                 {
                     b.HasBaseType("MinhasFinancas.Domain.Entities.Despesa");
 
+                    b.Property<DateOnly>("DataCompra")
+                        .HasColumnType("date")
+                        .HasColumnName("data_compra");
+
                     b.Property<DateOnly>("DataPrimeiraParcela")
                         .HasColumnType("date")
                         .HasColumnName("data_primeira_parcela");

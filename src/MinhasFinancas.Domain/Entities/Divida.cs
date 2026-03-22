@@ -76,5 +76,16 @@ public class Divida
         }
     }
 
+    public void Atualizar(string nomeDevedor, string descricao)
+    {
+        if (string.IsNullOrWhiteSpace(nomeDevedor) || nomeDevedor.Length < 2 || nomeDevedor.Length > 100)
+            throw new ArgumentException("Nome do devedor deve ter entre 2 e 100 caracteres.", nameof(nomeDevedor));
+        if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 200)
+            throw new ArgumentException("Descrição deve ter entre 3 e 200 caracteres.", nameof(descricao));
+
+        NomeDevedor = nomeDevedor.Trim();
+        Descricao = descricao.Trim();
+    }
+
     public void Encerrar() => Ativa = false;
 }

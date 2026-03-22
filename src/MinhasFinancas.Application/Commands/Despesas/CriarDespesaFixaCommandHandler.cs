@@ -23,6 +23,7 @@ public class CriarDespesaFixaCommandHandler : IRequestHandler<CriarDespesaFixaCo
             request.Descricao,
             request.ValorTotal,
             request.QuantidadeParcelas,
+            request.DataCompra,
             request.DataPrimeiraParcela,
             request.Categoria,
             request.FormaPagamento);
@@ -35,6 +36,7 @@ public class CriarDespesaFixaCommandHandler : IRequestHandler<CriarDespesaFixaCo
             despesa.Descricao,
             despesa.ValorTotal,
             despesa.QuantidadeParcelas,
+            despesa.DataCompra,
             despesa.DataPrimeiraParcela,
             despesa.Categoria,
             despesa.FormaPagamento,

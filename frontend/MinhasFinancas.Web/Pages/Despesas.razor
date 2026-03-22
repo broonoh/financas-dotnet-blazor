@@ -16,6 +16,11 @@
                        Variant="Variant.Filled" OnClick="@(() => { _mostrarFormFixa = !_mostrarFormFixa; _editandoFixaId = null; })" Class="mb-4">
                 Nova Despesa Fixa
             </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Secondary"
+                       Variant="Variant.Outlined" OnClick="DownloadFixasPdf" Disabled="_baixandoFixasPdf" Class="mb-4 ml-2">
+                @if (_baixandoFixasPdf) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+                Exportar PDF
+            </MudButton>
 
             @if (_mostrarFormFixa && _editandoFixaId == null)
             {
@@ -32,7 +37,11 @@
                             <MudTextField @bind-Value="_fixaParcelas" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudDatePicker @bind-Date="_fixaDataPrimeiraParcela" Label="Data 1ª Parcela"
+                            <MudDatePicker @bind-Date="_fixaDataCompra" Label="Data da Compra"
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                        </MudItem>
+                        <MudItem xs="12" md="3">
+                            <MudDatePicker @bind-Date="_fixaDataPrimeiraParcela" Label="Vencimento 1ª Parcela"
                                            Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
                         </MudItem>
                         <MudItem xs="12" md="4">
@@ -166,6 +175,11 @@
             <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Warning"
                        Variant="Variant.Filled" OnClick="@(() => { _mostrarFormExtra = !_mostrarFormExtra; _editandoExtraId = null; })" Class="mb-4">
                 Nova Despesa Extra
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Secondary"
+                       Variant="Variant.Outlined" OnClick="DownloadExtrasPdf" Disabled="_baixandoExtrasPdf" Class="mb-4 ml-2">
+                @if (_baixandoExtrasPdf) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+                Exportar PDF
             </MudButton>
 
             @if (_mostrarFormExtra && _editandoExtraId == null)
@@ -515,9 +529,11 @@
     private string _fixaErro = string.Empty;
     private Guid? _excluindoFixaId;
     private Guid? _editandoFixaId;
+    private bool _baixandoFixasPdf;
     private string _fixaDescricao = string.Empty;
     private string _fixaValorStr = string.Empty;
     private string _fixaParcelas = "2";
+    private DateTime? _fixaDataCompra;
     private DateTime? _fixaDataPrimeiraParcela;
     private string _fixaCategoria = "Outros";
     private string _fixaFormaPagamento = "CartaoCredito";
@@ -530,6 +546,7 @@
     private string _extraErro = string.Empty;
     private Guid? _excluindoExtraId;
     private Guid? _editandoExtraId;
+    private bool _baixandoExtrasPdf;
     private string _extraDescricao = string.Empty;
     private string _extraValorStr = string.Empty;
     private DateTime? _extraDataDespesa;
@@ -605,6 +622,7 @@
         _fixaDescricao = string.Empty;
         _fixaValorStr = string.Empty;
         _fixaParcelas = "2";
+        _fixaDataCompra = null;
         _fixaDataPrimeiraParcela = null;
         _fixaCategoria = _categoriasDespesa?.FirstOrDefault()?.Nome ?? string.Empty;
         _fixaFormaPagamento = "CartaoCredito";
@@ -615,7 +633,7 @@
     {
         _fixaErro = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(_fixaDescricao) || string.IsNullOrWhiteSpace(_fixaValorStr) || _fixaDataPrimeiraParcela is null)
+        if (string.IsNullOrWhiteSpace(_fixaDescricao) || string.IsNullOrWhiteSpace(_fixaValorStr) || _fixaDataCompra is null || _fixaDataPrimeiraParcela is null)
         {
             _fixaErro = "Preencha todos os campos obrigatórios.";
             return;
@@ -638,6 +656,7 @@
             Descricao = _fixaDescricao,
             ValorTotal = valor,
             QuantidadeParcelas = parcelas,
+            DataCompra = DateOnly.FromDateTime(_fixaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_fixaDataPrimeiraParcela!.Value),
             Categoria = _fixaCategoria,
             FormaPagamento = _fixaFormaPagamento
@@ -879,5 +898,23 @@
         if (bytes == null) return;
         var fileName = $"dividas_{nomeDevedor.Replace(" ", "_")}.pdf";
         await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, "application/pdf", Convert.ToBase64String(bytes));
+    }
+
+    private async Task DownloadFixasPdf()
+    {
+        _baixandoFixasPdf = true;
+        var bytes = await ApiService.DownloadDespesasFixasPdfAsync();
+        _baixandoFixasPdf = false;
+        if (bytes == null) return;
+        await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_fixas.pdf", "application/pdf", Convert.ToBase64String(bytes));
+    }
+
+    private async Task DownloadExtrasPdf()
+    {
+        _baixandoExtrasPdf = true;
+        var bytes = await ApiService.DownloadDespesasExtrasPdfAsync();
+        _baixandoExtrasPdf = false;
+        if (bytes == null) return;
+        await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_extras.pdf", "application/pdf", Convert.ToBase64String(bytes));
     }
 }

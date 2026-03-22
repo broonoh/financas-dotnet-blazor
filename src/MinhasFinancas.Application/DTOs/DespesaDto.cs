@@ -7,6 +7,7 @@ public record DespesaFixaDto(
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,
+    DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,
     string Categoria,
     FormaPagamentoDespesaFixa FormaPagamento,

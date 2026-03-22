@@ -1,0 +1,16 @@
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/bin/Release/net9.0/MinhasFinancas.Application.deps.json
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/bin/Release/net9.0/MinhasFinancas.Application.dll
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/bin/Release/net9.0/MinhasFinancas.Application.pdb
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/bin/Release/net9.0/MinhasFinancas.Domain.dll
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/bin/Release/net9.0/MinhasFinancas.Domain.pdb
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.csproj.AssemblyReference.cache
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.AssemblyInfoInputs.cache
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.AssemblyInfo.cs
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.csproj.CoreCompileInputs.cache
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFi.7A4B493F.Up2Date
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.dll
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/refint/MinhasFinancas.Application.dll
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.pdb
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/ref/MinhasFinancas.Application.dll
+/home/broonoh/Workspace/financas/src/MinhasFinancas.Application/obj/Release/net9.0/MinhasFinancas.Application.sourcelink.json
