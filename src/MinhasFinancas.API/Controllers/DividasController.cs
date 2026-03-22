@@ -130,6 +130,81 @@ public class DividasController : ControllerBase
                 // ── CONTENT ─────────────────────────────────────────────
                 page.Content().Column(col =>
                 {
+                    // ── Resumo por Mês ───────────────────────────────────
+                    var resumoMes = dividas
+                        .SelectMany(d => d.Parcelas.Select(p => new { p.DataVencimento, p.Valor, p.Paga }))
+                        .GroupBy(p => new { p.DataVencimento.Year, p.DataVencimento.Month })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                        .Select(g => new
+                        {
+                            Periodo = $"{culture.DateTimeFormat.GetMonthName(g.Key.Month)[..3]}/{g.Key.Year}",
+                            Total = g.Sum(p => p.Valor),
+                            Pagas = g.Count(p => p.Paga),
+                            Pendentes = g.Count(p => !p.Paga),
+                        }).ToList();
+
+                    col.Item().PaddingBottom(12).Column(resumo =>
+                    {
+                        resumo.Item().Background(AzulClaro).PaddingHorizontal(10).PaddingVertical(6)
+                            .Text("Resumo por Mês").Bold().FontSize(10).FontColor(Azul);
+
+                        resumo.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn(3);
+                                cols.RelativeColumn(3);
+                                cols.RelativeColumn(2);
+                                cols.RelativeColumn(2);
+                            });
+
+                            static void TH(IContainer c, string t) =>
+                                c.Background("#1565C0").PaddingVertical(4).PaddingHorizontal(6)
+                                 .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
+
+                            table.Header(h =>
+                            {
+                                h.Cell().Element(c => TH(c, "Mês"));
+                                h.Cell().Element(c => TH(c, "Total a Receber"));
+                                h.Cell().Element(c => TH(c, "Recebidas"));
+                                h.Cell().Element(c => TH(c, "Pendentes"));
+                            });
+
+                            var idx = 0;
+                            foreach (var m in resumoMes)
+                            {
+                                idx++;
+                                var bg = idx % 2 == 0 ? "#EBF3FD" : "#FFFFFF";
+                                void TD(IContainer c, string t, string? cor = null) =>
+                                    c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                     .PaddingVertical(4).PaddingHorizontal(6)
+                                     .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
+
+                                table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                    .PaddingVertical(4).PaddingHorizontal(6)
+                                    .Text(m.Periodo).Bold().FontSize(8).FontColor(Azul);
+                                table.Cell().Element(c => TD(c, m.Total.ToString("C2", culture), Azul));
+                                table.Cell().Element(c => TD(c, m.Pagas.ToString(), Verde));
+                                table.Cell().Element(c => TD(c, m.Pendentes.ToString(), m.Pendentes > 0 ? Vermelho : Verde));
+                            }
+
+                            table.Footer(f =>
+                            {
+                                f.Cell().Background(AzulClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .Text("TOTAL").Bold().FontSize(8).FontColor(Azul);
+                                f.Cell().Background(AzulClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Total).ToString("C2", culture))
+                                    .Bold().FontSize(8).FontColor(Azul);
+                                f.Cell().Background(AzulClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Pagas).ToString())
+                                    .Bold().FontSize(8).FontColor(Verde);
+                                f.Cell().Background(AzulClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Pendentes).ToString())
+                                    .Bold().FontSize(8).FontColor(Vermelho);
+                            });
+                        });
+                    });
+
                     foreach (var divida in dividas)
                     {
                         var pct = divida.ValorTotal > 0

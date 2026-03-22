@@ -128,6 +128,9 @@ public class DashboardApiService
             new { Paga = paga, DataPagamento = (DateOnly?)null });
     }
 
+    public Task<ResumoMensalDto?> ObterResumoMensalAsync(int ano, int mes)
+        => _http.GetFromJsonAsync<ResumoMensalDto>($"api/resumo/mensal?ano={ano}&mes={mes}");
+
     public Task<PerfilDto?> ObterPerfilAsync()
         => _http.GetFromJsonAsync<PerfilDto>("api/perfil");
 
@@ -210,6 +213,13 @@ public class DashboardApiService
     public async Task<byte[]?> DownloadDividasPdfAsync(string nomeDevedor)
     {
         var response = await _http.GetAsync($"api/dividas/export/pdf?nomeDevedor={Uri.EscapeDataString(nomeDevedor)}");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
+    public async Task<byte[]?> DownloadResumoMensalPdfAsync(int ano, int mes)
+    {
+        var response = await _http.GetAsync($"api/resumo/mensal/export/pdf?ano={ano}&mes={mes}");
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync();
     }

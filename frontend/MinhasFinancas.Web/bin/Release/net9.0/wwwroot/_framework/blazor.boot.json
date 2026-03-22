@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MinhasFinancas.Web",
   "resources": {
-    "hash": "sha256-5zIe+dPNAluMOM4C5815NKYdDmVOfuKaW6+RTHjGldk=",
+    "hash": "sha256-wqczz2zLdftf5Vdt1B+dvkM7JEJrPJuT10Is8OpXLrE=",
     "fingerprinting": {
       "Fluxor.hnfazpbnxb.wasm": "Fluxor.wasm",
       "Fluxor.Blazor.Web.z7l694tphu.wasm": "Fluxor.Blazor.Web.wasm",
@@ -211,8 +211,8 @@
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "MinhasFinancas.Web.wb0iay45o6.wasm": "MinhasFinancas.Web.wasm",
-      "MinhasFinancas.Web.vtwqiswkn2.pdb": "MinhasFinancas.Web.pdb"
+      "MinhasFinancas.Web.czohr7eetb.wasm": "MinhasFinancas.Web.wasm",
+      "MinhasFinancas.Web.40lr4h6mvs.pdb": "MinhasFinancas.Web.pdb"
     },
     "jsModuleNative": {
       "dotnet.native.l1ds2rhypd.js": "sha256-CU8oL4L0VAwGe3hCyxZDy7keJq9dcsWED0JKqrvlUb4="
@@ -432,10 +432,10 @@
       "WindowsBase.g3ep9asl8e.wasm": "sha256-ZNubnH6lgybyHtAdlMT40aDBYT2V7npJIDu1AwBtujs=",
       "mscorlib.l7xs6zruqy.wasm": "sha256-3waJ44t0BBPDuFSBnvKXk4ReWykH4S/GJoncIfrAlvg=",
       "netstandard.97to7qusgy.wasm": "sha256-K2fLR0yH1WiUkzlu09Y2p2sm9BhyhGsoYJBopqdIuV4=",
-      "MinhasFinancas.Web.wb0iay45o6.wasm": "sha256-LGQ6xlu41hdl4Zq5svEpMCWYTKGinUKbBOOmSWylEO4="
+      "MinhasFinancas.Web.czohr7eetb.wasm": "sha256-uG+O1xBTR3E9YM+vmS3ARLJWt29PSrZjXjwubKg6eWw="
     },
     "pdb": {
-      "MinhasFinancas.Web.vtwqiswkn2.pdb": "sha256-s2p4wHXUpXFd+1PDmxue7XjXe3UVQh++ntZ1pu3FJJs="
+      "MinhasFinancas.Web.40lr4h6mvs.pdb": "sha256-FOtRoA5OT3FePm8wpsQp4UAEwb/gvwC/Rbg3JPJylwY="
     }
   },
   "cacheBootResources": true,

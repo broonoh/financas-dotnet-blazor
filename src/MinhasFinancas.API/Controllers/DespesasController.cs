@@ -307,6 +307,81 @@ public class DespesasController : ControllerBase
 
                 page.Content().Column(col =>
                 {
+                    // ── Resumo por Mês ───────────────────────────────────
+                    var resumoMes = despesas
+                        .SelectMany(d => d.Parcelas.Select(p => new { p.DataVencimento, p.Valor, p.Paga }))
+                        .GroupBy(p => new { p.DataVencimento.Year, p.DataVencimento.Month })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                        .Select(g => new
+                        {
+                            Periodo = $"{culture.DateTimeFormat.GetMonthName(g.Key.Month)[..3]}/{g.Key.Year}",
+                            Total = g.Sum(p => p.Valor),
+                            Pagas = g.Count(p => p.Paga),
+                            Pendentes = g.Count(p => !p.Paga),
+                        }).ToList();
+
+                    col.Item().PaddingBottom(12).Column(resumo =>
+                    {
+                        resumo.Item().Background(RoxoClaro).PaddingHorizontal(10).PaddingVertical(6)
+                            .Text("Resumo por Mês").Bold().FontSize(10).FontColor(Roxo);
+
+                        resumo.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn(3);  // Mês
+                                cols.RelativeColumn(3);  // Total
+                                cols.RelativeColumn(2);  // Pagas
+                                cols.RelativeColumn(2);  // Pendentes
+                            });
+
+                            static void TH(IContainer c, string t) =>
+                                c.Background("#5C35CC").PaddingVertical(4).PaddingHorizontal(6)
+                                 .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
+
+                            table.Header(h =>
+                            {
+                                h.Cell().Element(c => TH(c, "Mês"));
+                                h.Cell().Element(c => TH(c, "Total a Pagar"));
+                                h.Cell().Element(c => TH(c, "Parcelas Pagas"));
+                                h.Cell().Element(c => TH(c, "Pendentes"));
+                            });
+
+                            var idx = 0;
+                            foreach (var m in resumoMes)
+                            {
+                                idx++;
+                                var bg = idx % 2 == 0 ? "#F3EEF9" : "#FFFFFF";
+                                void TD(IContainer c, string t, string? cor = null) =>
+                                    c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                     .PaddingVertical(4).PaddingHorizontal(6)
+                                     .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
+
+                                table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                    .PaddingVertical(4).PaddingHorizontal(6)
+                                    .Text(m.Periodo).Bold().FontSize(8).FontColor(Roxo);
+                                table.Cell().Element(c => TD(c, m.Total.ToString("C2", culture), Roxo));
+                                table.Cell().Element(c => TD(c, m.Pagas.ToString(), Verde));
+                                table.Cell().Element(c => TD(c, m.Pendentes.ToString(), m.Pendentes > 0 ? Vermelho : Verde));
+                            }
+
+                            table.Footer(f =>
+                            {
+                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .Text("TOTAL").Bold().FontSize(8).FontColor(Roxo);
+                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Total).ToString("C2", culture))
+                                    .Bold().FontSize(8).FontColor(Roxo);
+                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Pagas).ToString())
+                                    .Bold().FontSize(8).FontColor(Verde);
+                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Pendentes).ToString())
+                                    .Bold().FontSize(8).FontColor(Vermelho);
+                            });
+                        });
+                    });
+
                     foreach (var d in despesas)
                     {
                         var parcelasTotal = d.Parcelas.Count;
@@ -456,8 +531,77 @@ public class DespesasController : ControllerBase
                     h.Item().PaddingBottom(8);
                 });
 
-                page.Content().Table(table =>
+                page.Content().Column(contentCol =>
                 {
+                    // ── Resumo por Mês ───────────────────────────────────
+                    var resumoMes = despesas
+                        .GroupBy(d => new { d.DataDespesa.Year, d.DataDespesa.Month })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                        .Select(g => new
+                        {
+                            Periodo = $"{culture.DateTimeFormat.GetMonthName(g.Key.Month)[..3]}/{g.Key.Year}",
+                            Total = g.Sum(d => d.ValorTotal),
+                            Qtd = g.Count(),
+                        }).ToList();
+
+                    contentCol.Item().PaddingBottom(12).Column(resumo =>
+                    {
+                        resumo.Item().Background(LaranjaClaro).PaddingHorizontal(10).PaddingVertical(6)
+                            .Text("Resumo por Mês").Bold().FontSize(10).FontColor(Laranja);
+
+                        resumo.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn(3);
+                                cols.RelativeColumn(3);
+                                cols.RelativeColumn(2);
+                            });
+
+                            static void TH(IContainer c, string t) =>
+                                c.Background("#E65100").PaddingVertical(4).PaddingHorizontal(6)
+                                 .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
+
+                            table.Header(h =>
+                            {
+                                h.Cell().Element(c => TH(c, "Mês"));
+                                h.Cell().Element(c => TH(c, "Total"));
+                                h.Cell().Element(c => TH(c, "Lançamentos"));
+                            });
+
+                            var idx = 0;
+                            foreach (var m in resumoMes)
+                            {
+                                idx++;
+                                var bg = idx % 2 == 0 ? "#FFF8F0" : "#FFFFFF";
+                                void TD(IContainer c, string t, string? cor = null) =>
+                                    c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                     .PaddingVertical(4).PaddingHorizontal(6)
+                                     .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
+
+                                table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                    .PaddingVertical(4).PaddingHorizontal(6)
+                                    .Text(m.Periodo).Bold().FontSize(8).FontColor(Laranja);
+                                table.Cell().Element(c => TD(c, m.Total.ToString("C2", culture), Laranja));
+                                table.Cell().Element(c => TD(c, m.Qtd.ToString()));
+                            }
+
+                            table.Footer(f =>
+                            {
+                                f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .Text("TOTAL").Bold().FontSize(8).FontColor(Laranja);
+                                f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Total).ToString("C2", culture))
+                                    .Bold().FontSize(8).FontColor(Laranja);
+                                f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                    .AlignCenter().Text(resumoMes.Sum(m => m.Qtd).ToString())
+                                    .Bold().FontSize(8);
+                            });
+                        });
+                    });
+
+                    contentCol.Item().Table(table =>
+                    {
                     table.ColumnsDefinition(cols =>
                     {
                         cols.RelativeColumn(4);  // Descrição
@@ -514,7 +658,9 @@ public class DespesasController : ControllerBase
                             .Bold().FontSize(9).FontColor(Laranja);
                         f.Cell().ColumnSpan(2).Background("#FFF3E0");
                     });
-                });
+                    }); // fim contentCol.Item().Table
+
+                }); // fim page.Content().Column
 
                 page.Footer().BorderTop(1).BorderColor("#CFD8DC").PaddingTop(4).Row(r =>
                 {

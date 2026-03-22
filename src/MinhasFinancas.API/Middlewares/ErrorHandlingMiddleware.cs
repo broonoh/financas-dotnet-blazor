@@ -47,6 +47,7 @@ public class ErrorHandlingMiddleware
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogError(ex, "InvalidOperationException: {Message}", ex.Message);
             context.Response.StatusCode = 409;
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(new { message = ex.Message }));

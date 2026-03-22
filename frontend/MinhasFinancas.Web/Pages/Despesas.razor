@@ -83,15 +83,36 @@
             {
                 <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
             }
-            else if (_despesasFixas?.Count > 0)
+            @if (_despesasFixas?.Count > 0)
             {
+                var _hj = DateOnly.FromDateTime(DateTime.Now);
+                var _todasParc = _despesasFixas.SelectMany(d => d.Parcelas ?? []).ToList();
+                var _totMes = _todasParc.Where(p => p.DataVencimento.Year == _hj.Year && p.DataVencimento.Month == _hj.Month).Sum(p => p.Valor);
+                var _totVenc = _todasParc.Where(p => p.Vencida && !p.Paga).Sum(p => p.Valor);
+                <MudPaper Elevation="0" Class="pa-3 mb-4" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
+                    <MudGrid>
+                        <MudItem xs="12" sm="4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">A pagar este mês</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary"><strong>@_totMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong></MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Em atraso</MudText>
+                            <MudText Typo="Typo.h6" Color="@(_totVenc > 0 ? Color.Error : Color.Success)"><strong>@_totVenc.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong></MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Despesas ativas</MudText>
+                            <MudText Typo="Typo.h6"><strong>@_despesasFixas.Count</strong></MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+
                 @foreach (var fixа in _despesasFixas)
                 {
-                    var parcelasPagas = fixа.Parcelas.Count(p => p.Paga);
+                    var parcelasPagas = (fixа.Parcelas ?? []).Count(p => p.Paga);
                     var totalParcelas = fixа.QuantidadeParcelas;
                     var progressoPercent = totalParcelas > 0 ? (double)parcelasPagas / totalParcelas * 100 : 0;
-                    var saldoRestante = fixа.Parcelas.Where(p => !p.Paga).Sum(p => p.Valor);
-                    var temVencida = fixа.Parcelas.Any(p => p.Vencida && !p.Paga);
+                    var saldoRestante = (fixа.Parcelas ?? []).Where(p => !p.Paga).Sum(p => p.Valor);
+                    var temVencida = (fixа.Parcelas ?? []).Any(p => p.Vencida && !p.Paga);
                     var expandida = _expandedFixaId == fixа.Id;
 
                     <MudCard Class="mb-3" Elevation="2">
@@ -371,6 +392,15 @@
                         var totalPessoa = dividasPessoa.Sum(d => d.ValorTotal);
                         var saldoPessoa = dividasPessoa.Sum(d => d.SaldoRestante);
                         var temVencida = dividasPessoa.Any(d => d.Parcelas.Any(p => p.Vencida && !p.Paga));
+                        var _hjD = DateOnly.FromDateTime(DateTime.Now);
+                        var _todasParcDev = dividasPessoa.SelectMany(d => d.Parcelas ?? []).ToList();
+                        var valorMesDev = _todasParcDev
+                            .Where(p => p.DataVencimento.Year == _hjD.Year && p.DataVencimento.Month == _hjD.Month && !p.Paga)
+                            .Sum(p => p.Valor);
+                        var proximaParc = _todasParcDev
+                            .Where(p => !p.Paga)
+                            .OrderBy(p => p.DataVencimento)
+                            .FirstOrDefault();
 
                         <MudTabPanel>
                             <TabContent>
@@ -384,29 +414,46 @@
                             </TabContent>
                             <ChildContent>
                                 <!-- Resumo da pessoa -->
-                                <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background: var(--mud-palette-background-grey);">
-                                    <div class="d-flex gap-4 align-center">
-                                        <div>
+                                <MudPaper Elevation="0" Class="pa-4 mb-3" Style="background: var(--mud-palette-background-grey);">
+                                    <MudGrid Spacing="4" AlignItems="Center">
+                                        <MudItem xs="6" sm="4" md="2">
                                             <MudText Typo="Typo.caption" Color="Color.Secondary">Total das dívidas</MudText>
                                             <MudText Typo="Typo.body1"><strong>@totalPessoa.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong></MudText>
-                                        </div>
-                                        <div>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="4" md="2">
                                             <MudText Typo="Typo.caption" Color="Color.Secondary">Saldo restante</MudText>
                                             <MudText Typo="Typo.body1" Color="@(saldoPessoa > 0 ? Color.Error : Color.Success)">
                                                 <strong>@saldoPessoa.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
                                             </MudText>
-                                        </div>
-                                        <div>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="4" md="1">
                                             <MudText Typo="Typo.caption" Color="Color.Secondary">Dívidas</MudText>
                                             <MudText Typo="Typo.body1"><strong>@dividasPessoa.Count</strong></MudText>
-                                        </div>
-                                        <MudSpacer />
-                                        <MudButton StartIcon="@Icons.Material.Filled.PictureAsPdf"
-                                                   Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
-                                                   OnClick="@(() => DownloadPdf(grupo.Key))">
-                                            Baixar PDF
-                                        </MudButton>
-                                    </div>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="4" md="2">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Este mês (a pagar)</MudText>
+                                            <MudText Typo="Typo.body1" Color="@(valorMesDev > 0 ? Color.Info : Color.Default)">
+                                                <strong>@valorMesDev.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
+                                            </MudText>
+                                        </MudItem>
+                                        @if (proximaParc is not null)
+                                        {
+                                            <MudItem xs="12" sm="6" md="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Próxima parcela</MudText>
+                                                <MudText Typo="Typo.body1" Color="@(proximaParc.Vencida ? Color.Error : Color.Default)">
+                                                    <strong>@proximaParc.DataVencimento.ToString("dd/MM/yyyy")</strong>
+                                                    &nbsp;·&nbsp;@proximaParc.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                                </MudText>
+                                            </MudItem>
+                                        }
+                                        <MudItem xs="12" sm="6" md="2" Class="d-flex justify-end">
+                                            <MudButton StartIcon="@Icons.Material.Filled.PictureAsPdf"
+                                                       Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                                       OnClick="@(() => DownloadPdf(grupo.Key))">
+                                                Baixar PDF
+                                            </MudButton>
+                                        </MudItem>
+                                    </MudGrid>
                                 </MudPaper>
 
                                 <!-- Lista de dívidas da pessoa -->
