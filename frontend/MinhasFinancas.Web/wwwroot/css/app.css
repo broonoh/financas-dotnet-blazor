@@ -1,5 +1,36 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Garante que nenhum elemento ultrapasse a largura da tela */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Imagens e canvas sempre responsivos */
+img, canvas, video {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Tabelas com scroll horizontal em telas pequenas */
+.mud-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Corrige flex containers que podem transbordar */
+.mud-card-header-content,
+.mud-card-header-actions {
+    min-width: 0;
+}
+
+/* Texto longo não transborda */
+.mud-typography {
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 h1:focus {

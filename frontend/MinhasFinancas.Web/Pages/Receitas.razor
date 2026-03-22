@@ -31,7 +31,7 @@
 }
 else if (_receitas?.Count > 0)
 {
-    <MudTable Items="_receitas" Hover="true" Striped="true" Dense="true">
+    <MudTable Items="_receitas" Hover="true" Striped="true" Dense="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
         <HeaderContent>
             <MudTh>Descrição</MudTh>
             <MudTh>Valor</MudTh>
@@ -89,7 +89,7 @@ else if (!_carregando)
         </MudItem>
         <MudItem xs="12" md="3">
             <MudDatePicker @bind-Date="_dataRecebimento" Label="Data de Recebimento"
-                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
         </MudItem>
         <MudItem xs="12" md="4">
             @if (_categorias?.Count > 0)

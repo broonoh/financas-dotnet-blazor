@@ -2,7 +2,7 @@
 # Inicia o serviço se não estiver rodando e abre o browser
 
 SERVICE="minhas-financas-api"
-URL="http://localhost:5171"
+URL="http://localhost:8080"
 
 if ! systemctl --user is-active --quiet "$SERVICE"; then
     notify-send "Minhas Finanças" "Iniciando serviço..." --icon=utilities-finance-manager -t 3000

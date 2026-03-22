@@ -21,7 +21,9 @@ else
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-3 d-block">
                     Distribuição total entre receitas e despesas
                 </MudText>
-                <canvas id="graficoPizzaFinancas" height="280"></canvas>
+                <div style="position:relative; width:100%; max-height:300px;">
+                    <canvas id="graficoPizzaFinancas" style="max-width:100%;"></canvas>
+                </div>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="7">
@@ -124,7 +126,9 @@ else
                     </MudItem>
                 }
             </MudGrid>
-            <canvas id="graficoDevedores" height="@(_devedoresResumo.Count > 4 ? 300 : 200)"></canvas>
+            <div style="position:relative; width:100%;">
+                <canvas id="graficoDevedores" style="max-width:100%;"></canvas>
+            </div>
         }
     </MudPaper>
 }

@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minhas Finanças — Documentação Técnica Completa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #fff;
+  }
+
+  /* CAPA */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1565C0 0%, #0d47a1 50%, #0a2a6e 100%);
+    color: white;
+    text-align: center;
+    page-break-after: always;
+    padding: 60px;
+  }
+  .cover-icon { font-size: 80px; margin-bottom: 24px; }
+  .cover h1 { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin-bottom: 12px; }
+  .cover .subtitle { font-size: 20px; opacity: 0.85; margin-bottom: 40px; }
+  .cover .meta { font-size: 14px; opacity: 0.7; line-height: 2; }
+  .cover .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 13px;
+    margin: 6px 4px;
+  }
+  .cover-badges { margin-top: 32px; }
+
+  /* ÍNDICE */
+  .toc {
+    padding: 60px 80px;
+    page-break-after: always;
+  }
+  .toc h2 { font-size: 28px; color: #1565C0; border-bottom: 3px solid #1565C0; padding-bottom: 10px; margin-bottom: 30px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { padding: 5px 0; font-size: 14px; color: #1565C0; }
+  .toc li a { color: #1565C0; text-decoration: none; }
+  .toc li a:hover { text-decoration: underline; }
+  .toc .toc-section { font-weight: 700; font-size: 15px; margin-top: 10px; }
+  .toc .toc-sub { font-weight: 400; margin-left: 20px; font-size: 13px; }
+
+  /* CONTEÚDO */
+  .content {
+    padding: 50px 70px;
+  }
+
+  h2.section-title {
+    font-size: 26px;
+    color: #1565C0;
+    border-bottom: 3px solid #1565C0;
+    padding-bottom: 10px;
+    margin: 50px 0 25px;
+    page-break-before: always;
+  }
+  h2.section-title:first-child { page-break-before: avoid; }
+
+  h3 {
+    font-size: 17px;
+    color: #0d47a1;
+    margin: 28px 0 12px;
+    padding-left: 10px;
+    border-left: 4px solid #42A5F5;
+  }
+
+  h4 {
+    font-size: 14px;
+    color: #1565C0;
+    margin: 20px 0 8px;
+    font-weight: 600;
+  }
+
+  p { margin-bottom: 12px; }
+
+  /* CAIXAS DE DESTAQUE */
+  .box {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .box-blue { background: #e3f2fd; border-left: 5px solid #1565C0; }
+  .box-green { background: #e8f5e9; border-left: 5px solid #2e7d32; }
+  .box-purple { background: #f3e5f5; border-left: 5px solid #6a1b9a; }
+  .box-orange { background: #fff3e0; border-left: 5px solid #e65100; }
+  .box-teal { background: #e0f2f1; border-left: 5px solid #00695c; }
+  .box-red { background: #ffebee; border-left: 5px solid #c62828; }
+
+  .box strong { display: block; font-size: 14px; margin-bottom: 6px; }
+
+  /* CÓDIGO */
+  pre {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11.5px;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11.5px;
+    background: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #c7254e;
+  }
+  pre code { background: none; padding: 0; color: #333; }
+
+  /* TABELAS */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12.5px;
+  }
+  thead th {
+    background: #1565C0;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  tbody tr:nth-child(even) { background: #f5f8ff; }
+  tbody tr:hover { background: #e3f2fd; }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 2px;
+  }
+  .badge-blue { background: #1565C0; color: white; }
+  .badge-green { background: #2e7d32; color: white; }
+  .badge-purple { background: #6a1b9a; color: white; }
+  .badge-orange { background: #e65100; color: white; }
+  .badge-gray { background: #616161; color: white; }
+  .badge-teal { background: #00695c; color: white; }
+  .badge-red { background: #c62828; color: white; }
+
+  /* ENDPOINT */
+  .endpoint {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin: 8px 0;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+  }
+  .method {
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    min-width: 52px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .method-get { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
+  .method-post { background: #e3f2fd; color: #1565C0; border: 1px solid #1565C0; }
+  .method-put { background: #fff3e0; color: #e65100; border: 1px solid #e65100; }
+  .method-delete { background: #ffebee; color: #c62828; border: 1px solid #c62828; }
+  .method-patch { background: #f3e5f5; color: #6a1b9a; border: 1px solid #6a1b9a; }
+  .endpoint-path { font-weight: 600; color: #1a1a2e; }
+  .endpoint-desc { color: #555; margin-left: 8px; font-family: sans-serif; }
+
+  /* FLUXO */
+  .flow {
+    counter-reset: flow-counter;
+    list-style: none;
+    padding: 0;
+  }
+  .flow li {
+    counter-increment: flow-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .flow li::before {
+    content: counter(flow-counter);
+    background: #1565C0;
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ARQUITETURA */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .arch-card {
+    border-radius: 8px;
+    padding: 20px;
+    border: 2px solid;
+  }
+  .arch-card h4 { margin-top: 0; font-size: 15px; }
+  .arch-card.domain { border-color: #2e7d32; background: #f1f8f1; }
+  .arch-card.application { border-color: #1565C0; background: #f0f4fb; }
+  .arch-card.infrastructure { border-color: #e65100; background: #fef8f4; }
+  .arch-card.api { border-color: #6a1b9a; background: #f9f5fc; }
+
+  .arch-arrow {
+    text-align: center;
+    font-size: 24px;
+    color: #999;
+    padding: 8px 0;
+  }
+
+  ul { padding-left: 22px; margin-bottom: 12px; }
+  li { padding: 3px 0; }
+
+  .divider { border: none; border-top: 2px solid #e0e0e0; margin: 30px 0; }
+
+  .highlight { background: #fff9c4; padding: 2px 4px; border-radius: 3px; }
+
+  @media print {
+    body { font-size: 12px; }
+    .cover { height: 100vh; }
+    pre { font-size: 10.5px; }
+    .content { padding: 40px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ CAPA ═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-icon">💰</div>
+  <h1>Minhas Finanças</h1>
+  <div class="subtitle">Documentação Técnica Completa do Sistema</div>
+  <div class="meta">
+    <div><strong>Versão:</strong> 1.0.0</div>
+    <div><strong>Data:</strong> Março 2026</div>
+    <div><strong>Plataforma:</strong> .NET 9 · Blazor WASM · PostgreSQL</div>
+  </div>
+  <div class="cover-badges">
+    <span class="badge">.NET 9</span>
+    <span class="badge">Blazor WASM</span>
+    <span class="badge">PostgreSQL</span>
+    <span class="badge">Clean Architecture</span>
+    <span class="badge">CQRS · MediatR</span>
+    <span class="badge">JWT Auth</span>
+    <span class="badge">Docker</span>
+    <span class="badge">MudBlazor</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ ÍNDICE ════════════════════════════════════════ -->
+<div class="toc">
+  <h2>Sumário</h2>
+  <ol>
+    <li class="toc-section">Visão Geral do Sistema</li>
+    <li class="toc-sub">Propósito e Funcionalidades</li>
+    <li class="toc-sub">Stack Tecnológica</li>
+
+    <li class="toc-section">Arquitetura da Solução</li>
+    <li class="toc-sub">Clean Architecture</li>
+    <li class="toc-sub">Estrutura de Projetos</li>
+    <li class="toc-sub">Fluxo de Dependências</li>
+
+    <li class="toc-section">Camada Domain</li>
+    <li class="toc-sub">Entidades</li>
+    <li class="toc-sub">Value Objects</li>
+    <li class="toc-sub">Enums</li>
+    <li class="toc-sub">Interfaces de Repositório</li>
+
+    <li class="toc-section">Camada Application (CQRS)</li>
+    <li class="toc-sub">O que são DTOs e por que existem</li>
+    <li class="toc-sub">Commands e Handlers</li>
+    <li class="toc-sub">Queries e Handlers</li>
+    <li class="toc-sub">Validators (FluentValidation)</li>
+    <li class="toc-sub">Pipeline Behavior</li>
+
+    <li class="toc-section">Camada Infrastructure</li>
+    <li class="toc-sub">Entity Framework Core e DbContext</li>
+    <li class="toc-sub">Repositórios</li>
+    <li class="toc-sub">Serviços (JWT, Senha, Rate Limit)</li>
+    <li class="toc-sub">Migrations</li>
+
+    <li class="toc-section">Camada API (REST)</li>
+    <li class="toc-sub">Endpoints por Controller</li>
+    <li class="toc-sub">Autenticação JWT</li>
+    <li class="toc-sub">Tratamento de Erros</li>
+
+    <li class="toc-section">Frontend — Blazor WASM</li>
+    <li class="toc-sub">Páginas e Componentes</li>
+    <li class="toc-sub">State Management (Fluxor)</li>
+    <li class="toc-sub">Comunicação com a API</li>
+
+    <li class="toc-section">Fluxos Principais do Sistema</li>
+
+    <li class="toc-section">Infraestrutura</li>
+    <li class="toc-sub">Docker Compose</li>
+    <li class="toc-sub">Instalação Local (systemd + nginx)</li>
+    <li class="toc-sub">CI/CD (GitHub Actions)</li>
+
+    <li class="toc-section">Diagrama de Banco de Dados</li>
+  </ol>
+</div>
+
+<!-- ═════════════════════════════════════════ CONTEÚDO ═══════════════════════════════════════ -->
+<div class="content">
+
+<!-- ══════════════════════════ 1. VISÃO GERAL ══════════════════════════ -->
+<h2 class="section-title" id="visao-geral">1. Visão Geral do Sistema</h2>
+
+<p><strong>Minhas Finanças</strong> é uma aplicação web de controle de finanças pessoais desenvolvida com .NET 9 e Blazor WebAssembly. Permite ao usuário registrar receitas, despesas (fixas parceladas e extras), dívidas de terceiros, visualizar dashboard analítico, e exportar relatórios em PDF.</p>
+
+<h3>1.1 Funcionalidades do Sistema</h3>
+
+<table>
+  <thead>
+    <tr><th>Módulo</th><th>O que faz</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Autenticação</strong></td><td>Cadastro, login com JWT, refresh token, logout, rate limiting contra brute force</td></tr>
+    <tr><td><strong>Perfil</strong></td><td>Visualização e edição de dados pessoais (nome, telefone)</td></tr>
+    <tr><td><strong>Receitas</strong></td><td>CRUD de receitas mensais com suporte a categorias e recorrência; exportação PDF</td></tr>
+    <tr><td><strong>Despesas Fixas</strong></td><td>Despesas parceladas (cartão, PIX, boleto); geração automática de parcelas; exportação PDF</td></tr>
+    <tr><td><strong>Despesas Extras</strong></td><td>Despesas avulsas (pix, dinheiro, cartão, boleto); exportação PDF</td></tr>
+    <tr><td><strong>Parcelas</strong></td><td>Listagem de parcelas do mês; marcação de pago/pendente com data de pagamento</td></tr>
+    <tr><td><strong>Dívidas</strong></td><td>Controle de valores emprestados a terceiros; parcelas; exportação PDF por devedor</td></tr>
+    <tr><td><strong>Categorias</strong></td><td>Categorias personalizadas para despesas e receitas (CRUD)</td></tr>
+    <tr><td><strong>Dashboard</strong></td><td>Saldo, totais do mês, projeção 30 dias, evolução 12 meses, distribuição por categoria</td></tr>
+    <tr><td><strong>Gráficos</strong></td><td>Visualização gráfica da evolução financeira</td></tr>
+  </tbody>
+</table>
+
+<h3>1.2 Stack Tecnológica</h3>
+
+<table>
+  <thead>
+    <tr><th>Camada</th><th>Tecnologia</th><th>Versão</th><th>Função</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Backend — Framework</td><td>.NET / ASP.NET Core</td><td>9.0</td><td>Servidor web + API REST</td></tr>
+    <tr><td>Backend — ORM</td><td>Entity Framework Core + Npgsql</td><td>9.0.3</td><td>Acesso ao banco de dados</td></tr>
+    <tr><td>Backend — CQRS</td><td>MediatR</td><td>12.4.1</td><td>Desacoplamento de commands/queries</td></tr>
+    <tr><td>Backend — Validação</td><td>FluentValidation</td><td>11.11.0</td><td>Validação de entrada</td></tr>
+    <tr><td>Backend — Autenticação</td><td>JWT Bearer</td><td>9.0.3</td><td>Tokens de acesso e refresh</td></tr>
+    <tr><td>Backend — Senha</td><td>BCrypt.Net-Next</td><td>4.1.0</td><td>Hash seguro de senhas</td></tr>
+    <tr><td>Backend — PDF</td><td>QuestPDF</td><td>2024.12.5</td><td>Geração de relatórios PDF</td></tr>
+    <tr><td>Backend — Log</td><td>Serilog</td><td>9.0.0</td><td>Logging estruturado</td></tr>
+    <tr><td>Banco de Dados</td><td>PostgreSQL</td><td>16</td><td>Banco relacional</td></tr>
+    <tr><td>Frontend — Framework</td><td>Blazor WebAssembly</td><td>9.0.13</td><td>SPA rodando no browser</td></tr>
+    <tr><td>Frontend — UI</td><td>MudBlazor</td><td>8.5.0</td><td>Componentes Material Design</td></tr>
+    <tr><td>Frontend — State</td><td>Fluxor</td><td>6.0.0</td><td>Gerenciamento de estado global</td></tr>
+    <tr><td>Frontend — Auth</td><td>AspNetCore Components Authorization</td><td>9.0.3</td><td>Proteção de rotas</td></tr>
+    <tr><td>Servidor Web</td><td>nginx</td><td>1.28</td><td>Servir WASM + proxy reverso</td></tr>
+    <tr><td>Containers</td><td>Docker / Docker Compose</td><td>—</td><td>Orquestração de serviços</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 2. ARQUITETURA ══════════════════════════ -->
+<h2 class="section-title" id="arquitetura">2. Arquitetura da Solução</h2>
+
+<h3>2.1 Clean Architecture</h3>
+
+<p>O projeto adota <strong>Clean Architecture</strong> (também chamada de Arquitetura Limpa ou Onion Architecture). O princípio central é que <em>as camadas internas não conhecem as camadas externas</em> — a dependência flui sempre de fora para dentro:</p>
+
+<div class="arch-grid">
+  <div class="arch-card domain">
+    <h4>🟢 Domain (núcleo)</h4>
+    <p>Entidades do negócio, Value Objects, Enums e Interfaces de Repositório. Não depende de <em>nenhuma</em> outra camada nem de nenhum framework.</p>
+    <code>MinhasFinancas.Domain</code>
+  </div>
+  <div class="arch-card application">
+    <h4>🔵 Application</h4>
+    <p>Casos de uso (Commands e Queries via MediatR), DTOs, Validators. Depende apenas do Domain. Orquestra as regras de negócio.</p>
+    <code>MinhasFinancas.Application</code>
+  </div>
+  <div class="arch-card infrastructure">
+    <h4>🟠 Infrastructure</h4>
+    <p>Implementações concretas: EF Core, repositórios, serviços JWT e de senha. Depende do Domain e Application.</p>
+    <code>MinhasFinancas.Infrastructure</code>
+  </div>
+  <div class="arch-card api">
+    <h4>🟣 API (entrada)</h4>
+    <p>Controllers REST, middleware, configuração de DI e pipeline HTTP. É a camada mais externa — depende de tudo.</p>
+    <code>MinhasFinancas.API</code>
+  </div>
+</div>
+
+<div class="box box-blue">
+  <strong>Por que Clean Architecture?</strong>
+  Facilita troca de tecnologias (ex.: mudar de PostgreSQL para SQL Server) sem alterar regras de negócio. Garante testabilidade — o Domain e Application podem ser testados sem banco de dados. Promove separação de responsabilidades e torna o código manutenível a longo prazo.
+</div>
+
+<h3>2.2 Estrutura de Projetos</h3>
+
+<pre>MinhasFinancas.sln
+│
+├── src/
+│   ├── MinhasFinancas.Domain/          ← Núcleo (entidades, value objects, interfaces)
+│   ├── MinhasFinancas.Application/     ← Casos de uso (CQRS, DTOs, validators)
+│   ├── MinhasFinancas.Infrastructure/  ← EF Core, repositórios, JWT, BCrypt
+│   └── MinhasFinancas.API/             ← Controllers REST, middleware, Swagger
+│
+├── frontend/
+│   └── MinhasFinancas.Web/             ← Blazor WASM (UI, state, serviços HTTP)
+│
+├── tests/
+│   ├── MinhasFinancas.Tests.Unit/      ← Testes unitários (38 testes)
+│   └── MinhasFinancas.Tests.Integration/
+│
+├── docker/
+│   ├── docker-compose.yml
+│   ├── Dockerfile.api
+│   ├── Dockerfile.web
+│   └── nginx.conf
+│
+├── scripts/
+│   ├── install.sh                      ← Instalador local (Fedora/GNOME)
+│   ├── minhas-financas-api.service     ← Systemd user service
+│   ├── nginx-minhas-financas.conf      ← nginx na porta 8080
+│   └── minhas-financas.desktop         ← Atalho GNOME
+│
+└── .github/workflows/ci-cd.yml         ← CI/CD (GitHub Actions)</pre>
+
+<h3>2.3 Fluxo de uma Requisição (Exemplo: criar receita)</h3>
+
+<ol class="flow">
+  <li><strong>Browser (Blazor WASM)</strong> — Usuário preenche formulário e clica em Salvar</li>
+  <li><strong>AuthenticatedHttpHandler</strong> — Injeta o JWT Bearer token no cabeçalho Authorization</li>
+  <li><strong>nginx</strong> — Encaminha <code>POST /api/receitas</code> para a API na porta 5090</li>
+  <li><strong>ErrorHandlingMiddleware</strong> — Captura exceções globais antes de chegar no controller</li>
+  <li><strong>JwtBearerMiddleware</strong> — Valida o token JWT; popula <code>HttpContext.User</code></li>
+  <li><strong>ReceitasController</strong> — Extrai usuarioId do token, cria o Command, envia via <code>ISender.Send()</code></li>
+  <li><strong>ValidationBehavior (MediatR Pipeline)</strong> — FluentValidation valida os campos antes do handler</li>
+  <li><strong>CriarReceitaCommandHandler</strong> — Chama <code>Receita.Criar()</code>, valida regras de domínio</li>
+  <li><strong>IReceitaRepository.AdicionarAsync()</strong> — Persiste no contexto EF Core</li>
+  <li><strong>IUnitOfWork.CommitAsync()</strong> — Executa <code>SaveChangesAsync()</code> → SQL INSERT no PostgreSQL</li>
+  <li><strong>Controller</strong> — Retorna <code>201 Created</code> com o <code>ReceitaDto</code></li>
+  <li><strong>Blazor</strong> — Atualiza a lista de receitas na tela</li>
+</ol>
+
+<!-- ══════════════════════════ 3. DOMAIN ══════════════════════════ -->
+<h2 class="section-title" id="domain">3. Camada Domain</h2>
+
+<p>A camada Domain é o <strong>coração do sistema</strong>. Contém as regras de negócio que existem independentemente de qualquer tecnologia. Não referencia EF Core, ASP.NET, banco de dados ou qualquer framework externo.</p>
+
+<h3>3.1 Entidades</h3>
+
+<h4>Usuario</h4>
+<div class="box box-blue">
+  <strong>Arquivo:</strong> <code>src/MinhasFinancas.Domain/Entities/Usuario.cs</code>
+</div>
+
+<table>
+  <thead><tr><th>Propriedade</th><th>Tipo</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td>Id</td><td>Guid</td><td>Identificador único</td></tr>
+    <tr><td>Nome</td><td>string</td><td>Nome completo (3–100 chars)</td></tr>
+    <tr><td>Email</td><td>Email (Value Object)</td><td>E-mail em lowercase, validado</td></tr>
+    <tr><td>SenhaHash</td><td>SenhaHash (Value Object)</td><td>Hash BCrypt da senha</td></tr>
+    <tr><td>DataNascimento</td><td>DateOnly</td><td>Usuário deve ter ≥ 18 anos</td></tr>
+    <tr><td>Telefone</td><td>string?</td><td>Opcional</td></tr>
+    <tr><td>RefreshToken</td><td>string?</td><td>Token de renovação JWT (armazenado no servidor)</td></tr>
+    <tr><td>RefreshTokenExpiry</td><td>DateTime?</td><td>Expiração do refresh token (7 dias)</td></tr>
+    <tr><td>DataCadastro</td><td>DateTime</td><td>Data/hora UTC do cadastro</td></tr>
+    <tr><td>Ativo</td><td>bool</td><td>Soft delete</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Métodos relevantes:</strong> <code>Criar()</code> (factory method com validações), <code>AtualizarRefreshToken()</code>, <code>RefreshTokenValido()</code>, <code>AtualizarPerfil()</code>, <code>Desativar()</code>.</p>
+
+<hr class="divider">
+
+<h4>Receita</h4>
+<div class="box box-green">
+  <strong>Arquivo:</strong> <code>src/MinhasFinancas.Domain/Entities/Receita.cs</code>
+</div>
+
+<table>
+  <thead><tr><th>Propriedade</th><th>Tipo</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td>Id</td><td>Guid</td><td>Identificador único</td></tr>
+    <tr><td>UsuarioId</td><td>Guid</td><td>Dono da receita</td></tr>
+    <tr><td>Descricao</td><td>string</td><td>3–100 caracteres</td></tr>
+    <tr><td>Valor</td><td>decimal</td><td>Deve ser &gt; 0</td></tr>
+    <tr><td>DataRecebimento</td><td>DateOnly</td><td>Data em que a receita entrou</td></tr>
+    <tr><td>Categoria</td><td>string</td><td>Categoria associada</td></tr>
+    <tr><td>Recorrente</td><td>bool</td><td>Se é receita recorrente (salário, etc.)</td></tr>
+    <tr><td>DataCriacao</td><td>DateTime</td><td>Timestamp de criação</td></tr>
+  </tbody>
+</table>
+
+<hr class="divider">
+
+<h4>Despesa (classe base abstrata), DespesaFixa e DespesaExtra</h4>
+<div class="box box-orange">
+  <strong>Herança TPH (Table-Per-Hierarchy):</strong> <code>Despesa</code> é base abstrata. <code>DespesaFixa</code> e <code>DespesaExtra</code> herdam dela. O EF Core armazena ambas na mesma tabela com coluna discriminadora <code>tipo</code>.
+</div>
+
+<table>
+  <thead><tr><th>Propriedade</th><th>Onde</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td>Id, UsuarioId, Descricao, ValorTotal, Categoria, TipoDespesa, DataCriacao</td><td>Despesa (base)</td><td>Campos comuns</td></tr>
+    <tr><td>QuantidadeParcelas (2–48), DataCompra, DataPrimeiraParcela, FormaPagamento, Parcelas</td><td>DespesaFixa</td><td>Despesa parcelada; gera parcelas automaticamente</td></tr>
+    <tr><td>DataDespesa, FormaPagamento</td><td>DespesaExtra</td><td>Despesa avulsa; sem parcelas</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Geração automática de parcelas:</strong> Ao criar uma <code>DespesaFixa</code>, o método <code>GerarParcelas()</code> calcula o valor de cada parcela em centavos, distribui o arredondamento na última e cria objetos <code>Parcela</code> com datas de vencimento mensais sequenciais.</p>
+
+<hr class="divider">
+
+<h4>Parcela</h4>
+<table>
+  <thead><tr><th>Propriedade</th><th>Tipo</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td>Id, DespesaId</td><td>Guid</td><td>Chaves</td></tr>
+    <tr><td>Numero</td><td>int</td><td>Ex.: 1 de 12</td></tr>
+    <tr><td>Valor</td><td>decimal</td><td>Valor individual da parcela</td></tr>
+    <tr><td>DataVencimento</td><td>DateOnly</td><td>Data de vencimento</td></tr>
+    <tr><td>Paga</td><td>bool</td><td>Status de pagamento</td></tr>
+    <tr><td>DataPagamento</td><td>DateOnly?</td><td>Data em que foi paga (opcional)</td></tr>
+  </tbody>
+</table>
+<p><strong>Métodos:</strong> <code>MarcarPaga(dataPagamento?)</code>, <code>DesmarcarPaga()</code>, <code>AtualizarValor()</code>, <code>AtualizarDataVencimento()</code>.</p>
+
+<hr class="divider">
+
+<h4>Divida e ParcelaDivida</h4>
+<p>Representa valores emprestados a terceiros (o usuário é o credor). Possui estrutura similar a DespesaFixa com parcelas geradas automaticamente. Campo <code>NomeDevedor</code> identifica quem deve. <code>Ativa</code> indica se a dívida ainda está em aberto.</p>
+
+<hr class="divider">
+
+<h4>CategoriaDespesa e CategoriaReceita</h4>
+<p>Categorias personalizadas por usuário. Campos: <code>Id</code>, <code>UsuarioId</code>, <code>Nome</code> (2–50 chars), <code>DataCriacao</code>.</p>
+
+<h3>3.2 Value Objects</h3>
+
+<div class="box box-purple">
+  <strong>O que é um Value Object?</strong>
+  É um objeto cuja identidade é definida pelo seu <em>valor</em>, não por um ID. Dois objetos com o mesmo valor são iguais. Em C# são implementados como <code>record</code>. Encapsulam validação e comportamento junto com o dado.
+</div>
+
+<table>
+  <thead><tr><th>Value Object</th><th>Validação</th><th>Uso</th></tr></thead>
+  <tbody>
+    <tr><td><code>Email</code></td><td>Contém <code>@</code> e <code>.</code>; convertido para lowercase</td><td>Campo de e-mail do usuário</td></tr>
+    <tr><td><code>SenhaHash</code></td><td>Não pode ser vazio</td><td>Armazena o hash BCrypt da senha</td></tr>
+  </tbody>
+</table>
+
+<p>Ao tentar criar um <code>Email</code> inválido, uma exceção é lançada imediatamente — garantindo que um objeto inválido <em>nunca existe</em> no sistema.</p>
+
+<h3>3.3 Enums</h3>
+
+<table>
+  <thead><tr><th>Enum</th><th>Valores</th></tr></thead>
+  <tbody>
+    <tr><td>TipoDespesa</td><td>Fixa = 1, Extra = 2</td></tr>
+    <tr><td>FormaPagamentoDespesaFixa</td><td>CartaoCredito = 1, PixParcelado = 2, BoletoParcelado = 3</td></tr>
+    <tr><td>FormaPagamentoDespesaExtra</td><td>CartaoCredito = 1, Pix = 2, Dinheiro = 3, Boleto = 4</td></tr>
+  </tbody>
+</table>
+
+<h3>3.4 Interfaces de Repositório</h3>
+
+<p>O Domain define <em>contratos</em> (interfaces) para acesso a dados, mas não implementa. Isso permite que a Infrastructure implemente com EF Core, enquanto o Domain permanece puro.</p>
+
+<table>
+  <thead><tr><th>Interface</th><th>Operações Principais</th></tr></thead>
+  <tbody>
+    <tr><td><code>IUnitOfWork</code></td><td><code>CommitAsync()</code> — persiste todas as mudanças pendentes</td></tr>
+    <tr><td><code>IUsuarioRepository</code></td><td>ObterPorId, ObterPorEmail, ExisteEmail, Adicionar, Atualizar</td></tr>
+    <tr><td><code>IReceitaRepository</code></td><td>ObterPorId, ListarPorMes, ListarTodos, ObterTotaisMensais, Adicionar, Atualizar, Remover</td></tr>
+    <tr><td><code>IDespesaRepository</code></td><td>Operações separadas para Fixa e Extra; ListarFixasComParcelas; ObterTotaisMensais</td></tr>
+    <tr><td><code>IParcelaRepository</code></td><td>ObterPorId, ListarPorMes, SomarParcelasMes, Atualizar</td></tr>
+    <tr><td><code>IDividaRepository</code></td><td>ObterPorId com parcelas, ListarPorUsuário, Adicionar, Atualizar, Remover, AtualizarParcela</td></tr>
+    <tr><td><code>ICategoriaDespesaRepository</code></td><td>ObterPorId, Listar, Adicionar, Atualizar, Remover</td></tr>
+    <tr><td><code>ICategoriaReceitaRepository</code></td><td>ObterPorId, Listar, Adicionar, Atualizar, Remover</td></tr>
+    <tr><td><code>ITokenService</code></td><td>GerarAccessToken, GerarRefreshToken, ObterUsuarioIdDoToken</td></tr>
+    <tr><td><code>ISenhaService</code></td><td>HashSenha, VerificarSenha, SenhaForte</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 4. APPLICATION ══════════════════════════ -->
+<h2 class="section-title" id="application">4. Camada Application (CQRS)</h2>
+
+<p>A camada Application implementa os <strong>casos de uso</strong> do sistema usando o padrão CQRS (Command Query Responsibility Segregation) via biblioteca MediatR. Toda operação de escrita é um <em>Command</em>; toda leitura é uma <em>Query</em>.</p>
+
+<h3>4.1 O que são DTOs e por que existem</h3>
+
+<div class="box box-blue">
+  <strong>DTO (Data Transfer Object)</strong> — Objeto de Transferência de Dados — é uma classe simples que carrega apenas os dados necessários para a comunicação entre camadas ou entre o sistema e o mundo externo (API ↔ Frontend). Não tem regras de negócio; é só um "envelope" de dados.
+</div>
+
+<p><strong>Por que não retornar a entidade diretamente?</strong></p>
+<ul>
+  <li><strong>Segurança:</strong> A entidade <code>Usuario</code> possui <code>SenhaHash</code> e <code>RefreshToken</code>. O DTO expõe apenas <code>Id</code>, <code>Nome</code> e <code>Email</code> — dados seguros para o frontend.</li>
+  <li><strong>Desacoplamento:</strong> A entidade pode mudar internamente sem quebrar o contrato da API.</li>
+  <li><strong>Serialização:</strong> Entidades com navegações EF Core (coleções, referências circulares) causam erros de serialização JSON. DTOs são "planos".</li>
+  <li><strong>Performance:</strong> O DTO pode expor exatamente o que o cliente precisa, sem campos desnecessários.</li>
+</ul>
+
+<h4>DTOs do Sistema</h4>
+
+<table>
+  <thead><tr><th>DTO</th><th>Campos Expostos</th><th>Onde é Usado</th></tr></thead>
+  <tbody>
+    <tr><td><code>UsuarioDto</code></td><td>Id, Nome, Email</td><td>Resposta do cadastro</td></tr>
+    <tr><td><code>LoginResponseDto</code></td><td>AccessToken, NomeUsuario, UsuarioId</td><td>Resposta do login e refresh</td></tr>
+    <tr><td><code>PerfilDto</code></td><td>Id, Nome, Email, DataNascimento, Telefone, DataCadastro</td><td>GET/PUT /perfil</td></tr>
+    <tr><td><code>ReceitaDto</code></td><td>Id, Descricao, Valor, DataRecebimento, Categoria, Recorrente, DataCriacao</td><td>Listagem e detalhe de receitas</td></tr>
+    <tr><td><code>DespesaFixaDto</code></td><td>Id, Descricao, ValorTotal, QuantidadeParcelas, DataCompra, DataPrimeiraParcela, Categoria, FormaPagamento, DataCriacao</td><td>Listagem de despesas fixas</td></tr>
+    <tr><td><code>DespesaExtraDto</code></td><td>Id, Descricao, Valor, DataDespesa, Categoria, FormaPagamento, DataCriacao</td><td>Listagem de despesas extras</td></tr>
+    <tr><td><code>ParcelaDto</code></td><td>Id, DespesaId, DescricaoDespesa, Numero, TotalParcelas, Valor, DataVencimento, Paga, DataPagamento, <span class="highlight">Vencida</span>, <span class="highlight">VenceEm7Dias</span></td><td>Parcelas do mês (campos calculados)</td></tr>
+    <tr><td><code>DividaDto</code></td><td>Id, NomeDevedor, Descricao, ValorTotal, <span class="highlight">SaldoRestante</span>, QuantidadeParcelas, DataCompra, Ativa, DataCriacao, Parcelas</td><td>Listagem de dívidas (SaldoRestante calculado)</td></tr>
+    <tr><td><code>ParcelaDividaDto</code></td><td>Id, DividaId, Numero, TotalParcelas, Valor, DataVencimento, Paga, DataPagamento, <span class="highlight">Vencida</span></td><td>Parcelas de dívida</td></tr>
+    <tr><td><code>DashboardDto</code></td><td>SaldoMesAtual, TotalReceitasMes, TotalDespesasMes, ProjecaoProximos30Dias, Evolucao12Meses, DistribuicaoCategorias, Comparativo6Meses</td><td>Página de dashboard</td></tr>
+    <tr><td><code>DadosMensaisDto</code></td><td>Mes, Receitas, Despesas, Saldo</td><td>Evolução mensal</td></tr>
+    <tr><td><code>CategoriaValorDto</code></td><td>Categoria, Valor, Percentual</td><td>Distribuição por categoria</td></tr>
+    <tr><td><code>CategoriaDto</code></td><td>Id, Nome, DataCriacao</td><td>Categorias de despesa/receita</td></tr>
+  </tbody>
+</table>
+
+<h3>4.2 Commands e Handlers (MediatR)</h3>
+
+<div class="box box-green">
+  <strong>Como funciona o MediatR?</strong> O controller não chama o handler diretamente. Ele envia um <em>Command</em> (objeto de dados) via <code>ISender.Send(command)</code>. O MediatR descobre automaticamente qual handler é responsável e o executa. Isso desacopla totalmente o controller da lógica de negócio.
+</div>
+
+<table>
+  <thead><tr><th>Command</th><th>Resultado</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3"><span class="badge badge-blue">Autenticação</span></td></tr>
+    <tr><td>CadastrarUsuarioCommand</td><td>UsuarioDto</td><td>Valida email único, hash BCrypt, cria usuário</td></tr>
+    <tr><td>LoginCommand</td><td>LoginResponseDto</td><td>Verifica hash, rate limiting, gera JWT + refresh token</td></tr>
+    <tr><td>RefreshTokenCommand</td><td>LoginResponseDto</td><td>Valida refresh token no banco, gera novo par de tokens</td></tr>
+    <tr><td>LogoutCommand</td><td>Unit</td><td>Invalida refresh token no banco</td></tr>
+    <tr><td>AtualizarPerfilCommand</td><td>PerfilDto</td><td>Atualiza nome e telefone</td></tr>
+    <tr><td colspan="3"><span class="badge badge-green">Receitas</span></td></tr>
+    <tr><td>CriarReceitaCommand</td><td>ReceitaDto</td><td>Cria nova receita</td></tr>
+    <tr><td>AtualizarReceitaCommand</td><td>ReceitaDto</td><td>Atualiza descrição, valor, data, categoria</td></tr>
+    <tr><td>ExcluirReceitaCommand</td><td>Unit</td><td>Remove receita do usuário</td></tr>
+    <tr><td colspan="3"><span class="badge badge-orange">Despesas</span></td></tr>
+    <tr><td>CriarDespesaFixaCommand</td><td>DespesaFixaDto</td><td>Cria despesa + gera parcelas automaticamente</td></tr>
+    <tr><td>AtualizarDespesaFixaCommand</td><td>DespesaFixaDto</td><td>Atualiza descrição, categoria, forma de pagamento</td></tr>
+    <tr><td>CriarDespesaExtraCommand</td><td>DespesaExtraDto</td><td>Cria despesa avulsa</td></tr>
+    <tr><td>AtualizarDespesaExtraCommand</td><td>DespesaExtraDto</td><td>Atualiza dados da despesa extra</td></tr>
+    <tr><td>ExcluirDespesaCommand</td><td>Unit</td><td>Remove despesa (e parcelas em cascata)</td></tr>
+    <tr><td>MarcarParcelaPagaCommand</td><td>Unit</td><td>Marca/desmarca parcela como paga com data</td></tr>
+    <tr><td colspan="3"><span class="badge badge-purple">Dívidas</span></td></tr>
+    <tr><td>CriarDividaCommand</td><td>DividaDto</td><td>Cria dívida + parcelas</td></tr>
+    <tr><td>AtualizarDividaCommand</td><td>DividaDto</td><td>Atualiza nome devedor e descrição</td></tr>
+    <tr><td>ExcluirDividaCommand</td><td>Unit</td><td>Remove dívida</td></tr>
+    <tr><td>MarcarParcelaDividaPagaCommand</td><td>Unit</td><td>Marca/desmarca parcela de dívida</td></tr>
+    <tr><td colspan="3"><span class="badge badge-teal">Categorias</span></td></tr>
+    <tr><td>CriarCategoriaDespesaCommand</td><td>CategoriaDto</td><td>Cria categoria de despesa personalizada</td></tr>
+    <tr><td>AtualizarCategoriaDespesaCommand</td><td>CategoriaDto</td><td>Renomeia categoria</td></tr>
+    <tr><td>ExcluirCategoriaDespesaCommand</td><td>Unit</td><td>Remove categoria</td></tr>
+    <tr><td>Criar/Atualizar/ExcluirCategoriaReceitaCommand</td><td>CategoriaDto / Unit</td><td>Mesmas operações para categorias de receita</td></tr>
+  </tbody>
+</table>
+
+<h3>4.3 Queries</h3>
+
+<table>
+  <thead><tr><th>Query</th><th>Resultado</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td>ListarReceitasQuery</td><td>IEnumerable&lt;ReceitaDto&gt;</td><td>Filtra por ano/mês ou retorna todas</td></tr>
+    <tr><td>ListarDespesasFixasQuery</td><td>IEnumerable&lt;DespesaFixaDto&gt;</td><td>Todas as fixas do usuário</td></tr>
+    <tr><td>ListarDespesasExtrasQuery</td><td>IEnumerable&lt;DespesaExtraDto&gt;</td><td>Todas as extras do usuário</td></tr>
+    <tr><td>ListarParcelasMesQuery</td><td>IEnumerable&lt;ParcelaDto&gt;</td><td>Parcelas vencendo no mês especificado</td></tr>
+    <tr><td>ListarDividasQuery</td><td>IEnumerable&lt;DividaDto&gt;</td><td>Todas as dívidas com parcelas incluídas</td></tr>
+    <tr><td>ListarCategoriasDespesaQuery</td><td>IEnumerable&lt;CategoriaDto&gt;</td><td>Categorias de despesa do usuário</td></tr>
+    <tr><td>ListarCategoriasReceitaQuery</td><td>IEnumerable&lt;CategoriaDto&gt;</td><td>Categorias de receita do usuário</td></tr>
+    <tr><td>ObterDashboardQuery</td><td>DashboardDto</td><td>Agrega dados do mês e histórico 12 meses</td></tr>
+    <tr><td>ObterPerfilQuery</td><td>PerfilDto</td><td>Dados do perfil do usuário logado</td></tr>
+  </tbody>
+</table>
+
+<h3>4.4 Validators (FluentValidation)</h3>
+
+<p>Cada Command possui um validator correspondente. O <code>ValidationBehavior</code> do MediatR os executa automaticamente — o handler só é invocado se a validação passar.</p>
+
+<table>
+  <thead><tr><th>Validator</th><th>Regras Principais</th></tr></thead>
+  <tbody>
+    <tr><td>CadastrarUsuarioCommandValidator</td><td>Nome 3–100 chars; email válido; senha ≥ 12 chars com maiúscula, minúscula, número e especial; idade ≥ 18 anos; não aceita senhas comuns</td></tr>
+    <tr><td>LoginCommandValidator</td><td>Email obrigatório e válido; senha não vazia</td></tr>
+    <tr><td>CriarReceitaCommandValidator</td><td>Descrição 3–100; valor &gt; 0; categoria não vazia</td></tr>
+    <tr><td>CriarDespesaFixaCommandValidator</td><td>Descrição 3–100; valor &gt; 0; parcelas 2–48; DataPrimeiraParcela ≥ mês atual</td></tr>
+    <tr><td>CriarDespesaExtraCommandValidator</td><td>Descrição 3–100; valor &gt; 0; data não futura demais</td></tr>
+    <tr><td>CriarDividaCommandValidator</td><td>NomeDevedor 2–100; descrição 3–200; valor &gt; 0; parcelas 1–120</td></tr>
+    <tr><td>CriarCategoriaValidator</td><td>Nome 2–50 chars; obrigatório</td></tr>
+  </tbody>
+</table>
+
+<h3>4.5 ValidationBehavior (Pipeline MediatR)</h3>
+
+<pre>public class ValidationBehavior&lt;TRequest, TResponse&gt; : IPipelineBehavior&lt;TRequest, TResponse&gt;
+{
+    // Executa todos os validators registrados para TRequest
+    // Se houver falhas → lança ValidationException (capturada pelo middleware → HTTP 400)
+    // Se não houver → chama o próximo handler normalmente
+}</pre>
+
+<p>Este comportamento elimina a necessidade de validar manualmente em cada controller ou handler — a validação é <em>automática</em> para todo Command/Query.</p>
+
+<!-- ══════════════════════════ 5. INFRASTRUCTURE ══════════════════════════ -->
+<h2 class="section-title" id="infrastructure">5. Camada Infrastructure</h2>
+
+<p>Implementa os contratos definidos pelo Domain usando tecnologias concretas: PostgreSQL via EF Core, BCrypt para senhas, JWT para tokens.</p>
+
+<h3>5.1 DbContext (AppDbContext)</h3>
+
+<pre>// src/MinhasFinancas.Infrastructure/Data/AppDbContext.cs
+
+DbSet&lt;Usuario&gt;          Usuarios
+DbSet&lt;Receita&gt;          Receitas
+DbSet&lt;Despesa&gt;          Despesas          // Tabela base (TPH)
+DbSet&lt;DespesaFixa&gt;      DespesasFixas     // View via .OfType&lt;DespesaFixa&gt;()
+DbSet&lt;DespesaExtra&gt;     DespesasExtras    // View via .OfType&lt;DespesaExtra&gt;()
+DbSet&lt;Parcela&gt;          Parcelas
+DbSet&lt;Divida&gt;           Dividas
+DbSet&lt;ParcelaDivida&gt;    ParcelasDivida
+DbSet&lt;CategoriaReceita&gt; CategoriasReceita
+DbSet&lt;CategoriaDespesa&gt; CategoriasDespesa</pre>
+
+<div class="box box-orange">
+  <strong>TPH — Table-Per-Hierarchy:</strong> <code>DespesaFixa</code> e <code>DespesaExtra</code> são armazenadas na mesma tabela <code>despesas</code> com uma coluna <code>tipo</code> (discriminator) diferenciando as linhas. Evita JOINs e simplifica consultas.
+</div>
+
+<p><strong>Configurações notáveis:</strong></p>
+<ul>
+  <li><code>Email</code> e <code>SenhaHash</code> são <strong>Owned Entities</strong> — mapeadas como colunas na tabela <code>usuarios</code>, não tabelas separadas</li>
+  <li>Índice em <code>(usuario_id, data_recebimento)</code> para consultas de receitas por mês</li>
+  <li>Índice em <code>data_vencimento</code> em Parcelas para otimizar listagem mensal</li>
+  <li>Delete em cascata: excluir DespesaFixa remove todas as Parcelas automaticamente</li>
+</ul>
+
+<h3>5.2 Repositórios</h3>
+
+<p>Cada repositório herda de uma base genérica e implementa queries específicas. As consultas usam <code>AsNoTracking()</code> em reads para performance.</p>
+
+<pre>// Exemplo: ReceitaRepository
+public async Task&lt;decimal[]&gt; ObterTotaisMensaisAsync(Guid usuarioId, int quantidadeMeses, CancellationToken ct)
+{
+    // Calcula total de receitas dos últimos N meses
+    // Retorna array de decimais indexado por mês
+    // Usado pelo DashboardHandler para montar a evolução 12 meses
+}</pre>
+
+<h3>5.3 Serviços</h3>
+
+<h4>SenhaService (BCrypt)</h4>
+<table>
+  <thead><tr><th>Método</th><th>Funcionamento</th></tr></thead>
+  <tbody>
+    <tr><td>HashSenha(string)</td><td>BCrypt com WorkFactor 12 — intencionalmente lento para dificultar brute force</td></tr>
+    <tr><td>VerificarSenha(string, string)</td><td>BCrypt.Verify — compara senha plain com hash sem expor o hash</td></tr>
+    <tr><td>SenhaForte(string)</td><td>Valida: ≥ 12 chars, tem maiúscula, minúscula, número, caractere especial</td></tr>
+  </tbody>
+</table>
+
+<h4>TokenService (JWT)</h4>
+<table>
+  <thead><tr><th>Token</th><th>Duração</th><th>Conteúdo</th></tr></thead>
+  <tbody>
+    <tr><td>AccessToken (JWT)</td><td>15 minutos</td><td>Claims: sub (userId), email, name, jti (UUID único). Assinado com HMAC-SHA256.</td></tr>
+    <tr><td>RefreshToken</td><td>7 dias</td><td>64 bytes aleatórios (CSPRNG) em Base64. Armazenado no banco junto com a expiração.</td></tr>
+  </tbody>
+</table>
+
+<div class="box box-blue">
+  <strong>Fluxo de renovação:</strong> Quando o AccessToken expira (15 min), o frontend usa o RefreshToken (armazenado em cookie HttpOnly) para obter um novo par. O RefreshToken do banco é invalidado e substituído por um novo a cada uso — rotação de tokens.
+</div>
+
+<h4>LoginAttemptService (Rate Limiting)</h4>
+<p>Singleton em memória que registra tentativas de login por e-mail:</p>
+<ul>
+  <li>Após <strong>5 tentativas falhas</strong> em 15 minutos → bloqueia o e-mail por 30 minutos</li>
+  <li>Retorna HTTP <strong>429 Too Many Requests</strong> com tempo restante de bloqueio</li>
+  <li>Sucesso no login → reseta o contador automaticamente</li>
+</ul>
+
+<h3>5.4 Migrations</h3>
+
+<table>
+  <thead><tr><th>Migration</th><th>O que criou</th></tr></thead>
+  <tbody>
+    <tr><td>20260321010607_InitialCreate</td><td>Estrutura base: usuarios, receitas, despesas, parcelas</td></tr>
+    <tr><td>20260321025443_AddDividas</td><td>Tabelas dividas e parcelas_divida</td></tr>
+    <tr><td>20260321194853_AdicionarCategoriasDinamicas</td><td>Tabelas categorias_despesa e categorias_receita</td></tr>
+    <tr><td>20260322004302_AdicionarDataCompraEmDespesaFixa</td><td>Coluna data_compra em despesas (para DespesaFixa)</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 6. API ══════════════════════════ -->
+<h2 class="section-title" id="api">6. Camada API (REST)</h2>
+
+<h3>6.1 Endpoints — AuthController</h3>
+<div class="box box-blue"><strong>Base:</strong> <code>/api/auth</code></div>
+
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/auth/cadastrar</span><span class="endpoint-desc">— Cadastra novo usuário. Retorna 201 + UsuarioDto ou 409 (e-mail duplicado)</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/auth/login</span><span class="endpoint-desc">— Autentica usuário. Retorna 200 + AccessToken + seta cookie refreshToken (HttpOnly, 7 dias) ou 401/429</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/auth/refresh</span><span class="endpoint-desc">— Renova AccessToken usando refreshToken do cookie. Retorna 200 + novo token</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/auth/logout</span><span class="endpoint-desc">— [Authorize] Invalida refresh token no banco. Apaga cookie. Retorna 204</span></div></div>
+
+<h3>6.2 Endpoints — ReceitasController</h3>
+<div class="box box-green"><strong>Base:</strong> <code>/api/receitas</code> — Todas as rotas requerem autenticação (<code>[Authorize]</code>)</div>
+
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/receitas</span><span class="endpoint-desc">— Lista receitas. Query: <code>?ano=2026&amp;mes=3</code> (opcional)</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/receitas</span><span class="endpoint-desc">— Cria receita. Body: {descricao, valor, dataRecebimento, categoria, recorrente?}</span></div></div>
+<div class="endpoint"><span class="method method-put">PUT</span><div><span class="endpoint-path">/api/receitas/{id}</span><span class="endpoint-desc">— Atualiza receita. 404 se não encontrar</span></div></div>
+<div class="endpoint"><span class="method method-delete">DELETE</span><div><span class="endpoint-path">/api/receitas/{id}</span><span class="endpoint-desc">— Remove receita. 404 se não encontrar</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/receitas/export/pdf</span><span class="endpoint-desc">— Gera PDF de receitas (QuestPDF). Retorna <code>application/pdf</code></span></div></div>
+
+<h3>6.3 Endpoints — DespesasController</h3>
+<div class="box box-orange"><strong>Base:</strong> <code>/api/despesas</code> — Todas requerem autenticação</div>
+
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/despesas/fixas</span><span class="endpoint-desc">— Lista despesas fixas parceladas</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/despesas/extras</span><span class="endpoint-desc">— Lista despesas avulsas</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/despesas/fixas</span><span class="endpoint-desc">— Cria despesa fixa (gera parcelas automaticamente)</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/despesas/extras</span><span class="endpoint-desc">— Cria despesa avulsa</span></div></div>
+<div class="endpoint"><span class="method method-put">PUT</span><div><span class="endpoint-path">/api/despesas/fixas/{id}</span><span class="endpoint-desc">— Atualiza dados da despesa fixa (sem recalcular parcelas)</span></div></div>
+<div class="endpoint"><span class="method method-put">PUT</span><div><span class="endpoint-path">/api/despesas/extras/{id}</span><span class="endpoint-desc">— Atualiza despesa avulsa</span></div></div>
+<div class="endpoint"><span class="method method-patch">PATCH</span><div><span class="endpoint-path">/api/despesas/parcelas/{id}/pagar</span><span class="endpoint-desc">— Marca/desmarca parcela paga. Body: {paga: bool, dataPagamento?: DateOnly}</span></div></div>
+<div class="endpoint"><span class="method method-delete">DELETE</span><div><span class="endpoint-path">/api/despesas/fixas/{id}</span><span class="endpoint-desc">— Remove despesa fixa e todas as parcelas (cascata)</span></div></div>
+<div class="endpoint"><span class="method method-delete">DELETE</span><div><span class="endpoint-path">/api/despesas/extras/{id}</span><span class="endpoint-desc">— Remove despesa extra</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/despesas/fixas/export/pdf</span><span class="endpoint-desc">— PDF de despesas fixas (landscape, tabela de parcelas)</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/despesas/extras/export/pdf</span><span class="endpoint-desc">— PDF de despesas extras</span></div></div>
+
+<h3>6.4 Endpoints — DividasController</h3>
+<div class="box box-purple"><strong>Base:</strong> <code>/api/dividas</code> — Todas requerem autenticação</div>
+
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/dividas</span><span class="endpoint-desc">— Lista dívidas com parcelas e saldo restante calculado</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/dividas</span><span class="endpoint-desc">— Cria dívida com parcelas automáticas</span></div></div>
+<div class="endpoint"><span class="method method-put">PUT</span><div><span class="endpoint-path">/api/dividas/{id}</span><span class="endpoint-desc">— Atualiza nome do devedor e descrição</span></div></div>
+<div class="endpoint"><span class="method method-delete">DELETE</span><div><span class="endpoint-path">/api/dividas/{id}</span><span class="endpoint-desc">— Remove dívida</span></div></div>
+<div class="endpoint"><span class="method method-patch">PATCH</span><div><span class="endpoint-path">/api/dividas/parcelas/{id}/pagar</span><span class="endpoint-desc">— Marca/desmarca parcela de dívida paga</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/dividas/export/pdf?nomeDevedor=X</span><span class="endpoint-desc">— PDF filtrado por devedor</span></div></div>
+
+<h3>6.5 Endpoints — DashboardController</h3>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/dashboard</span><span class="endpoint-desc">— Retorna DashboardDto com saldo, totais, projeção, evolução 12 meses, distribuição por categoria</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/dashboard/parcelas</span><span class="endpoint-desc">— Parcelas do mês. Query: <code>?ano=2026&amp;mes=3</code></span></div></div>
+
+<h3>6.6 Outros Endpoints</h3>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/perfil</span><span class="endpoint-desc">— Dados do perfil do usuário autenticado</span></div></div>
+<div class="endpoint"><span class="method method-put">PUT</span><div><span class="endpoint-path">/api/perfil</span><span class="endpoint-desc">— Atualiza nome e telefone</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/categorias-despesa</span><span class="endpoint-desc">— Lista categorias de despesa do usuário</span></div></div>
+<div class="endpoint"><span class="method method-post">POST</span><div><span class="endpoint-path">/api/categorias-despesa</span><span class="endpoint-desc">— Cria categoria de despesa</span></div></div>
+<div class="endpoint"><span class="method method-put">PUT</span><div><span class="endpoint-path">/api/categorias-despesa/{id}</span><span class="endpoint-desc">— Atualiza nome da categoria</span></div></div>
+<div class="endpoint"><span class="method method-delete">DELETE</span><div><span class="endpoint-path">/api/categorias-despesa/{id}</span><span class="endpoint-desc">— Remove categoria</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/categorias-receita</span><span class="endpoint-desc">— (e POST/PUT/DELETE similares para receita)</span></div></div>
+<div class="endpoint"><span class="method method-get">GET</span><div><span class="endpoint-path">/api/health</span><span class="endpoint-desc">— Health check. Retorna 200 {status: "ok"}</span></div></div>
+
+<h3>6.7 Autenticação JWT</h3>
+
+<pre>// Configuração no Program.cs
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ValidateIssuer = true,   ValidIssuer = "MinhasFinancas",
+            ValidateAudience = true, ValidAudience = "MinhasFinancasApp",
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero  // sem tolerância de tempo
+        };
+    });</pre>
+
+<div class="box box-red">
+  <strong>Segurança do cookie RefreshToken:</strong> O cookie é criado com flags <code>HttpOnly</code> (JavaScript não pode ler), <code>Secure</code> (apenas HTTPS) e <code>SameSite=Strict</code> (proteção contra CSRF). O frontend nunca tem acesso ao valor do refresh token.
+</div>
+
+<h3>6.8 Tratamento Global de Erros (ErrorHandlingMiddleware)</h3>
+
+<table>
+  <thead><tr><th>Exceção</th><th>HTTP Status</th><th>Uso</th></tr></thead>
+  <tbody>
+    <tr><td>ValidationException</td><td>400 Bad Request</td><td>Falha nas validações FluentValidation</td></tr>
+    <tr><td>UnauthorizedAccessException</td><td>401 Unauthorized</td><td>Acesso negado (credenciais inválidas, token expirado)</td></tr>
+    <tr><td>KeyNotFoundException</td><td>404 Not Found</td><td>Entidade não encontrada ou não pertence ao usuário</td></tr>
+    <tr><td>InvalidOperationException</td><td>409 Conflict</td><td>Conflito de estado (e-mail já cadastrado, etc.)</td></tr>
+    <tr><td>Exception (genérica)</td><td>500 Internal Server Error</td><td>Erro não previsto (logado via Serilog)</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 7. FRONTEND ══════════════════════════ -->
+<h2 class="section-title" id="frontend">7. Frontend — Blazor WebAssembly</h2>
+
+<div class="box box-teal">
+  <strong>O que é Blazor WebAssembly?</strong> O código C# é compilado para WebAssembly e executado diretamente no browser — sem JavaScript intermediário. A UI é definida em arquivos <code>.razor</code> que mesclam HTML e C#. A comunicação com a API é feita via <code>HttpClient</code>.
+</div>
+
+<h3>7.1 Páginas do Sistema</h3>
+
+<table>
+  <thead><tr><th>Página</th><th>Rota</th><th>Funcionalidade</th></tr></thead>
+  <tbody>
+    <tr><td>Login.razor</td><td>/login</td><td>Formulário de login; dispatch da LoginAction no Fluxor</td></tr>
+    <tr><td>Cadastrar.razor</td><td>/cadastrar</td><td>Formulário de cadastro com validação em tempo real</td></tr>
+    <tr><td>Index.razor</td><td>/</td><td>Redireciona para Dashboard se autenticado</td></tr>
+    <tr><td>Dashboard.razor</td><td>/dashboard</td><td>Cards de saldo, receitas, despesas; gráfico de evolução</td></tr>
+    <tr><td>Receitas.razor</td><td>/receitas</td><td>Lista, cria, edita e exclui receitas; filtro por mês; exporta PDF</td></tr>
+    <tr><td>Despesas.razor</td><td>/despesas</td><td>Abas: Fixas e Extras; CRUD; exporta PDF</td></tr>
+    <tr><td>Parcelas.razor</td><td>/parcelas</td><td>Parcelas do mês selecionado; chips de status (paga/vencida/a vencer)</td></tr>
+    <tr><td>Dividas.razor</td><td>/dividas</td><td>Lista dívidas com saldo restante; marcação de parcelas; PDF por devedor</td></tr>
+    <tr><td>Perfil.razor</td><td>/perfil</td><td>Visualiza e edita nome e telefone</td></tr>
+    <tr><td>CategoriasReceita.razor</td><td>/categorias-receita</td><td>CRUD de categorias de receita</td></tr>
+    <tr><td>CategoriasDespesa.razor</td><td>/categorias-despesa</td><td>CRUD de categorias de despesa</td></tr>
+    <tr><td>Graficos.razor</td><td>/graficos</td><td>Visualização gráfica detalhada</td></tr>
+  </tbody>
+</table>
+
+<h3>7.2 State Management com Fluxor (Redux-like)</h3>
+
+<div class="box box-blue">
+  <strong>Por que Fluxor?</strong> Em aplicações SPA, múltiplos componentes precisam compartilhar estado (ex.: "usuário está logado?", "qual o nome do usuário?"). O Fluxor implementa o padrão Redux: estado centralizado imutável, actions descrevem intenções, reducers calculam o novo estado, effects lidam com side-effects (chamadas HTTP).
+</div>
+
+<pre>// Fluxo completo de Login via Fluxor:
+
+// 1. Componente dispara a action
+Dispatcher.Dispatch(new LoginAction(email, senha));
+
+// 2. Effect intercepta, chama a API
+[EffectMethod]
+async Task HandleLogin(LoginAction action, IDispatcher dispatcher)
+{
+    var response = await authApiService.LoginAsync(action.Email, action.Senha);
+    if (response != null)
+        dispatcher.Dispatch(new LoginSuccessAction(response.AccessToken, response.NomeUsuario, response.UsuarioId));
+    else
+        dispatcher.Dispatch(new LoginFailureAction("E-mail ou senha inválidos"));
+}
+
+// 3. Reducer atualiza o estado imutavelmente
+[ReducerMethod]
+static AuthState OnLoginSuccess(AuthState state, LoginSuccessAction action) =>
+    state with { IsAuthenticated = true, NomeUsuario = action.NomeUsuario, IsLoading = false };
+
+// 4. Componentes se atualizam automaticamente ao observar o estado
+@inherits FluxorComponent
+
+@inject IState&lt;AuthState&gt; AuthState
+// &lt;MudText&gt;@AuthState.Value.NomeUsuario&lt;/MudText&gt;</pre>
+
+<h3>7.3 Autenticação no Frontend</h3>
+
+<p><strong>AuthStateProvider</strong> implementa <code>AuthenticationStateProvider</code> do ASP.NET e:</p>
+<ul>
+  <li>Lê o JWT do <code>localStorage</code> a cada checagem de estado</li>
+  <li>Decodifica as claims do token (sem validar assinatura — isso é papel da API)</li>
+  <li>Verifica expiração (<code>exp</code> claim)</li>
+  <li>Popula <code>ClaimsPrincipal</code> para que <code>[Authorize]</code> funcione nos componentes Blazor</li>
+</ul>
+
+<p><strong>AuthenticatedHttpHandler</strong> é um <code>DelegatingHandler</code> registrado no pipeline do <code>HttpClient</code>:</p>
+<ul>
+  <li>Injeta automaticamente <code>Authorization: Bearer {token}</code> em toda requisição</li>
+  <li>Se receber 401 → dispara logout automático e redireciona para /login</li>
+</ul>
+
+<!-- ══════════════════════════ 8. FLUXOS ══════════════════════════ -->
+<h2 class="section-title" id="fluxos">8. Fluxos Principais do Sistema</h2>
+
+<h3>8.1 Fluxo de Autenticação Completo</h3>
+
+<ol class="flow">
+  <li><strong>Cadastro:</strong> POST /api/auth/cadastrar → valida email único + senha forte → hash BCrypt (WF=12) → salva usuário no banco</li>
+  <li><strong>Login:</strong> POST /api/auth/login → verifica rate limit → compara BCrypt → gera JWT (15min) + RefreshToken (7 dias) → seta cookie HttpOnly</li>
+  <li><strong>Uso da API:</strong> Toda requisição carrega <code>Authorization: Bearer {jwt}</code> → middleware valida assinatura, issuer, audience e expiração</li>
+  <li><strong>Renovação:</strong> Quando JWT expira → POST /api/auth/refresh com cookie refreshToken → novo par emitido, token antigo invalidado</li>
+  <li><strong>Logout:</strong> POST /api/auth/logout → remove refreshToken do banco → apaga cookie → frontend limpa localStorage</li>
+</ol>
+
+<h3>8.2 Fluxo de Despesa Fixa com Parcelas</h3>
+
+<ol class="flow">
+  <li>Usuário preenche: "Notebook", R$ 3.600, 12 parcelas, março 2026</li>
+  <li>POST /api/despesas/fixas com os dados</li>
+  <li>DespesaFixa.Criar() valida as regras de domínio</li>
+  <li>GerarParcelas(): 3600 ÷ 12 = 300,00 exatos → 12 parcelas de R$ 300,00 (datas: mar/26 a fev/27)</li>
+  <li>DespesaFixa + Parcelas persistidos em uma transação</li>
+  <li>No mês de abril, GET /api/despesas/parcelas?mes=4 retorna a parcela 2/12 de R$ 300,00 como pendente</li>
+  <li>PATCH /api/despesas/parcelas/{id}/pagar marca como paga com a data de pagamento</li>
+</ol>
+
+<h3>8.3 Cálculo do Dashboard</h3>
+
+<ol class="flow">
+  <li>GET /api/dashboard?ano=2026&amp;mes=3 (março 2026)</li>
+  <li>TotalReceitasMes: soma de todas as receitas com DataRecebimento em 03/2026</li>
+  <li>TotalDespesasMes: soma parcelas vencendo em 03/2026 + despesas extras de 03/2026</li>
+  <li>SaldoMesAtual: TotalReceitas − TotalDespesas</li>
+  <li>ProjecaoProximos30Dias: receitas recorrentes − parcelas vencendo nos próximos 30 dias</li>
+  <li>Evolucao12Meses: array com receitas/despesas/saldo dos últimos 12 meses</li>
+  <li>DistribuicaoCategorias: agrupamento e percentual por categoria de despesa do mês</li>
+</ol>
+
+<!-- ══════════════════════════ 9. INFRAESTRUTURA ══════════════════════════ -->
+<h2 class="section-title" id="infra">9. Infraestrutura</h2>
+
+<h3>9.1 Docker Compose</h3>
+
+<table>
+  <thead><tr><th>Container</th><th>Imagem</th><th>Porta</th><th>Função</th></tr></thead>
+  <tbody>
+    <tr><td>minhasfinancas_db</td><td>postgres:16-alpine</td><td>5432</td><td>Banco de dados PostgreSQL</td></tr>
+    <tr><td>minhasfinancas_api</td><td>Dockerfile.api (mcr.microsoft.com/dotnet/aspnet:9.0)</td><td>5000</td><td>API REST .NET 9</td></tr>
+    <tr><td>minhasfinancas_web</td><td>Dockerfile.web (nginx)</td><td>80</td><td>Serve Blazor WASM + proxy /api/</td></tr>
+  </tbody>
+</table>
+
+<pre># Iniciar com Docker:
+cd docker/
+docker compose up -d
+
+# Acompanhar logs:
+docker compose logs -f api</pre>
+
+<h3>9.2 Instalação Local — Fedora + GNOME</h3>
+
+<table>
+  <thead><tr><th>Componente</th><th>Onde</th><th>Função</th></tr></thead>
+  <tbody>
+    <tr><td>API publicada</td><td>~/.local/share/minhas-financas/api/</td><td>Binários da API .NET</td></tr>
+    <tr><td>WASM publicado</td><td>/var/www/minhas-financas/</td><td>Arquivos estáticos do frontend</td></tr>
+    <tr><td>systemd service</td><td>~/.config/systemd/user/minhas-financas-api.service</td><td>API inicia automaticamente no login (lingering: no boot)</td></tr>
+    <tr><td>nginx</td><td>/etc/nginx/conf.d/minhas-financas.conf</td><td>Serve WASM na porta 8080; proxy /api/ → localhost:5090</td></tr>
+    <tr><td>Atalho GNOME</td><td>~/.local/share/applications/minhas-financas.desktop</td><td>Ícone nas Atividades do GNOME; abre http://localhost:8080</td></tr>
+  </tbody>
+</table>
+
+<pre># Gerenciar o serviço:
+systemctl --user status  minhas-financas-api
+systemctl --user restart minhas-financas-api
+journalctl --user -u     minhas-financas-api -f
+
+# Reinstalar após atualização:
+cd ~/Workspace/financas/scripts
+./install.sh</pre>
+
+<h3>9.3 CI/CD — GitHub Actions</h3>
+
+<table>
+  <thead><tr><th>Job</th><th>Trigger</th><th>O que faz</th></tr></thead>
+  <tbody>
+    <tr><td>backend-test</td><td>push/PR em main e develop</td><td>Instala .NET 9, sobe PostgreSQL de teste, roda os 38 testes unitários</td></tr>
+    <tr><td>frontend-build</td><td>push/PR em main e develop</td><td>Build do Blazor WASM verifica se compila sem erros</td></tr>
+    <tr><td>docker-publish</td><td>push em main</td><td>Build das imagens Docker, push para GitHub Container Registry com tags latest e {sha}</td></tr>
+    <tr><td>deploy</td><td>push em main</td><td>SSH no servidor de produção, pull das imagens e docker compose up -d</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════ 10. BANCO ══════════════════════════ -->
+<h2 class="section-title" id="banco">10. Diagrama do Banco de Dados</h2>
+
+<pre>usuarios
+  ├── id (PK, uuid)
+  ├── nome (varchar)
+  ├── email_valor (varchar, unique)        ← Owned Entity: Email
+  ├── senha_hash_valor (varchar)           ← Owned Entity: SenhaHash
+  ├── data_nascimento (date)
+  ├── telefone (varchar, nullable)
+  ├── two_factor_enabled (bool)
+  ├── refresh_token (varchar, nullable)
+  ├── refresh_token_expiry (timestamp, nullable)
+  ├── data_cadastro (timestamp)
+  └── ativo (bool)
+
+receitas
+  ├── id (PK, uuid)
+  ├── usuario_id (FK → usuarios)
+  ├── descricao (varchar)
+  ├── valor (decimal)
+  ├── data_recebimento (date)            ← INDEX (usuario_id, data_recebimento)
+  ├── categoria (varchar)
+  ├── recorrente (bool)
+  └── data_criacao (timestamp)
+
+despesas  ← TPH: DespesaFixa e DespesaExtra na mesma tabela
+  ├── id (PK, uuid)
+  ├── usuario_id (FK → usuarios)
+  ├── descricao (varchar)
+  ├── valor_total (decimal)
+  ├── categoria (varchar)
+  ├── tipo_despesa (int) ← discriminator: 1=Fixa, 2=Extra
+  ├── data_criacao (timestamp)
+  ├── [DespesaFixa] quantidade_parcelas (int, nullable)
+  ├── [DespesaFixa] data_compra (date, nullable)
+  ├── [DespesaFixa] data_primeira_parcela (date, nullable)
+  ├── [DespesaFixa] forma_pagamento_fixa (int, nullable)
+  ├── [DespesaExtra] data_despesa (date, nullable)
+  └── [DespesaExtra] forma_pagamento_extra (int, nullable)
+
+parcelas
+  ├── id (PK, uuid)
+  ├── despesa_id (FK → despesas, CASCADE DELETE)
+  ├── numero (int)
+  ├── valor (decimal)
+  ├── data_vencimento (date)             ← INDEX
+  ├── paga (bool)
+  └── data_pagamento (date, nullable)
+
+dividas
+  ├── id (PK, uuid)
+  ├── usuario_id (FK → usuarios)       ← INDEX
+  ├── nome_devedor (varchar)
+  ├── descricao (varchar)
+  ├── valor_total (decimal)
+  ├── quantidade_parcelas (int)
+  ├── data_compra (date)
+  ├── ativa (bool)
+  └── data_criacao (timestamp)
+
+parcelas_divida
+  ├── id (PK, uuid)
+  ├── divida_id (FK → dividas, CASCADE DELETE)
+  ├── numero (int)
+  ├── valor (decimal)
+  ├── data_vencimento (date)
+  ├── paga (bool)
+  └── data_pagamento (date, nullable)
+
+categorias_despesa
+  ├── id (PK, uuid)
+  ├── usuario_id (FK → usuarios)
+  ├── nome (varchar)
+  └── data_criacao (timestamp)
+
+categorias_receita
+  ├── id (PK, uuid)
+  ├── usuario_id (FK → usuarios)
+  ├── nome (varchar)
+  └── data_criacao (timestamp)</pre>
+
+<div class="box box-blue" style="margin-top:30px">
+  <strong>Isolamento por usuário:</strong> Toda tabela de dados possui <code>usuario_id</code>. Todos os repositórios filtram automaticamente por <code>usuarioId</code> extraído do JWT — garantindo que um usuário jamais veja dados de outro.
+</div>
+
+<hr class="divider" style="margin-top:60px">
+
+<p style="text-align:center; color:#999; font-size:12px; margin-top:40px">
+  <strong>Minhas Finanças</strong> — Documentação Técnica v1.0 — Março 2026<br>
+  .NET 9 · Blazor WASM · PostgreSQL · Clean Architecture · CQRS
+</p>
+
+</div>
+</body>
+</html>

@@ -38,11 +38,11 @@
                         </MudItem>
                         <MudItem xs="12" md="3">
                             <MudDatePicker @bind-Date="_fixaDataCompra" Label="Data da Compra"
-                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
                         </MudItem>
                         <MudItem xs="12" md="3">
                             <MudDatePicker @bind-Date="_fixaDataPrimeiraParcela" Label="Vencimento 1ª Parcela"
-                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
                         </MudItem>
                         <MudItem xs="12" md="4">
                             @if (_categoriasDespesa?.Count > 0)
@@ -204,7 +204,7 @@
                         @if (expandida && _editandoFixaId != fixа.Id)
                         {
                             <MudCardContent>
-                                <MudTable Items="@fixа.Parcelas" Dense="true" Hover="true">
+                                <MudTable Items="@fixа.Parcelas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
                                     <HeaderContent>
                                         <MudTh>Parcela</MudTh>
                                         <MudTh>Valor</MudTh>
@@ -280,7 +280,7 @@
             }
             else if (_despesasExtras?.Count > 0)
             {
-                <MudTable Items="_despesasExtras" Hover="true" Striped="true" Dense="true">
+                <MudTable Items="_despesasExtras" Hover="true" Striped="true" Dense="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
                     <HeaderContent>
                         <MudTh>Descrição</MudTh>
                         <MudTh>Valor</MudTh>
@@ -355,11 +355,11 @@
                         </MudItem>
                         <MudItem xs="12" md="3">
                             <MudDatePicker @bind-Date="_dividaDataCompra" Label="Data da Compra"
-                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
                         </MudItem>
                         <MudItem xs="12" md="3">
                             <MudDatePicker @bind-Date="_dividaDataPrimeiraParcela" Label="Vencimento 1ª Parcela"
-                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
                         </MudItem>
                         <MudItem xs="12">
                             @if (!string.IsNullOrEmpty(_dividaErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_dividaErro</MudAlert> }
@@ -393,10 +393,22 @@
                         var saldoPessoa = dividasPessoa.Sum(d => d.SaldoRestante);
                         var temVencida = dividasPessoa.Any(d => d.Parcelas.Any(p => p.Vencida && !p.Paga));
                         var _hjD = DateOnly.FromDateTime(DateTime.Now);
+                        var _inicioMes = new DateOnly(_hjD.Year, _hjD.Month, 1);
                         var _todasParcDev = dividasPessoa.SelectMany(d => d.Parcelas ?? []).ToList();
-                        var valorMesDev = _todasParcDev
-                            .Where(p => p.DataVencimento.Year == _hjD.Year && p.DataVencimento.Month == _hjD.Month && !p.Paga)
-                            .Sum(p => p.Valor);
+                        var _parcsPendentes = _todasParcDev
+                            .Where(p => !p.Paga && p.DataVencimento >= _inicioMes)
+                            .OrderBy(p => p.DataVencimento)
+                            .ToList();
+                        // Mês mais próximo com parcelas pendentes (pode ser o atual ou futuro)
+                        var _refMes = _parcsPendentes.Count > 0
+                            ? new DateOnly(_parcsPendentes[0].DataVencimento.Year, _parcsPendentes[0].DataVencimento.Month, 1)
+                            : (DateOnly?)null;
+                        var valorMesDev = _refMes.HasValue
+                            ? _parcsPendentes.Where(p => p.DataVencimento.Year == _refMes.Value.Year && p.DataVencimento.Month == _refMes.Value.Month).Sum(p => p.Valor)
+                            : 0m;
+                        var labelMesDev = _refMes.HasValue && (_refMes.Value.Year != _hjD.Year || _refMes.Value.Month != _hjD.Month)
+                            ? $"A pagar ({_refMes.Value:MMM/yy})"
+                            : "Este mês (a pagar)";
                         var proximaParc = _todasParcDev
                             .Where(p => !p.Paga)
                             .OrderBy(p => p.DataVencimento)
@@ -431,7 +443,7 @@
                                             <MudText Typo="Typo.body1"><strong>@dividasPessoa.Count</strong></MudText>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="2">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Este mês (a pagar)</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@labelMesDev</MudText>
                                             <MudText Typo="Typo.body1" Color="@(valorMesDev > 0 ? Color.Info : Color.Default)">
                                                 <strong>@valorMesDev.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
                                             </MudText>
@@ -526,7 +538,7 @@
                                         @if (expanded && _editandoDividaId != divida.Id)
                                         {
                                             <MudCardContent>
-                                                <MudTable Items="@divida.Parcelas" Dense="true" Hover="true">
+                                                <MudTable Items="@divida.Parcelas" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
                                                     <HeaderContent>
                                                         <MudTh>Parcela</MudTh>
                                                         <MudTh>Valor</MudTh>
@@ -591,7 +603,7 @@
         </MudItem>
         <MudItem xs="12" md="3">
             <MudDatePicker @bind-Date="_extraDataDespesa" Label="Data da Despesa"
-                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" />
+                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
         </MudItem>
         <MudItem xs="12" md="4">
             @if (_categoriasDespesa?.Count > 0)

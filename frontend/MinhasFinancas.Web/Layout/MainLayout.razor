@@ -25,7 +25,7 @@
                                OnClick="Sair" />
             </MudAppBar>
 
-            <MudDrawer Open="_drawerOpen" OpenChanged="@(v => _drawerOpen = v)" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <MudDrawer Open="_drawerOpen" OpenChanged="@(v => _drawerOpen = v)" ClipMode="DrawerClipMode.Always" Elevation="2" Variant="@DrawerVariant.Responsive">
                 <MudNavMenu>
                     <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
                     <MudNavLink Href="/parcelas" Icon="@Icons.Material.Filled.CreditCard">Parcelas</MudNavLink>

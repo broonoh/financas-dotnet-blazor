@@ -1,0 +1,374 @@
+@page "/resumo-mensal"
+@using MinhasFinancas.Web.Models
+@using MinhasFinancas.Web.Services
+@inject DashboardApiService Api
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Resumo Mensal</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-4">Resumo Mensal</MudText>
+
+@* Seletor de período *@
+<MudPaper Class="pa-4 mb-5" Elevation="1">
+    <MudGrid AlignItems="Center">
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int" Label="Mês" @bind-Value="_mes" Variant="Variant.Outlined" Dense="true">
+                @foreach (var (num, nome) in _meses)
+                {
+                    <MudSelectItem Value="@num">@nome</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int" Label="Ano" @bind-Value="_ano" Variant="Variant.Outlined" Dense="true">
+                @foreach (var ano in _anos)
+                {
+                    <MudSelectItem Value="@ano">@ano</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Search"
+                       OnClick="Carregar" FullWidth="true">
+                Buscar
+            </MudButton>
+        </MudItem>
+        @if (_resumo is not null)
+        {
+            <MudItem xs="12" sm="4" md="2">
+                <MudButton Variant="Variant.Outlined" Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.PictureAsPdf"
+                           OnClick="DownloadPdf" Disabled="_baixandoPdf" FullWidth="true">
+                    @if (_baixandoPdf)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" />
+                    }
+                    PDF
+                </MudButton>
+            </MudItem>
+        }
+    </MudGrid>
+</MudPaper>
+
+@if (_carregando)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+}
+else if (_resumo is null)
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+        Selecione o período e clique em Buscar.
+    </MudAlert>
+}
+else
+{
+    @* Cards de totais *@
+    <MudGrid Class="mb-5">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #f44336;">
+                <MudText Typo="Typo.caption" Color="Color.Default">Despesas Fixas</MudText>
+                <MudText Typo="Typo.h5" Style="color:#f44336; font-weight:700;">
+                    @_resumo.TotalDespesasFixas.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </MudText>
+                <MudText Typo="Typo.caption">@_resumo.DespesasFixas.Count parcela(s)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #ff9800;">
+                <MudText Typo="Typo.caption" Color="Color.Default">Despesas Extras</MudText>
+                <MudText Typo="Typo.h5" Style="color:#ff9800; font-weight:700;">
+                    @_resumo.TotalDespesasExtras.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </MudText>
+                <MudText Typo="Typo.caption">@_resumo.DespesasExtras.Count lançamento(s)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #2196f3;">
+                <MudText Typo="Typo.caption" Color="Color.Default">Contas a Receber</MudText>
+                <MudText Typo="Typo.h5" Style="color:#2196f3; font-weight:700;">
+                    @_resumo.TotalContasAReceber.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </MudText>
+                <MudText Typo="Typo.caption">@_resumo.ContasAReceber.Count devedor(es)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #9c27b0;">
+                <MudText Typo="Typo.caption" Color="Color.Default">Total do Mês</MudText>
+                <MudText Typo="Typo.h5" Style="color:#9c27b0; font-weight:700;">
+                    @((_resumo.TotalDespesasFixas + _resumo.TotalDespesasExtras).ToString("C2", new System.Globalization.CultureInfo("pt-BR")))
+                </MudText>
+                <MudText Typo="Typo.caption">saídas do mês</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    @* Despesas Fixas *@
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <div class="d-flex align-center mb-3" style="cursor:pointer;" @onclick="() => _expandFixas = !_expandFixas">
+            <MudIcon Icon="@Icons.Material.Filled.Receipt" Color="Color.Error" Class="mr-2" />
+            <MudText Typo="Typo.h6" Style="flex:1;">Despesas Fixas — Parcelas do Mês</MudText>
+            <MudChip T="string" Color="Color.Error" Size="Size.Small" Class="mr-2">
+                @_resumo.TotalDespesasFixas.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+            </MudChip>
+            <MudIcon Icon="@(_expandFixas ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" />
+        </div>
+
+        @if (_expandFixas)
+        {
+            @if (!_resumo.DespesasFixas.Any())
+            {
+                <MudAlert Severity="Severity.Info" Dense="true">Nenhuma parcela de despesa fixa neste mês.</MudAlert>
+            }
+            else
+            {
+                <MudTable Items="_resumo.DespesasFixas" Dense="true" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
+                    <HeaderContent>
+                        <MudTh>Descrição</MudTh>
+                        <MudTh>Categoria</MudTh>
+                        <MudTh>Parcela</MudTh>
+                        <MudTh>Vencimento</MudTh>
+                        <MudTh Style="text-align:right;">Valor</MudTh>
+                        <MudTh Style="text-align:center;">Status</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Descricao</MudTd>
+                        <MudTd>
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@context.Categoria</MudChip>
+                        </MudTd>
+                        <MudTd>@context.NumeroParcela / @context.TotalParcelas</MudTd>
+                        <MudTd>@context.DataVencimento.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd Style="text-align:right; font-weight:600;">
+                            @context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                        </MudTd>
+                        <MudTd Style="text-align:center;">
+                            @if (context.Paga)
+                            {
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.CheckCircle">Paga</MudChip>
+                            }
+                            else if (context.DataVencimento < DateOnly.FromDateTime(DateTime.Today))
+                            {
+                                <MudChip T="string" Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.Warning">Vencida</MudChip>
+                            }
+                            else
+                            {
+                                <MudChip T="string" Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.HourglassEmpty">Pendente</MudChip>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                    <FooterContent>
+                        <MudTd colspan="4" Style="text-align:right; font-weight:700;">Total</MudTd>
+                        <MudTd Style="text-align:right; font-weight:700; color:#f44336;">
+                            @_resumo.TotalDespesasFixas.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                        </MudTd>
+                        <MudTd />
+                    </FooterContent>
+                </MudTable>
+            }
+        }
+    </MudPaper>
+
+    @* Despesas Extras *@
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <div class="d-flex align-center mb-3" style="cursor:pointer;" @onclick="() => _expandExtras = !_expandExtras">
+            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Warning" Class="mr-2" />
+            <MudText Typo="Typo.h6" Style="flex:1;">Despesas Extras do Mês</MudText>
+            <MudChip T="string" Color="Color.Warning" Size="Size.Small" Class="mr-2">
+                @_resumo.TotalDespesasExtras.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+            </MudChip>
+            <MudIcon Icon="@(_expandExtras ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" />
+        </div>
+
+        @if (_expandExtras)
+        {
+            @if (!_resumo.DespesasExtras.Any())
+            {
+                <MudAlert Severity="Severity.Info" Dense="true">Nenhuma despesa extra neste mês.</MudAlert>
+            }
+            else
+            {
+                <MudTable Items="_resumo.DespesasExtras" Dense="true" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
+                    <HeaderContent>
+                        <MudTh>Descrição</MudTh>
+                        <MudTh>Categoria</MudTh>
+                        <MudTh>Data</MudTh>
+                        <MudTh Style="text-align:right;">Valor</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Descricao</MudTd>
+                        <MudTd>
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@context.Categoria</MudChip>
+                        </MudTd>
+                        <MudTd>@context.DataDespesa.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd Style="text-align:right; font-weight:600;">
+                            @context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                        </MudTd>
+                    </RowTemplate>
+                    <FooterContent>
+                        <MudTd colspan="3" Style="text-align:right; font-weight:700;">Total</MudTd>
+                        <MudTd Style="text-align:right; font-weight:700; color:#ff9800;">
+                            @_resumo.TotalDespesasExtras.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                        </MudTd>
+                    </FooterContent>
+                </MudTable>
+            }
+        }
+    </MudPaper>
+
+    @* Contas a Receber por Devedor *@
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <div class="d-flex align-center mb-3" style="cursor:pointer;" @onclick="() => _expandReceber = !_expandReceber">
+            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Info" Class="mr-2" />
+            <MudText Typo="Typo.h6" Style="flex:1;">Contas a Receber por Devedor</MudText>
+            <MudChip T="string" Color="Color.Info" Size="Size.Small" Class="mr-2">
+                @_resumo.TotalContasAReceber.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+            </MudChip>
+            <MudIcon Icon="@(_expandReceber ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" />
+        </div>
+
+        @if (_expandReceber)
+        {
+            @if (!_resumo.ContasAReceber.Any())
+            {
+                <MudAlert Severity="Severity.Info" Dense="true">Nenhuma conta a receber neste mês.</MudAlert>
+            }
+            else
+            {
+                @foreach (var devedor in _resumo.ContasAReceber)
+                {
+                    <MudCard Class="mb-3" Outlined="true">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <div class="d-flex align-center">
+                                    <MudAvatar Color="Color.Info" Size="Size.Small" Class="mr-2">
+                                        @devedor.NomeDevedor[0]
+                                    </MudAvatar>
+                                    <MudText Typo="Typo.subtitle1" Style="font-weight:600; flex:1;">
+                                        @devedor.NomeDevedor
+                                    </MudText>
+                                    <MudText Typo="Typo.subtitle1" Style="font-weight:700; color:#2196f3;">
+                                        @devedor.Total.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                    </MudText>
+                                </div>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent Class="pt-0">
+                            <MudTable Items="devedor.Parcelas" Dense="true" Hover="true" Elevation="0" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
+                                <HeaderContent>
+                                    <MudTh>Descrição</MudTh>
+                                    <MudTh>Parcela</MudTh>
+                                    <MudTh>Vencimento</MudTh>
+                                    <MudTh Style="text-align:right;">Valor</MudTh>
+                                    <MudTh Style="text-align:center;">Status</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd>@context.Descricao</MudTd>
+                                    <MudTd>@context.NumeroParcela / @context.TotalParcelas</MudTd>
+                                    <MudTd>@context.DataVencimento.ToString("dd/MM/yyyy")</MudTd>
+                                    <MudTd Style="text-align:right; font-weight:600;">
+                                        @context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                    </MudTd>
+                                    <MudTd Style="text-align:center;">
+                                        @if (context.Paga)
+                                        {
+                                            <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.CheckCircle">Recebida</MudChip>
+                                        }
+                                        else if (context.DataVencimento < DateOnly.FromDateTime(DateTime.Today))
+                                        {
+                                            <MudChip T="string" Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.Warning">Vencida</MudChip>
+                                        }
+                                        else
+                                        {
+                                            <MudChip T="string" Color="Color.Primary" Size="Size.Small" Icon="@Icons.Material.Filled.HourglassEmpty">Pendente</MudChip>
+                                        }
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </MudCardContent>
+                    </MudCard>
+                }
+            }
+        }
+    </MudPaper>
+}
+
+@code {
+    private int _anoAtual;
+    private int _mesAtual;
+    private int _mes;
+    private int _ano;
+    private int[] _anos = [];
+
+    protected override void OnInitialized()
+    {
+        _anoAtual = DateTime.Now.Year;
+        _mesAtual = DateTime.Now.Month;
+        _mes = _mesAtual;
+        _ano = _anoAtual;
+        _anos = Enumerable.Range(_anoAtual - 3, 7).ToArray();
+    }
+    private bool _carregando;
+    private bool _baixandoPdf;
+    private ResumoMensalDto? _resumo;
+    private bool _expandFixas = true;
+    private bool _expandExtras = true;
+    private bool _expandReceber = true;
+
+    private readonly (int Num, string Nome)[] _meses =
+    [
+        (1, "Janeiro"), (2, "Fevereiro"), (3, "Março"), (4, "Abril"),
+        (5, "Maio"), (6, "Junho"), (7, "Julho"), (8, "Agosto"),
+        (9, "Setembro"), (10, "Outubro"), (11, "Novembro"), (12, "Dezembro")
+    ];
+
+    protected override async Task OnInitializedAsync() => await Carregar();
+    // OnInitialized sets _mes/_ano before OnInitializedAsync runs
+
+    private async Task Carregar()
+    {
+        _carregando = true;
+        try
+        {
+            _resumo = await Api.ObterResumoMensalAsync(_ano, _mes);
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add($"HTTP {(int?)ex.StatusCode}: {ex.Message}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.GetType().Name} — {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private async Task DownloadPdf()
+    {
+        _baixandoPdf = true;
+        try
+        {
+            var bytes = await Api.DownloadResumoMensalPdfAsync(_ano, _mes);
+            if (bytes is null || bytes.Length == 0)
+            {
+                Snackbar.Add("Erro ao gerar PDF.", Severity.Error);
+                return;
+            }
+            var nomeMes = _meses.First(m => m.Num == _mes).Nome.ToLower();
+            var fileName = $"resumo_{nomeMes}_{_ano}.pdf";
+            await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch
+        {
+            Snackbar.Add("Erro ao baixar PDF.", Severity.Error);
+        }
+        finally
+        {
+            _baixandoPdf = false;
+        }
+    }
+}
