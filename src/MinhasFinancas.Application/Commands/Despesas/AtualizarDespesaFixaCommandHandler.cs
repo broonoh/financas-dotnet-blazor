@@ -20,8 +20,8 @@ public class AtualizarDespesaFixaCommandHandler : IRequestHandler<AtualizarDespe
         var despesa = await _despesaRepo.ObterDespesaFixaPorIdAsync(request.Id, request.UsuarioId, cancellationToken)
             ?? throw new KeyNotFoundException("Despesa fixa não encontrada.");
 
-        despesa.Atualizar(request.Descricao, request.Categoria, request.FormaPagamento);
-        _despesaRepo.AtualizarFixa(despesa);
+        despesa.Atualizar(request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento);
+        await _despesaRepo.AtualizarFixaAsync(despesa, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
 
         return new DespesaFixaDto(despesa.Id, despesa.Descricao, despesa.ValorTotal, despesa.QuantidadeParcelas,

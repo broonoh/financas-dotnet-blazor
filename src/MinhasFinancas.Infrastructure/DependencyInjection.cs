@@ -21,7 +21,7 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
-                npgsql => npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+                npgsql => npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name)));
 
         // Repositories
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();

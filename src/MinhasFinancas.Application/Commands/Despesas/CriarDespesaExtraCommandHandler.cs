@@ -24,7 +24,8 @@ public class CriarDespesaExtraCommandHandler : IRequestHandler<CriarDespesaExtra
             request.Valor,
             request.DataDespesa,
             request.Categoria,
-            request.FormaPagamento);
+            request.FormaPagamento,
+            request.PagaEm);
 
         await _despesaRepo.AdicionarExtraAsync(despesa, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
@@ -36,6 +37,8 @@ public class CriarDespesaExtraCommandHandler : IRequestHandler<CriarDespesaExtra
             despesa.DataDespesa,
             despesa.Categoria,
             despesa.FormaPagamento,
+            despesa.PagaEm,
+            despesa.Paga,
             despesa.DataCriacao);
     }
 }

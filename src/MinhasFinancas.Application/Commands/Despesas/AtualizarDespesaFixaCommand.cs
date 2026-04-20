@@ -8,5 +8,9 @@ public record AtualizarDespesaFixaCommand(
     Guid Id,
     Guid UsuarioId,
     string Descricao,
+    decimal ValorTotal,
+    int QuantidadeParcelas,
+    DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela,
     string Categoria,
     FormaPagamentoDespesaFixa FormaPagamento) : IRequest<DespesaFixaDto>;

@@ -19,6 +19,7 @@ public record DividaDto(
     decimal SaldoRestante,
     int QuantidadeParcelas,
     DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela,
     bool Ativa,
     DateTime DataCriacao,
     IEnumerable<ParcelaDividaDto> Parcelas);

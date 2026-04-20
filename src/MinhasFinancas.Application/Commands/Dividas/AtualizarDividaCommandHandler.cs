@@ -20,8 +20,8 @@ public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaComm
         var divida = await _dividaRepo.ObterPorIdAsync(request.Id, request.UsuarioId)
             ?? throw new KeyNotFoundException("Dívida não encontrada.");
 
-        divida.Atualizar(request.NomeDevedor, request.Descricao);
-        _dividaRepo.Atualizar(divida);
+        divida.Atualizar(request.NomeDevedor, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
+        await _dividaRepo.AtualizarAsync(divida, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
 
         var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -33,6 +33,6 @@ public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaComm
         var saldoRestante = divida.Parcelas.Where(p => !p.Paga).Sum(p => p.Valor);
 
         return new DividaDto(divida.Id, divida.NomeDevedor, divida.Descricao, divida.ValorTotal,
-            saldoRestante, divida.QuantidadeParcelas, divida.DataCompra, divida.Ativa, divida.DataCriacao, parcelas);
+            saldoRestante, divida.QuantidadeParcelas, divida.DataCompra, divida.DataPrimeiraParcela, divida.Ativa, divida.DataCriacao, parcelas);
     }
 }

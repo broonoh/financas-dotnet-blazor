@@ -59,14 +59,23 @@ public class DespesaFixa : Despesa
         return despesa;
     }
 
-    public void Atualizar(string descricao, string categoria, FormaPagamentoDespesaFixa formaPagamento)
+    public void Atualizar(string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela, string categoria, FormaPagamentoDespesaFixa formaPagamento)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
+        if (valorTotal <= 0)
+            throw new ArgumentException("Valor total deve ser maior que zero.", nameof(valorTotal));
+        if (quantidadeParcelas < 2 || quantidadeParcelas > 48)
+            throw new ArgumentException("Quantidade de parcelas deve ser entre 2 e 48.", nameof(quantidadeParcelas));
 
         Descricao = descricao.Trim();
+        ValorTotal = valorTotal;
+        QuantidadeParcelas = quantidadeParcelas;
+        DataCompra = dataCompra;
+        DataPrimeiraParcela = dataPrimeiraParcela;
         Categoria = categoria;
         FormaPagamento = formaPagamento;
+        GerarParcelas();
     }
 
     /// <summary>

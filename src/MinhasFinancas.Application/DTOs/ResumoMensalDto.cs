@@ -6,9 +6,20 @@ public record ResumoMensalDto(
     List<ResumoItemDespesaFixaDto> DespesasFixas,
     List<ResumoItemDespesaExtraDto> DespesasExtras,
     List<ResumoDevedorDto> ContasAReceber,
+    List<ResumoItemReceitaDto> Receitas,
     decimal TotalDespesasFixas,
     decimal TotalDespesasExtras,
-    decimal TotalContasAReceber);
+    decimal TotalContasAReceber,
+    decimal TotalReceitas,
+    decimal Saldo);
+
+public record ResumoItemReceitaDto(
+    Guid Id,
+    string Descricao,
+    string Categoria,
+    decimal Valor,
+    DateOnly DataRecebimento,
+    bool Recorrente);
 
 public record ResumoItemDespesaFixaDto(
     Guid ParcelaId,
@@ -26,7 +37,9 @@ public record ResumoItemDespesaExtraDto(
     string Descricao,
     string Categoria,
     decimal Valor,
-    DateOnly DataDespesa);
+    DateOnly DataDespesa,
+    DateOnly? PagaEm,
+    bool Paga);
 
 public record ResumoDevedorDto(
     string NomeDevedor,

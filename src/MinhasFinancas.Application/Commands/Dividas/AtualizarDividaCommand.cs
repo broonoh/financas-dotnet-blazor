@@ -7,4 +7,8 @@ public record AtualizarDividaCommand(
     Guid Id,
     Guid UsuarioId,
     string NomeDevedor,
-    string Descricao) : IRequest<DividaDto>;
+    string Descricao,
+    decimal ValorTotal,
+    int QuantidadeParcelas,
+    DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela) : IRequest<DividaDto>;

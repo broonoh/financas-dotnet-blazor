@@ -43,7 +43,10 @@ public class DespesaRepository : IDespesaRepository
 
     public async Task<IEnumerable<DespesaExtra>> ListarExtrasDoMesAsync(Guid usuarioId, int ano, int mes, CancellationToken ct = default)
         => await _context.DespesasExtras
-            .Where(d => d.UsuarioId == usuarioId && d.DataDespesa.Year == ano && d.DataDespesa.Month == mes)
+            .Where(d => d.UsuarioId == usuarioId &&
+                (d.PagaEm != null
+                    ? d.PagaEm.Value.Year == ano && d.PagaEm.Value.Month == mes
+                    : d.DataDespesa.Year == ano && d.DataDespesa.Month == mes))
             .ToListAsync(ct);
 
     public async Task<decimal[]> ObterTotaisDesepasaMensaisAsync(Guid usuarioId, int quantidadeMeses, CancellationToken ct = default)
@@ -63,8 +66,22 @@ public class DespesaRepository : IDespesaRepository
     public Task AdicionarExtraAsync(DespesaExtra despesa, CancellationToken ct = default)
         => _context.DespesasExtras.AddAsync(despesa, ct).AsTask();
 
-    public void AtualizarFixa(DespesaFixa despesa)
-        => _context.DespesasFixas.Update(despesa);
+    public async Task AtualizarFixaAsync(DespesaFixa despesa, CancellationToken ct = default)
+    {
+        // Carrega as parcelas antigas direto do banco (evita conflitos com o
+        // cache .Local após GerarParcelas() ter feito _parcelas.Clear())
+        var antigas = await _context.Parcelas
+            .Where(p => p.DespesaId == despesa.Id)
+            .ToListAsync(ct);
+        _context.Parcelas.RemoveRange(antigas);
+
+        // Novas parcelas geradas por GerarParcelas() — todas Detached
+        foreach (var p in despesa.Parcelas)
+            _context.Parcelas.Add(p);
+
+        // Marca a despesa como modificada para gerar o UPDATE
+        _context.Entry(despesa).State = EntityState.Modified;
+    }
 
     public void AtualizarExtra(DespesaExtra despesa)
         => _context.DespesasExtras.Update(despesa);

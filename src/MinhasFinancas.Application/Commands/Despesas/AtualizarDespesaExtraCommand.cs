@@ -11,4 +11,5 @@ public record AtualizarDespesaExtraCommand(
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento) : IRequest<DespesaExtraDto>;
+    FormaPagamentoDespesaExtra FormaPagamento,
+    DateOnly? PagaEm = null) : IRequest<DespesaExtraDto>;

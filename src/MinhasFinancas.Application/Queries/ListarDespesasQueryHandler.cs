@@ -53,6 +53,6 @@ public class ListarDespesasExtrasQueryHandler : IRequestHandler<ListarDespesasEx
         var despesas = await _despesaRepository.ListarExtrasPorUsuarioAsync(request.UsuarioId, cancellationToken);
 
         return despesas.Select(d => new DespesaExtraDto(
-            d.Id, d.Descricao, d.ValorTotal, d.DataDespesa, d.Categoria, d.FormaPagamento, d.DataCriacao));
+            d.Id, d.Descricao, d.ValorTotal, d.DataDespesa, d.Categoria, d.FormaPagamento, d.PagaEm, d.Paga, d.DataCriacao));
     }
 }

@@ -13,7 +13,7 @@ public interface IDespesaRepository
     Task<decimal[]> ObterTotaisDesepasaMensaisAsync(Guid usuarioId, int quantidadeMeses, CancellationToken ct = default);
     Task AdicionarFixaAsync(DespesaFixa despesa, CancellationToken ct = default);
     Task AdicionarExtraAsync(DespesaExtra despesa, CancellationToken ct = default);
-    void AtualizarFixa(DespesaFixa despesa);
+    Task AtualizarFixaAsync(DespesaFixa despesa, CancellationToken ct = default);
     void AtualizarExtra(DespesaExtra despesa);
     void Remover(Despesa despesa);
 }
