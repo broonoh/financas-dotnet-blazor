@@ -129,9 +129,3 @@ Desktop.ini
 *.cert
 *.pfx
 *.p12
-## Build artifacts
-bin/
-obj/
-*.dll
-*.pdb
-*.exe
