@@ -129,3 +129,5 @@ Desktop.ini
 *.cert
 *.pfx
 *.p12
+frontend/MinhasFinancas.Web/bin/
+frontend/MinhasFinancas.Web/obj/
