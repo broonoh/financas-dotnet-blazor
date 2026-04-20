@@ -113,6 +113,8 @@ public class AppDbContext : DbContext
         {
             entity.Property(e => e.DataDespesa).HasColumnName("data_despesa");
             entity.Property(e => e.FormaPagamento).HasColumnName("forma_pagamento_extra").HasConversion<string>().HasMaxLength(30);
+            entity.Property(e => e.PagaEm).HasColumnName("paga_em");
+            entity.Property(e => e.Paga).HasColumnName("paga_extra").HasDefaultValue(false);
         });
 
         // ==========================
@@ -147,6 +149,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.ValorTotal).HasColumnName("valor_total").HasColumnType("decimal(15,2)").IsRequired();
             entity.Property(e => e.QuantidadeParcelas).HasColumnName("quantidade_parcelas").IsRequired();
             entity.Property(e => e.DataCompra).HasColumnName("data_compra").IsRequired();
+            entity.Property(e => e.DataPrimeiraParcela).HasColumnName("data_primeira_parcela").IsRequired();
             entity.Property(e => e.Ativa).HasColumnName("ativa");
             entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
 

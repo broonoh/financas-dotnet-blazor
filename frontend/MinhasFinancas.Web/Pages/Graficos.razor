@@ -4,14 +4,44 @@
 @using MinhasFinancas.Web.Models
 @inject DashboardApiService ApiService
 @inject IJSRuntime JS
+@inject ISnackbar Snackbar
 
-<MudText Typo="Typo.h4" Class="mb-4">Gráficos Financeiros</MudText>
+<MudText Typo="Typo.h5" Class="mb-4">Gráficos Financeiros</MudText>
+
+@* Seletor de período *@
+<MudPaper Class="pa-4 mb-5" Elevation="1">
+    <MudGrid AlignItems="Center">
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int" Label="Mês" @bind-Value="_mes" Variant="Variant.Outlined" Dense="true">
+                @foreach (var (num, nome) in _meses)
+                {
+                    <MudSelectItem Value="@num">@nome</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int" Label="Ano" @bind-Value="_ano" Variant="Variant.Outlined" Dense="true">
+                @foreach (var ano in _anos)
+                {
+                    <MudSelectItem Value="@ano">@ano</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Search"
+                       OnClick="Carregar" FullWidth="true" Disabled="_carregando">
+                Buscar
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
 @if (_carregando)
 {
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
 }
-else
+else if (_resumo is not null)
 {
     <!-- Linha 1: Pizza + Resumo -->
     <MudGrid Class="mb-4">
@@ -19,7 +49,7 @@ else
             <MudPaper Elevation="2" Class="pa-4" Style="height: 100%;">
                 <MudText Typo="Typo.h6" Class="mb-1">Receitas vs Despesas</MudText>
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-3 d-block">
-                    Distribuição total entre receitas e despesas
+                    @_nomeMes / @_ano
                 </MudText>
                 <div style="position:relative; width:100%; max-height:300px;">
                     <canvas id="graficoPizzaFinancas" style="max-width:100%;"></canvas>
@@ -28,58 +58,57 @@ else
         </MudItem>
         <MudItem xs="12" md="7">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 100%;">
-                <MudText Typo="Typo.h6" Class="mb-3">Resumo Geral</MudText>
+                <MudText Typo="Typo.h6" Class="mb-3">Resumo Geral — @_nomeMes / @_ano</MudText>
                 <MudGrid>
                     <MudItem xs="12" sm="4">
                         <MudPaper Elevation="0" Class="pa-3 text-center" Style="background: #E8F5E9; border-radius: 8px;">
                             <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Success" Size="Size.Large" />
                             <MudText Typo="Typo.h6" Color="Color.Success" Class="mt-1">
-                                @_totalReceitas.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                @_resumo.TotalReceitas.ToString("C2", _ptBR)
                             </MudText>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Total Receitas</MudText>
-                            <MudText Typo="Typo.caption" Class="d-block">@_qtdReceitas receita(s)</MudText>
+                            <MudText Typo="Typo.caption" Class="d-block">@_resumo.Receitas.Count receita(s)</MudText>
                         </MudPaper>
                     </MudItem>
                     <MudItem xs="12" sm="4">
                         <MudPaper Elevation="0" Class="pa-3 text-center" Style="background: #EDE7F6; border-radius: 8px;">
                             <MudIcon Icon="@Icons.Material.Filled.CreditCard" Color="Color.Primary" Size="Size.Large" />
                             <MudText Typo="Typo.h6" Color="Color.Primary" Class="mt-1">
-                                @_totalFixas.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                @_resumo.TotalDespesasFixas.ToString("C2", _ptBR)
                             </MudText>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Despesas Fixas</MudText>
-                            <MudText Typo="Typo.caption" Class="d-block">@_qtdFixas despesa(s)</MudText>
+                            <MudText Typo="Typo.caption" Class="d-block">
+                                @_resumo.DespesasFixas.Count parcela(s) • @_pctFixas
+                            </MudText>
                         </MudPaper>
                     </MudItem>
                     <MudItem xs="12" sm="4">
                         <MudPaper Elevation="0" Class="pa-3 text-center" Style="background: #FFF3E0; border-radius: 8px;">
                             <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Warning" Size="Size.Large" />
                             <MudText Typo="Typo.h6" Color="Color.Warning" Class="mt-1">
-                                @_totalExtras.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                @_resumo.TotalDespesasExtras.ToString("C2", _ptBR)
                             </MudText>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Despesas Extras</MudText>
-                            <MudText Typo="Typo.caption" Class="d-block">@_qtdExtras despesa(s)</MudText>
+                            <MudText Typo="Typo.caption" Class="d-block">
+                                @_resumo.DespesasExtras.Count despesa(s) • @_pctExtras
+                            </MudText>
                         </MudPaper>
                     </MudItem>
                 </MudGrid>
 
                 <MudDivider Class="my-3" />
 
-                @{
-                    var totalDespesas = _totalFixas + _totalExtras;
-                    var saldo = _totalReceitas - totalDespesas;
-                    var corSaldo = saldo >= 0 ? Color.Success : Color.Error;
-                }
                 <MudGrid>
                     <MudItem xs="6">
                         <MudText Typo="Typo.body2" Color="Color.Secondary">Total Despesas:</MudText>
                         <MudText Typo="Typo.h6" Color="Color.Error">
-                            @totalDespesas.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                            @_totalDespesas.ToString("C2", _ptBR)
                         </MudText>
                     </MudItem>
                     <MudItem xs="6">
                         <MudText Typo="Typo.body2" Color="Color.Secondary">Saldo (Receitas - Despesas):</MudText>
-                        <MudText Typo="Typo.h6" Color="@corSaldo">
-                            @saldo.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                        <MudText Typo="Typo.h6" Color="@(_resumo.Saldo >= 0 ? Color.Success : Color.Error)">
+                            @_resumo.Saldo.ToString("C2", _ptBR)
                         </MudText>
                     </MudItem>
                 </MudGrid>
@@ -100,7 +129,6 @@ else
         }
         else
         {
-            <!-- Tabela de resumo -->
             <MudGrid Class="mb-4">
                 @foreach (var d in _devedoresResumo)
                 {
@@ -115,10 +143,10 @@ else
                                 </MudChip>
                             </div>
                             <MudText Typo="Typo.body2">
-                                Total: <strong>@d.Total.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
+                                Total: <strong>@d.Total.ToString("C2", _ptBR)</strong>
                             </MudText>
                             <MudText Typo="Typo.body2" Color="@(d.Saldo > 0 ? Color.Error : Color.Default)">
-                                Restante: <strong>@d.Saldo.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong>
+                                Restante: <strong>@d.Saldo.ToString("C2", _ptBR)</strong>
                             </MudText>
                             <MudProgressLinear Color="Color.Success" Value="@pct" Class="mt-2" />
                             <MudText Typo="Typo.caption">@pct.ToString("F0")% recebido</MudText>
@@ -134,16 +162,29 @@ else
 }
 
 @code {
+    private readonly System.Globalization.CultureInfo _ptBR = new("pt-BR");
+
+    private int _mes;
+    private int _ano;
+    private int[] _anos = [];
+    private string _nomeMes = "";
+
+    private readonly (int Num, string Nome)[] _meses =
+    [
+        (1, "Janeiro"), (2, "Fevereiro"), (3, "Março"), (4, "Abril"),
+        (5, "Maio"), (6, "Junho"), (7, "Julho"), (8, "Agosto"),
+        (9, "Setembro"), (10, "Outubro"), (11, "Novembro"), (12, "Dezembro")
+    ];
+
     private bool _carregando = true;
     private bool _semDevedores;
-    private bool _graficosRenderizados;
+    private int _chartVersion = 0;
+    private int _lastRenderedVersion = -1;
 
-    private decimal _totalReceitas;
-    private decimal _totalFixas;
-    private decimal _totalExtras;
-    private int _qtdReceitas;
-    private int _qtdFixas;
-    private int _qtdExtras;
+    private ResumoMensalDto? _resumo;
+    private decimal _totalDespesas;
+    private string _pctFixas = "";
+    private string _pctExtras = "";
 
     private string[] _pizzaLabels = [];
     private double[] _pizzaValores = [];
@@ -154,30 +195,81 @@ else
     private double[] _devedoresTotais = [];
     private double[] _devedoresSaldos = [];
 
+    protected override void OnInitialized()
+    {
+        var hoje = DateTime.Now;
+        _ano = hoje.Year;
+        _mes = hoje.Month;
+        _anos = Enumerable.Range(hoje.Year - 3, 7).ToArray();
+        _nomeMes = _meses.First(m => m.Num == _mes).Nome;
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        var receitasTask  = ApiService.ListarReceitasAsync();
-        var fixasTask     = ApiService.ListarDespesasFixasAsync();
-        var extrasTask    = ApiService.ListarDespesasExtrasAsync();
-        var dividasTask   = ApiService.ListarDividasAsync();
+        try
+        {
+            var resumoTask = ApiService.ObterResumoMensalAsync(_ano, _mes);
+            var dividasTask = ApiService.ListarDividasAsync();
+            await Task.WhenAll(resumoTask, dividasTask);
+            ProcessarDividas(dividasTask.Result ?? []);
+            ProcessarResumo(resumoTask.Result);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
 
-        await Task.WhenAll(receitasTask, fixasTask, extrasTask, dividasTask);
+    private async Task Carregar()
+    {
+        _carregando = true;
+        _nomeMes = _meses.First(m => m.Num == _mes).Nome;
+        try
+        {
+            var resumo = await ApiService.ObterResumoMensalAsync(_ano, _mes);
+            ProcessarResumo(resumo);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
 
-        var receitas = receitasTask.Result ?? [];
-        var fixas    = fixasTask.Result   ?? [];
-        var extras   = extrasTask.Result  ?? [];
-        var dividas  = dividasTask.Result ?? [];
+    private void ProcessarResumo(ResumoMensalDto? resumo)
+    {
+        _resumo = resumo;
+        if (_resumo is null) return;
 
-        _totalReceitas = receitas.Sum(r => r.Valor);
-        _totalFixas    = fixas.Sum(d => d.ValorTotal);
-        _totalExtras   = extras.Sum(d => d.Valor);
-        _qtdReceitas   = receitas.Count;
-        _qtdFixas      = fixas.Count;
-        _qtdExtras     = extras.Count;
+        _totalDespesas = _resumo.TotalDespesasFixas + _resumo.TotalDespesasExtras;
+
+        _pctFixas = _totalDespesas > 0
+            ? $"{(double)_resumo.TotalDespesasFixas / (double)_totalDespesas * 100:F1}% das despesas"
+            : "—";
+        _pctExtras = _totalDespesas > 0
+            ? $"{(double)_resumo.TotalDespesasExtras / (double)_totalDespesas * 100:F1}% das despesas"
+            : "—";
 
         _pizzaLabels = ["Receitas", "Despesas Fixas", "Despesas Extras"];
-        _pizzaValores = [(double)_totalReceitas, (double)_totalFixas, (double)_totalExtras];
+        _pizzaValores =
+        [
+            (double)_resumo.TotalReceitas,
+            (double)_resumo.TotalDespesasFixas,
+            (double)_resumo.TotalDespesasExtras
+        ];
 
+        _chartVersion++;
+    }
+
+    private void ProcessarDividas(List<DividaDto> dividas)
+    {
         _devedoresResumo = dividas
             .GroupBy(d => d.NomeDevedor)
             .Select(g => new DevedorResumo(g.Key, g.Sum(d => d.ValorTotal), g.Sum(d => d.SaldoRestante)))
@@ -192,20 +284,23 @@ else
             _devedoresTotais = _devedoresResumo.Select(d => (double)d.Total).ToArray();
             _devedoresSaldos = _devedoresResumo.Select(d => (double)d.Saldo).ToArray();
         }
-
-        _carregando = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_carregando || _graficosRenderizados) return;
-        _graficosRenderizados = true;
+        if (_carregando || _resumo is null) return;
+        if (_chartVersion == _lastRenderedVersion) return;
+        _lastRenderedVersion = _chartVersion;
 
-        await JS.InvokeVoidAsync("renderizarGraficoPizzaFinancas", "graficoPizzaFinancas",
-            _pizzaLabels, _pizzaValores);
+        try
+        {
+            await JS.InvokeVoidAsync("renderizarGraficoPizzaFinancas", "graficoPizzaFinancas",
+                _pizzaLabels, _pizzaValores);
 
-        if (!_semDevedores)
-            await JS.InvokeVoidAsync("renderizarGraficoDevedores", "graficoDevedores",
-                _devedoresLabels, _devedoresTotais, _devedoresSaldos);
+            if (!_semDevedores)
+                await JS.InvokeVoidAsync("renderizarGraficoDevedores", "graficoDevedores",
+                    _devedoresLabels, _devedoresTotais, _devedoresSaldos);
+        }
+        catch { /* canvas pode não estar no DOM em renders intermediários */ }
     }
 }

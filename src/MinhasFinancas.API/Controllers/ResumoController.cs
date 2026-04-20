@@ -77,11 +77,13 @@ public class ResumoController : ControllerBase
         const string Cinza       = "#ECEFF1";
         const string CinzaTexto  = "#546E7A";
         const string Verde       = "#2E7D32";
+        const string VerdeClaro  = "#E8F5E9";
         const string Branco      = "#FFFFFF";
 
         var nomeMes    = culture.DateTimeFormat.GetMonthName(mes);
         var geradoEm   = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
         var totalGeral = resumo.TotalDespesasFixas + resumo.TotalDespesasExtras;
+        var saldoCor   = resumo.Saldo >= 0 ? Verde : Vermelho;
 
         return Document.Create(container =>
         {
@@ -110,12 +112,12 @@ public class ResumoController : ControllerBase
                         .FontSize(7).FontColor(CinzaTexto);
 
                     // Cards de resumo
-                    h.Item().Background(RoxoClaro).PaddingVertical(8).PaddingHorizontal(30).Row(row =>
+                    h.Item().Background(RoxoClaro).PaddingVertical(8).PaddingHorizontal(20).Row(row =>
                     {
                         void Card(string valor, string label, string cor)
                             => row.RelativeItem().Column(c =>
                             {
-                                c.Item().AlignCenter().Text(valor).Bold().FontSize(13).FontColor(cor);
+                                c.Item().AlignCenter().Text(valor).Bold().FontSize(11).FontColor(cor);
                                 c.Item().AlignCenter().Text(label).FontSize(7).FontColor(CinzaTexto);
                             });
 
@@ -123,6 +125,8 @@ public class ResumoController : ControllerBase
                         Card(resumo.TotalDespesasExtras.ToString("C2", culture), "Despesas Extras",   Laranja);
                         Card(resumo.TotalContasAReceber.ToString("C2", culture), "Contas a Receber",  Azul);
                         Card(totalGeral.ToString("C2", culture),                 "Total Saídas",      Roxo);
+                        Card(resumo.TotalReceitas.ToString("C2", culture),       "Receitas",          Verde);
+                        Card(resumo.Saldo.ToString("C2", culture),               "Saldo do Mês",      saldoCor);
                     });
 
                     h.Item().PaddingBottom(8);
@@ -242,6 +246,8 @@ public class ResumoController : ControllerBase
                                     cols.RelativeColumn(3); // Categoria
                                     cols.RelativeColumn(2); // Data
                                     cols.RelativeColumn(2); // Valor
+                                    cols.RelativeColumn(2); // Paga Em
+                                    cols.RelativeColumn(2); // Status
                                 });
 
                                 static void TH(IContainer c, string t) =>
@@ -254,6 +260,8 @@ public class ResumoController : ControllerBase
                                     h.Cell().Element(c => TH(c, "Categoria"));
                                     h.Cell().Element(c => TH(c, "Data"));
                                     h.Cell().Element(c => TH(c, "Valor"));
+                                    h.Cell().Element(c => TH(c, "Paga Em"));
+                                    h.Cell().Element(c => TH(c, "Status"));
                                 });
 
                                 var idx = 0;
@@ -266,12 +274,17 @@ public class ResumoController : ControllerBase
                                          .PaddingVertical(4).PaddingHorizontal(6)
                                          .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
 
+                                    var statusExtraTxt = item.Paga ? "Paga" : "Pendente";
+                                    var statusExtraCor = item.Paga ? Verde : CinzaTexto;
+
                                     table.Cell().Background(bg).BorderBottom(1).BorderColor("#EEE")
                                         .PaddingVertical(4).PaddingHorizontal(6)
                                         .Text(item.Descricao).FontSize(8).FontColor("#212121");
                                     table.Cell().Element(c => TD(c, item.Categoria));
                                     table.Cell().Element(c => TD(c, item.DataDespesa.ToString("dd/MM/yyyy")));
                                     table.Cell().Element(c => TD(c, item.Valor.ToString("C2", culture), Laranja));
+                                    table.Cell().Element(c => TD(c, item.PagaEm.HasValue ? item.PagaEm.Value.ToString("dd/MM/yyyy") : "—"));
+                                    table.Cell().Element(c => TD(c, statusExtraTxt, statusExtraCor));
                                 }
 
                                 table.Footer(f =>
@@ -282,12 +295,99 @@ public class ResumoController : ControllerBase
                                     f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
                                         .AlignCenter().Text(resumo.TotalDespesasExtras.ToString("C2", culture))
                                         .Bold().FontSize(8).FontColor(Laranja);
+                                    f.Cell().ColumnSpan(2).Background(LaranjaClaro);
                                 });
                             });
                         }
                     });
 
-                    // ── Seção 3: Contas a Receber ────────────────────
+                    // ── Seção 3: Receitas ────────────────────────────
+                    col.Item().PaddingBottom(14).Column(sec =>
+                    {
+                        sec.Item().Background(VerdeClaro).PaddingHorizontal(10).PaddingVertical(6)
+                            .Row(r =>
+                            {
+                                r.RelativeItem().Text("Receitas do Mês")
+                                    .Bold().FontSize(10).FontColor(Verde);
+                                r.AutoItem().Text($"{resumo.Receitas.Count} lançamento(s)   •   " +
+                                    $"{resumo.TotalReceitas.ToString("C2", culture)}")
+                                    .FontSize(9).FontColor(Verde).SemiBold();
+                            });
+
+                        if (!resumo.Receitas.Any())
+                        {
+                            sec.Item().Background(Cinza).Padding(8)
+                                .Text("Nenhuma receita neste mês.").FontColor(CinzaTexto).Italic();
+                        }
+                        else
+                        {
+                            sec.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(cols =>
+                                {
+                                    cols.RelativeColumn(5); // Descrição
+                                    cols.RelativeColumn(3); // Categoria
+                                    cols.RelativeColumn(2); // Data
+                                    cols.RelativeColumn(2); // Recorrente
+                                    cols.RelativeColumn(2); // Valor
+                                });
+
+                                static void TH(IContainer c, string t) =>
+                                    c.Background("#2E7D32").PaddingVertical(4).PaddingHorizontal(6)
+                                     .AlignCenter().Text(t).FontColor(Branco).Bold().FontSize(8);
+
+                                table.Header(h =>
+                                {
+                                    h.Cell().Element(c => TH(c, "Descrição"));
+                                    h.Cell().Element(c => TH(c, "Categoria"));
+                                    h.Cell().Element(c => TH(c, "Data"));
+                                    h.Cell().Element(c => TH(c, "Recorrente"));
+                                    h.Cell().Element(c => TH(c, "Valor"));
+                                });
+
+                                var idx = 0;
+                                foreach (var item in resumo.Receitas)
+                                {
+                                    idx++;
+                                    var bg = idx % 2 == 0 ? "#F1FBF2" : Branco;
+                                    void TD(IContainer c, string t, string? cor = null) =>
+                                        c.Background(bg).BorderBottom(1).BorderColor("#EEE")
+                                         .PaddingVertical(4).PaddingHorizontal(6)
+                                         .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
+
+                                    table.Cell().Background(bg).BorderBottom(1).BorderColor("#EEE")
+                                        .PaddingVertical(4).PaddingHorizontal(6)
+                                        .Text(item.Descricao).FontSize(8).FontColor("#212121");
+                                    table.Cell().Element(c => TD(c, item.Categoria));
+                                    table.Cell().Element(c => TD(c, item.DataRecebimento.ToString("dd/MM/yyyy")));
+                                    table.Cell().Element(c => TD(c, item.Recorrente ? "Sim" : "Não", item.Recorrente ? Azul : CinzaTexto));
+                                    table.Cell().Element(c => TD(c, item.Valor.ToString("C2", culture), Verde));
+                                }
+
+                                table.Footer(f =>
+                                {
+                                    f.Cell().ColumnSpan(4).Background(VerdeClaro)
+                                        .PaddingVertical(5).PaddingHorizontal(6)
+                                        .Text("TOTAL").Bold().FontSize(8).FontColor(Verde);
+                                    f.Cell().Background(VerdeClaro).PaddingVertical(5).PaddingHorizontal(6)
+                                        .AlignCenter().Text(resumo.TotalReceitas.ToString("C2", culture))
+                                        .Bold().FontSize(8).FontColor(Verde);
+                                });
+                            });
+                        }
+
+                        // Saldo do mês
+                        sec.Item().PaddingTop(10).Background(saldoCor == Verde ? VerdeClaro : VermelhoClaro)
+                            .PaddingHorizontal(10).PaddingVertical(8).Row(r =>
+                            {
+                                r.RelativeItem().Text("Saldo do Mês  (Receitas − Saídas)")
+                                    .Bold().FontSize(10).FontColor(saldoCor);
+                                r.AutoItem().Text(resumo.Saldo.ToString("C2", culture))
+                                    .Bold().FontSize(13).FontColor(saldoCor);
+                            });
+                    });
+
+                    // ── Seção 4: Contas a Receber ────────────────────
                     col.Item().Column(sec =>
                     {
                         sec.Item().Background(AzulClaro).PaddingHorizontal(10).PaddingVertical(6)

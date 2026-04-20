@@ -21,4 +21,6 @@ public record DespesaExtraDto(
     DateOnly DataDespesa,
     string Categoria,
     FormaPagamentoDespesaExtra FormaPagamento,
+    DateOnly? PagaEm,
+    bool Paga,
     DateTime DataCriacao);

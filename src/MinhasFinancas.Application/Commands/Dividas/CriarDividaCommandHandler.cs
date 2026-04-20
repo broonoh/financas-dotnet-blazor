@@ -46,6 +46,6 @@ public class CriarDividaCommandHandler : IRequestHandler<CriarDividaCommand, Div
         return new DividaDto(
             divida.Id, divida.NomeDevedor, divida.Descricao, divida.ValorTotal,
             saldoRestante, divida.QuantidadeParcelas, divida.DataCompra,
-            divida.Ativa, divida.DataCriacao, parcelas);
+            divida.DataPrimeiraParcela, divida.Ativa, divida.DataCriacao, parcelas);
     }
 }

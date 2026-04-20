@@ -32,8 +32,22 @@ public class DividaRepository : IDividaRepository
     public Task AdicionarAsync(Divida divida)
         => _context.Dividas.AddAsync(divida).AsTask();
 
-    public void Atualizar(Divida divida)
-        => _context.Dividas.Update(divida);
+    public async Task AtualizarAsync(Divida divida, CancellationToken ct = default)
+    {
+        // Carrega as parcelas antigas direto do banco (evita conflitos com o
+        // cache .Local após GerarParcelas() ter feito _parcelas.Clear())
+        var antigas = await _context.ParcelasDivida
+            .Where(p => p.DividaId == divida.Id)
+            .ToListAsync(ct);
+        _context.ParcelasDivida.RemoveRange(antigas);
+
+        // Novas parcelas geradas por GerarParcelas() — todas Detached
+        foreach (var p in divida.Parcelas)
+            _context.ParcelasDivida.Add(p);
+
+        // Marca a dívida como modificada para gerar o UPDATE
+        _context.Entry(divida).State = EntityState.Modified;
+    }
 
     public void Remover(Divida divida)
         => _context.Dividas.Remove(divida);

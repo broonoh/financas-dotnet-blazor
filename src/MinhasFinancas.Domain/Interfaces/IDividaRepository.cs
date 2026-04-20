@@ -8,7 +8,7 @@ public interface IDividaRepository
     Task<ParcelaDivida?> ObterParcelaPorIdAsync(Guid id);
     Task<IEnumerable<Divida>> ListarPorUsuarioAsync(Guid usuarioId);
     Task AdicionarAsync(Divida divida);
-    void Atualizar(Divida divida);
+    Task AtualizarAsync(Divida divida, CancellationToken ct = default);
     void Remover(Divida divida);
     void AtualizarParcela(ParcelaDivida parcela);
 }

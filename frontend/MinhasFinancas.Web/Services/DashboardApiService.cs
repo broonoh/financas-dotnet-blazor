@@ -97,6 +97,11 @@ public class DashboardApiService
         return (false, "Erro ao excluir despesa.");
     }
 
+    public async Task MarcarDespesaExtraPagaAsync(Guid id, bool paga)
+    {
+        await _http.PatchAsJsonAsync($"api/despesas/extras/{id}/pagar", new { Paga = paga });
+    }
+
     public Task<List<DividaDto>?> ListarDividasAsync()
         => _http.GetFromJsonAsync<List<DividaDto>>("api/dividas");
 

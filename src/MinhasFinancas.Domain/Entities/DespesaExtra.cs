@@ -6,6 +6,8 @@ public class DespesaExtra : Despesa
 {
     public DateOnly DataDespesa { get; private set; }
     public FormaPagamentoDespesaExtra FormaPagamento { get; private set; }
+    public DateOnly? PagaEm { get; private set; }
+    public bool Paga { get; private set; }
 
     // EF Core
     private DespesaExtra() { }
@@ -16,7 +18,8 @@ public class DespesaExtra : Despesa
         decimal valor,
         DateOnly dataDespesa,
         string categoria,
-        FormaPagamentoDespesaExtra formaPagamento)
+        FormaPagamentoDespesaExtra formaPagamento,
+        DateOnly? pagaEm = null)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
@@ -33,12 +36,21 @@ public class DespesaExtra : Despesa
             DataDespesa = dataDespesa,
             Categoria = categoria,
             FormaPagamento = formaPagamento,
+            PagaEm = formaPagamento == FormaPagamentoDespesaExtra.CartaoCredito ? pagaEm : null,
             TipoDespesa = TipoDespesa.Extra,
             DataCriacao = DateTime.UtcNow
         };
     }
 
-    public void Atualizar(string descricao, decimal valor, DateOnly dataDespesa, string categoria, FormaPagamentoDespesaExtra formaPagamento)
+    public void MarcarComoPaga(bool paga, DateOnly? dataHoje = null)
+    {
+        Paga = paga;
+
+        if (FormaPagamento != FormaPagamentoDespesaExtra.CartaoCredito)
+            PagaEm = paga ? (dataHoje ?? DateOnly.FromDateTime(DateTime.UtcNow)) : null;
+    }
+
+    public void Atualizar(string descricao, decimal valor, DateOnly dataDespesa, string categoria, FormaPagamentoDespesaExtra formaPagamento, DateOnly? pagaEm = null)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
@@ -50,5 +62,6 @@ public class DespesaExtra : Despesa
         DataDespesa = dataDespesa;
         Categoria = categoria;
         FormaPagamento = formaPagamento;
+        PagaEm = formaPagamento == FormaPagamentoDespesaExtra.CartaoCredito ? pagaEm : null;
     }
 }

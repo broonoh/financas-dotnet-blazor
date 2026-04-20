@@ -148,7 +148,8 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasColumnName("data_criacao");
 
                     b.Property<DateOnly>("DataPrimeiraParcela")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("data_primeira_parcela");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
@@ -374,6 +375,16 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("forma_pagamento_extra");
+
+                    b.Property<bool>("Paga")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("paga_extra");
+
+                    b.Property<DateOnly?>("PagaEm")
+                        .HasColumnType("date")
+                        .HasColumnName("paga_em");
 
                     b.HasDiscriminator().HasValue("Extra");
                 });

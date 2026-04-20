@@ -369,7 +369,7 @@ public class DividasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDividaCommand(id, usuarioId.Value, request.NomeDevedor, request.Descricao);
+            var command = new AtualizarDividaCommand(id, usuarioId.Value, request.NomeDevedor, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -428,7 +428,13 @@ public class DividasController : ControllerBase
     }
 }
 
-public record AtualizarDividaRequest(string NomeDevedor, string Descricao);
+public record AtualizarDividaRequest(
+    string NomeDevedor,
+    string Descricao,
+    decimal ValorTotal,
+    int QuantidadeParcelas,
+    DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela);
 
 public record CriarDividaRequest(
     string NomeDevedor,

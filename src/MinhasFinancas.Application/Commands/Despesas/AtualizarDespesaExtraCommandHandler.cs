@@ -20,11 +20,11 @@ public class AtualizarDespesaExtraCommandHandler : IRequestHandler<AtualizarDesp
         var despesa = await _despesaRepo.ObterDespesaExtraPorIdAsync(request.Id, request.UsuarioId, cancellationToken)
             ?? throw new KeyNotFoundException("Despesa extra não encontrada.");
 
-        despesa.Atualizar(request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento);
+        despesa.Atualizar(request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento, request.PagaEm);
         _despesaRepo.AtualizarExtra(despesa);
         await _uow.CommitAsync(cancellationToken);
 
         return new DespesaExtraDto(despesa.Id, despesa.Descricao, despesa.ValorTotal, despesa.DataDespesa,
-            despesa.Categoria, despesa.FormaPagamento, despesa.DataCriacao);
+            despesa.Categoria, despesa.FormaPagamento, despesa.PagaEm, despesa.Paga, despesa.DataCriacao);
     }
 }

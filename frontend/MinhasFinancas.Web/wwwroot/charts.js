@@ -95,9 +95,11 @@ window.renderizarGraficoPizzaFinancas = (id, labels, valores) => {
     if (!ctx) return;
 
     const cores = ['#4CAF50', '#5C35CC', '#E65100'];
+    const total = valores.reduce((a, b) => a + b, 0);
 
     charts[id] = new Chart(ctx, {
         type: 'doughnut',
+        plugins: [ChartDataLabels],
         data: {
             labels: labels,
             datasets: [{
@@ -113,11 +115,21 @@ window.renderizarGraficoPizzaFinancas = (id, labels, valores) => {
                 legend: { position: 'bottom' },
                 tooltip: {
                     callbacks: {
-                        label: ctx => {
-                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-                            return `${ctx.label}: R$ ${ctx.parsed.toFixed(2).replace('.', ',')} (${pct}%)`;
+                        label: c => {
+                            const t = c.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = t > 0 ? ((c.parsed / t) * 100).toFixed(1) : 0;
+                            return `${c.label}: R$ ${c.parsed.toFixed(2).replace('.', ',')} (${pct}%)`;
                         }
+                    }
+                },
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 13 },
+                    textShadowBlur: 6,
+                    textShadowColor: 'rgba(0,0,0,0.55)',
+                    formatter: (value) => {
+                        if (total === 0 || value === 0) return '';
+                        return (value / total * 100).toFixed(1) + '%';
                     }
                 }
             }

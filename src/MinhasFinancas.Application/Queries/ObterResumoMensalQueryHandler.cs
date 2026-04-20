@@ -8,11 +8,13 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
 {
     private readonly IDespesaRepository _despesaRepo;
     private readonly IDividaRepository _dividaRepo;
+    private readonly IReceitaRepository _receitaRepo;
 
-    public ObterResumoMensalQueryHandler(IDespesaRepository despesaRepo, IDividaRepository dividaRepo)
+    public ObterResumoMensalQueryHandler(IDespesaRepository despesaRepo, IDividaRepository dividaRepo, IReceitaRepository receitaRepo)
     {
         _despesaRepo = despesaRepo;
         _dividaRepo = dividaRepo;
+        _receitaRepo = receitaRepo;
     }
 
     public async Task<ResumoMensalDto> Handle(ObterResumoMensalQuery request, CancellationToken ct)
@@ -22,6 +24,7 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
         var despesasFixas = await _despesaRepo.ListarFixasComParcelasAsync(usuarioId, ct);
         var despesasExtras = await _despesaRepo.ListarExtrasDoMesAsync(usuarioId, ano, mes, ct);
         var dividas = await _dividaRepo.ListarPorUsuarioAsync(usuarioId);
+        var receitas = await _receitaRepo.ListarPorUsuarioMesAsync(usuarioId, ano, mes, ct);
 
         // Despesas Fixas — parcelas com vencimento no mês solicitado
         var itensFixas = despesasFixas
@@ -38,7 +41,8 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
         // Despesas Extras do mês
         var itensExtras = despesasExtras
             .Select(d => new ResumoItemDespesaExtraDto(
-                d.Id, d.Descricao, d.Categoria, d.ValorTotal, d.DataDespesa))
+                d.Id, d.Descricao, d.Categoria, d.ValorTotal,
+                d.PagaEm ?? d.DataDespesa, d.PagaEm, d.Paga))
             .OrderBy(d => d.DataDespesa)
             .ThenBy(d => d.Descricao)
             .ToList();
@@ -68,11 +72,23 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
             .OrderBy(d => d.NomeDevedor)
             .ToList();
 
+        // Receitas do mês
+        var itensReceitas = receitas
+            .Select(r => new ResumoItemReceitaDto(
+                r.Id, r.Descricao, r.Categoria, r.Valor, r.DataRecebimento, r.Recorrente))
+            .OrderBy(r => r.DataRecebimento)
+            .ThenBy(r => r.Descricao)
+            .ToList();
+
+        var totalFixas    = itensFixas.Sum(x => x.Valor);
+        var totalExtras   = itensExtras.Sum(x => x.Valor);
+        var totalReceber  = devedores.Sum(x => x.Total);
+        var totalReceitas = itensReceitas.Sum(x => x.Valor);
+        var saldo         = totalReceitas - (totalFixas + totalExtras);
+
         return new ResumoMensalDto(
             ano, mes,
-            itensFixas, itensExtras, devedores,
-            itensFixas.Sum(x => x.Valor),
-            itensExtras.Sum(x => x.Valor),
-            devedores.Sum(x => x.Total));
+            itensFixas, itensExtras, devedores, itensReceitas,
+            totalFixas, totalExtras, totalReceber, totalReceitas, saldo);
     }
 }

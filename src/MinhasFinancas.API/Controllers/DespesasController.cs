@@ -98,7 +98,8 @@ public class DespesasController : ControllerBase
                 request.Valor,
                 request.DataDespesa,
                 request.Categoria,
-                request.FormaPagamento);
+                request.FormaPagamento,
+                request.PagaEm);
 
             var resultado = await _mediator.Send(command, ct);
             return CreatedAtAction(nameof(CriarExtra), new { id = resultado.Id }, resultado);
@@ -120,7 +121,7 @@ public class DespesasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.Categoria, request.FormaPagamento);
+            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -145,7 +146,7 @@ public class DespesasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDespesaExtraCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento);
+            var command = new AtualizarDespesaExtraCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento, request.PagaEm);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -189,6 +190,25 @@ public class DespesasController : ControllerBase
         try
         {
             await _mediator.Send(new ExcluirDespesaCommand(id, usuarioId.Value, Fixa: true), ct);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("extras/{id:guid}/pagar")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> MarcarExtraPaga(Guid id, [FromBody] MarcarDespesaExtraRequest request, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        try
+        {
+            await _mediator.Send(new MarcarDespesaExtraPagaCommand(id, usuarioId.Value, request.Paga), ct);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -609,6 +629,7 @@ public class DespesasController : ControllerBase
                         cols.RelativeColumn(2);  // Valor
                         cols.RelativeColumn(2);  // Categoria
                         cols.RelativeColumn(2);  // Forma Pagamento
+                        cols.RelativeColumn(2);  // Paga Em
                     });
 
                     static void TH(IContainer c, string t) =>
@@ -622,6 +643,7 @@ public class DespesasController : ControllerBase
                         h.Cell().Element(c => TH(c, "Valor"));
                         h.Cell().Element(c => TH(c, "Categoria"));
                         h.Cell().Element(c => TH(c, "Pagamento"));
+                        h.Cell().Element(c => TH(c, "Paga Em"));
                     });
 
                     var idx = 0;
@@ -646,6 +668,7 @@ public class DespesasController : ControllerBase
                             .FontSize(8).Bold().FontColor(Laranja);
                         table.Cell().Element(c => TD(c, d.Categoria));
                         table.Cell().Element(c => TD(c, d.FormaPagamento.ToString()));
+                        table.Cell().Element(c => TD(c, d.PagaEm.HasValue ? d.PagaEm.Value.ToString("dd/MM/yyyy") : "—"));
                     }
 
                     // Linha de total
@@ -656,7 +679,7 @@ public class DespesasController : ControllerBase
                         f.Cell().Background("#FFF3E0").PaddingVertical(6).PaddingHorizontal(6)
                             .AlignCenter().Text(totalGeral.ToString("C2", culture))
                             .Bold().FontSize(9).FontColor(Laranja);
-                        f.Cell().ColumnSpan(2).Background("#FFF3E0");
+                        f.Cell().ColumnSpan(3).Background("#FFF3E0");
                     });
                     }); // fim contentCol.Item().Table
 
@@ -687,6 +710,10 @@ public class DespesasController : ControllerBase
 // Request DTOs (separados do domínio)
 public record AtualizarDespesaFixaRequest(
     string Descricao,
+    decimal ValorTotal,
+    int QuantidadeParcelas,
+    DateOnly DataCompra,
+    DateOnly DataPrimeiraParcela,
     string Categoria,
     FormaPagamentoDespesaFixa FormaPagamento);
 
@@ -695,7 +722,8 @@ public record AtualizarDespesaExtraRequest(
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento);
+    FormaPagamentoDespesaExtra FormaPagamento,
+    DateOnly? PagaEm = null);
 
 public record CriarDespesaFixaRequest(
     string Descricao,
@@ -711,6 +739,8 @@ public record CriarDespesaExtraRequest(
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento);
+    FormaPagamentoDespesaExtra FormaPagamento,
+    DateOnly? PagaEm = null);
 
 public record MarcarParcelaRequest(bool Paga, DateOnly? DataPagamento = null);
+public record MarcarDespesaExtraRequest(bool Paga);
