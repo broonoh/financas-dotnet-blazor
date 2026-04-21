@@ -366,7 +366,7 @@ else if (_activeTab == 1)
                                     <thead>
                                         <tr>
                                             <th>Forma de Pagamento</th>
-                                            <th>Data Para Pagamento</th>
+                                            <th>Vencimento</th>
                                             <th>Status</th>
                                             <th></th>
                                         </tr>
@@ -698,7 +698,7 @@ else if (_activeTab == 2)
         @if (_extraFormaPagamento == "CartaoCredito")
         {
             <MudItem xs="12" md="3">
-                <MudDatePicker @bind-Date="_extraPagaEm" Label="Data Para Pagamento"
+                <MudDatePicker @bind-Date="_extraPagaEm" Label="Vencimento"
                                Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" Clearable="true" />
             </MudItem>
         }
