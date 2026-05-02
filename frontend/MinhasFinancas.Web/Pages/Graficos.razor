@@ -120,7 +120,7 @@ else if (_resumo is not null)
     <MudPaper Elevation="2" Class="pa-4">
         <MudText Typo="Typo.h6" Class="mb-1">Contas a Receber por Devedor</MudText>
         <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-3 d-block">
-            Comparativo entre total emprestado e saldo restante a receber
+            Parcelas com vencimento em @_nomeMes / @_ano
         </MudText>
 
         @if (_semDevedores)
@@ -208,11 +208,8 @@ else if (_resumo is not null)
     {
         try
         {
-            var resumoTask = ApiService.ObterResumoMensalAsync(_ano, _mes);
-            var dividasTask = ApiService.ListarDividasAsync();
-            await Task.WhenAll(resumoTask, dividasTask);
-            ProcessarDividas(dividasTask.Result ?? []);
-            ProcessarResumo(resumoTask.Result);
+            var resumo = await ApiService.ObterResumoMensalAsync(_ano, _mes);
+            ProcessarResumo(resumo);
         }
         catch (Exception ex)
         {
@@ -265,14 +262,18 @@ else if (_resumo is not null)
             (double)_resumo.TotalDespesasExtras
         ];
 
+        ProcessarDevedores(_resumo.ContasAReceber);
+
         _chartVersion++;
     }
 
-    private void ProcessarDividas(List<DividaDto> dividas)
+    private void ProcessarDevedores(List<ResumoDevedorDto> contasAReceber)
     {
-        _devedoresResumo = dividas
-            .GroupBy(d => d.NomeDevedor)
-            .Select(g => new DevedorResumo(g.Key, g.Sum(d => d.ValorTotal), g.Sum(d => d.SaldoRestante)))
+        _devedoresResumo = contasAReceber
+            .Select(d => new DevedorResumo(
+                d.NomeDevedor,
+                d.Total,
+                d.Parcelas.Where(p => !p.Paga).Sum(p => p.Valor)))
             .OrderByDescending(d => d.Total)
             .ToList();
 

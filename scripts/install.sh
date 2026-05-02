@@ -20,8 +20,25 @@ ok()  { echo -e "${GREEN}✓${NC} $1"; }
 # ── 1. Pré-requisitos ────────────────────────────────────────
 log "Verificando pré-requisitos..."
 command -v dotnet >/dev/null || { echo "dotnet não encontrado"; exit 1; }
+command -v docker >/dev/null || { echo "docker não encontrado — instale o Docker antes de continuar"; exit 1; }
 command -v nginx  >/dev/null || sudo dnf install -y nginx
 ok "Pré-requisitos OK"
+
+# ── 1b. Docker no boot + banco de dados ─────────────────────
+log "Habilitando Docker no boot..."
+sudo systemctl enable docker
+sudo systemctl start docker
+ok "Docker habilitado"
+
+log "Iniciando banco de dados..."
+cd "$PROJECT_DIR/docker"
+docker compose up -d postgres
+log "Aguardando PostgreSQL ficar pronto..."
+for i in $(seq 1 15); do
+    docker exec minhasfinancas_db pg_isready -U postgres 2>/dev/null && break || sleep 2
+done
+ok "Banco de dados pronto"
+cd "$SCRIPT_DIR"
 
 # ── 2. Build & Publish ───────────────────────────────────────
 log "Publicando API..."

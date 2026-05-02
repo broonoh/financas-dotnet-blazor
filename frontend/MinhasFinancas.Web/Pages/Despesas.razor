@@ -4,6 +4,7 @@
 @using MinhasFinancas.Web.Models
 @inject DashboardApiService ApiService
 @inject IJSRuntime JS
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h4" Class="mb-4">Despesas</MudText>
 
@@ -90,23 +91,46 @@
             {
                 <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
             }
+            <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
+                <div class="d-flex align-center gap-2 flex-wrap">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
+                    <MudSelect T="int" @bind-Value="_filtroMes" @bind-Value:after="OnFiltroChanged" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+                        @foreach (var (num, nome) in _meses)
+                        {
+                            <MudSelectItem Value="@num">@nome</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSelect T="int" @bind-Value="_filtroAno" @bind-Value:after="OnFiltroChanged" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+                        @foreach (var ano in _anosOpcoes)
+                        {
+                            <MudSelectItem Value="@ano">@ano</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+            </MudPaper>
             @if (_despesasFixas?.Count > 0)
             {
-                var _hj = DateOnly.FromDateTime(DateTime.Now);
                 var _todasParc = _despesasFixas.SelectMany(d => d.Parcelas ?? []).ToList();
-                var _totMes = _todasParc.Where(p => p.DataVencimento.Year == _hj.Year && p.DataVencimento.Month == _hj.Month).Sum(p => p.Valor);
+                var _parcsDoMes = _todasParc.Where(p => p.DataVencimento.Year == _filtroAno && p.DataVencimento.Month == _filtroMes).ToList();
+                var _totMes = _parcsDoMes.Sum(p => p.Valor);
+                var _totPagoMes = _parcsDoMes.Where(p => p.Paga).Sum(p => p.Valor);
+                var _saldoMes = _totMes - _totPagoMes;
                 var _totVenc = _todasParc.Where(p => p.Vencida && !p.Paga).Sum(p => p.Valor);
                 <MudPaper Elevation="0" Class="pa-3 mb-4" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
                     <MudGrid>
-                        <MudItem xs="12" sm="4">
+                        <MudItem xs="12" sm="3">
                             <MudText Typo="Typo.caption" Color="Color.Secondary">A pagar este mês</MudText>
-                            <MudText Typo="Typo.h6" Color="Color.Primary"><strong>@_totMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong></MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary"><strong>@_totMes.ToString("C2", _ptBR)</strong></MudText>
                         </MudItem>
-                        <MudItem xs="12" sm="4">
+                        <MudItem xs="12" sm="3">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Saldo Restante</MudText>
+                            <MudText Typo="Typo.h6" Color="@(_saldoMes > 0 ? Color.Warning : Color.Success)"><strong>@_saldoMes.ToString("C2", _ptBR)</strong></MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="3">
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Em atraso</MudText>
-                            <MudText Typo="Typo.h6" Color="@(_totVenc > 0 ? Color.Error : Color.Success)"><strong>@_totVenc.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</strong></MudText>
+                            <MudText Typo="Typo.h6" Color="@(_totVenc > 0 ? Color.Error : Color.Success)"><strong>@_totVenc.ToString("C2", _ptBR)</strong></MudText>
                         </MudItem>
-                        <MudItem xs="12" sm="4">
+                        <MudItem xs="12" sm="3">
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Despesas ativas</MudText>
                             <MudText Typo="Typo.h6"><strong>@_despesasFixas.Count</strong></MudText>
                         </MudItem>
@@ -304,9 +328,50 @@ else if (_activeTab == 1)
             {
                 <MudProgressLinear Color="Color.Warning" Indeterminate="true" />
             }
-            else if (_despesasExtras?.Count > 0)
+            <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
+                <div class="d-flex align-center gap-2 flex-wrap">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
+                    <MudSelect T="int" @bind-Value="_filtroMes" @bind-Value:after="OnFiltroChanged" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+                        @foreach (var (num, nome) in _meses)
+                        {
+                            <MudSelectItem Value="@num">@nome</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSelect T="int" @bind-Value="_filtroAno" @bind-Value:after="OnFiltroChanged" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+                        @foreach (var ano in _anosOpcoes)
+                        {
+                            <MudSelectItem Value="@ano">@ano</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+            </MudPaper>
+            @{
+                var _extrasDoMes = (_despesasExtras ?? [])
+                    .Where(e => e.DataDespesa.Year == _filtroAno && e.DataDespesa.Month == _filtroMes)
+                    .ToList();
+            }
+            @if (!_carregandoExtras && _extrasDoMes.Count > 0)
             {
-                @foreach (var extra in _despesasExtras)
+                var _totExtras = _extrasDoMes.Sum(e => e.Valor);
+                var _totPagoExtras = _extrasDoMes.Where(e => e.Paga).Sum(e => e.Valor);
+                var _saldoExtras = _totExtras - _totPagoExtras;
+                <MudPaper Elevation="0" Class="pa-3 mb-4" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
+                    <MudGrid>
+                        <MudItem xs="12" sm="4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Total do mês</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Warning"><strong>@_totExtras.ToString("C2", _ptBR)</strong></MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Saldo Restante</MudText>
+                            <MudText Typo="Typo.h6" Color="@(_saldoExtras > 0 ? Color.Warning : Color.Success)"><strong>@_saldoExtras.ToString("C2", _ptBR)</strong></MudText>
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Já pago</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Success"><strong>@_totPagoExtras.ToString("C2", _ptBR)</strong></MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+                @foreach (var extra in _extrasDoMes)
                 {
                     var expandida = _expandedExtraId == extra.Id;
 
@@ -401,9 +466,9 @@ else if (_activeTab == 1)
                     </MudCard>
                 }
             }
-            else if (!_carregandoExtras)
+            @if (!_carregandoExtras && _extrasDoMes.Count == 0)
             {
-                <MudAlert Severity="Severity.Info">Nenhuma despesa extra cadastrada.</MudAlert>
+                <MudAlert Severity="Severity.Info">Nenhuma despesa extra em @_meses.First(m => m.Num == _filtroMes).Nome/@_filtroAno.</MudAlert>
             }
         </MudPaper>
 }
@@ -457,7 +522,24 @@ else if (_activeTab == 2)
             {
                 <MudProgressLinear Color="Color.Error" Indeterminate="true" />
             }
-            else if (_dividas?.Count > 0)
+            <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
+                <div class="d-flex align-center gap-2 flex-wrap">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
+                    <MudSelect T="int" @bind-Value="_filtroMes" @bind-Value:after="OnFiltroChanged" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+                        @foreach (var (num, nome) in _meses)
+                        {
+                            <MudSelectItem Value="@num">@nome</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSelect T="int" @bind-Value="_filtroAno" @bind-Value:after="OnFiltroChanged" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+                        @foreach (var ano in _anosOpcoes)
+                        {
+                            <MudSelectItem Value="@ano">@ano</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+            </MudPaper>
+            @if (!_carregandoDividas && _dividas?.Count > 0)
             {
                 @* Seletor de devedor — visível somente quando há mais de um *@
                 @if (_gruposDividas.Count > 1)
@@ -652,7 +734,7 @@ else if (_activeTab == 2)
                     }
                 }
             }
-            else if (!_carregandoDividas)
+            @if (!_carregandoDividas && !(_dividas?.Count > 0))
             {
                 <MudAlert Severity="Severity.Info">Nenhuma dívida cadastrada.</MudAlert>
             }
@@ -716,6 +798,17 @@ else if (_activeTab == 2)
 
 @code {
     private int _activeTab;
+
+    // Filtro de período compartilhado entre as abas
+    private int _filtroMes;
+    private int _filtroAno;
+    private int[] _anosOpcoes = [];
+    private readonly (int Num, string Nome)[] _meses =
+    [
+        (1, "Janeiro"), (2, "Fevereiro"), (3, "Março"), (4, "Abril"),
+        (5, "Maio"), (6, "Junho"), (7, "Julho"), (8, "Agosto"),
+        (9, "Setembro"), (10, "Outubro"), (11, "Novembro"), (12, "Dezembro")
+    ];
 
     // Categorias
     private List<CategoriaDto>? _categoriasDespesa;
@@ -790,10 +883,20 @@ else if (_activeTab == 2)
         ParcelaDividaDto? ProximaParc
     );
 
+    protected override void OnInitialized()
+    {
+        var hoje = DateTime.Now;
+        _filtroMes = hoje.Month;
+        _filtroAno = hoje.Year;
+        _anosOpcoes = Enumerable.Range(hoje.Year - 3, 7).ToArray();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await Task.WhenAll(CarregarFixas(), CarregarExtras(), CarregarDividas(), CarregarCategorias());
     }
+
+    private void OnFiltroChanged() => ProcessarGruposDividas();
 
     private async Task CarregarCategorias()
     {
@@ -836,7 +939,6 @@ else if (_activeTab == 2)
     {
         if (_dividas == null || _dividas.Count == 0) { _gruposDividas = []; return; }
         var hoje = DateOnly.FromDateTime(DateTime.Now);
-        var inicioMes = new DateOnly(hoje.Year, hoje.Month, 1);
         _gruposDividas = _dividas
             .GroupBy(d => d.NomeDevedor.Trim(), StringComparer.OrdinalIgnoreCase)
             .OrderBy(g => g.Key)
@@ -844,18 +946,11 @@ else if (_activeTab == 2)
             {
                 var dividas = g.ToList();
                 var todasParc = dividas.SelectMany(d => d.Parcelas ?? []).ToList();
-                var pendentes = todasParc
-                    .Where(p => !p.Paga && p.DataVencimento >= inicioMes)
-                    .OrderBy(p => p.DataVencimento)
-                    .ToList();
-                var refMes = pendentes.Count > 0
-                    ? new DateOnly(pendentes[0].DataVencimento.Year, pendentes[0].DataVencimento.Month, 1)
-                    : (DateOnly?)null;
-                var valorMes = refMes.HasValue
-                    ? pendentes.Where(p => p.DataVencimento.Year == refMes.Value.Year && p.DataVencimento.Month == refMes.Value.Month).Sum(p => p.Valor)
-                    : 0m;
-                var labelMes = refMes.HasValue && (refMes.Value.Year != hoje.Year || refMes.Value.Month != hoje.Month)
-                    ? $"A pagar ({refMes.Value.ToString("MMM/yy", _ptBR)})"
+                var valorMes = todasParc
+                    .Where(p => p.DataVencimento.Year == _filtroAno && p.DataVencimento.Month == _filtroMes)
+                    .Sum(p => p.Valor);
+                var labelMes = (_filtroAno != hoje.Year || _filtroMes != hoje.Month)
+                    ? $"A pagar ({new DateOnly(_filtroAno, _filtroMes, 1).ToString("MMM/yy", _ptBR)})"
                     : "Este mês (a pagar)";
                 return new GrupoDivida(
                     Nome: g.Key,
@@ -870,7 +965,6 @@ else if (_activeTab == 2)
             })
             .ToList();
 
-        // Mantém seleção atual se ainda válida, senão seleciona o primeiro grupo
         if (!_gruposDividas.Any(g => g.Nome == _devedorSelecionado))
             _devedorSelecionado = _gruposDividas.FirstOrDefault()?.Nome ?? "";
     }
@@ -1246,27 +1340,56 @@ else if (_activeTab == 2)
 
     private async Task DownloadPdf(string nomeDevedor)
     {
-        var bytes = await ApiService.DownloadDividasPdfAsync(nomeDevedor);
-        if (bytes == null) return;
-        var fileName = $"dividas_{nomeDevedor.Replace(" ", "_")}.pdf";
-        await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        try
+        {
+            var bytes = await ApiService.DownloadDividasPdfAsync(nomeDevedor, _filtroMes, _filtroAno);
+            if (bytes is null || bytes.Length == 0) { Snackbar.Add("Nenhuma dívida encontrada para este período.", Severity.Warning); return; }
+            var fileName = $"dividas_{nomeDevedor.Replace(" ", "_")}_{_filtroMes:D2}_{_filtroAno}.pdf";
+            await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch { Snackbar.Add("Erro ao baixar PDF.", Severity.Error); }
     }
 
     private async Task DownloadFixasPdf()
     {
         _baixandoFixasPdf = true;
-        var bytes = await ApiService.DownloadDespesasFixasPdfAsync();
-        _baixandoFixasPdf = false;
-        if (bytes == null) return;
-        await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_fixas.pdf", "application/pdf", Convert.ToBase64String(bytes));
+        try
+        {
+            var (bytes, error) = await ApiService.DownloadDespesasFixasPdfAsync();
+            if (bytes is null || bytes.Length == 0)
+            {
+                var msg = TryExtractMessage(error) ?? "Erro ao gerar PDF de despesas fixas.";
+                Snackbar.Add(msg, Severity.Error);
+                return;
+            }
+            await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_fixas.pdf", "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { Snackbar.Add($"Erro ao baixar PDF: {ex.Message}", Severity.Error); }
+        finally { _baixandoFixasPdf = false; }
     }
 
     private async Task DownloadExtrasPdf()
     {
         _baixandoExtrasPdf = true;
-        var bytes = await ApiService.DownloadDespesasExtrasPdfAsync();
-        _baixandoExtrasPdf = false;
-        if (bytes == null) return;
-        await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_extras.pdf", "application/pdf", Convert.ToBase64String(bytes));
+        try
+        {
+            var bytes = await ApiService.DownloadDespesasExtrasPdfAsync();
+            if (bytes is null || bytes.Length == 0) { Snackbar.Add("Erro ao gerar PDF de despesas extras.", Severity.Error); return; }
+            await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_extras.pdf", "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch { Snackbar.Add("Erro ao baixar PDF.", Severity.Error); }
+        finally { _baixandoExtrasPdf = false; }
+    }
+
+    private static string? TryExtractMessage(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("message", out var m)) return m.GetString();
+        }
+        catch { }
+        return json?.Length > 200 ? json[..200] + "…" : json;
     }
 }

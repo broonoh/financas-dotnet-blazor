@@ -48,12 +48,22 @@
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
         window.downloadFileFromBytes = function(fileName, contentType, base64) {
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = 'data:' + contentType + ';base64,' + base64;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const byteChars = atob(base64);
+            const byteNums = new Uint8Array(byteChars.length);
+            for (let i = 0; i < byteChars.length; i++) {
+                byteNums[i] = byteChars.charCodeAt(i);
+            }
+            const blob = new Blob([byteNums], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
         };
     </script>
 </body>

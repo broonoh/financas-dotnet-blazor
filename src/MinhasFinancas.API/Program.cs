@@ -112,7 +112,8 @@ try
             c.RoutePrefix = "swagger";
         });
     }
-
+    
+    
     app.UseMiddleware<ErrorHandlingMiddleware>();
     app.UseSerilogRequestLogging();
     app.UseHttpsRedirection();

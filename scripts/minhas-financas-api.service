@@ -1,11 +1,13 @@
 [Unit]
 Description=Minhas Finanças – API Backend
-After=network-online.target postgresql.service
-Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
 
 [Service]
 Type=simple
 WorkingDirectory=%h/.local/share/minhas-financas/api
+ExecStartPre=/usr/bin/docker start minhasfinancas_db
+ExecStartPre=/bin/bash -c 'for i in $(seq 1 15); do docker exec minhasfinancas_db pg_isready -U postgres && break || sleep 2; done'
 ExecStart=/usr/bin/dotnet %h/.local/share/minhas-financas/api/MinhasFinancas.API.dll
 Restart=on-failure
 RestartSec=5
