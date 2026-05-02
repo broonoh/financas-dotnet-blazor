@@ -153,7 +153,9 @@ window.renderizarGraficoDevedores = (id, labels, totais, saldos) => {
                     backgroundColor: 'rgba(33, 150, 243, 0.8)',
                     borderColor: '#1565C0',
                     borderWidth: 1,
-                    borderRadius: 4
+                    borderRadius: 4,
+                    barPercentage: 0.75,
+                    categoryPercentage: 0.9
                 },
                 {
                     label: 'Saldo Restante',
@@ -161,7 +163,9 @@ window.renderizarGraficoDevedores = (id, labels, totais, saldos) => {
                     backgroundColor: 'rgba(244, 67, 54, 0.8)',
                     borderColor: '#B71C1C',
                     borderWidth: 1,
-                    borderRadius: 4
+                    borderRadius: 4,
+                    barPercentage: 0.75,
+                    categoryPercentage: 0.9
                 }
             ]
         },

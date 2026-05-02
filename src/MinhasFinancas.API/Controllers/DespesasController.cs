@@ -10,6 +10,7 @@ using System.Security.Claims;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Microsoft.Extensions.Hosting;
 
 namespace MinhasFinancas.API.Controllers;
 
@@ -20,11 +21,13 @@ public class DespesasController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IDespesaRepository _despesaRepo;
+    private readonly IWebHostEnvironment _env;
 
-    public DespesasController(IMediator mediator, IDespesaRepository despesaRepo)
+    public DespesasController(IMediator mediator, IDespesaRepository despesaRepo, IWebHostEnvironment env)
     {
         _mediator = mediator;
         _despesaRepo = despesaRepo;
+        _env = env;
     }
 
     [HttpGet("fixas")]
@@ -243,12 +246,19 @@ public class DespesasController : ControllerBase
         var usuarioId = ObterUsuarioId();
         if (usuarioId == null) return Unauthorized();
 
-        var despesas = (await _despesaRepo.ListarFixasComParcelasAsync(usuarioId.Value, ct)).ToList();
+        var despesas = (await _mediator.Send(new ListarDespesasFixasQuery(usuarioId.Value), ct)).ToList();
         if (!despesas.Any())
             return NotFound(new { message = "Nenhuma despesa fixa encontrada." });
 
-        var pdf = GerarPdfFixas(despesas);
-        return File(pdf, "application/pdf", "despesas_fixas.pdf");
+        try
+        {
+            var pdf = GerarPdfFixas(despesas);
+            return File(pdf, "application/pdf", "despesas_fixas.pdf");
+        }
+        catch (Exception ex) when (_env.IsDevelopment())
+        {
+            return StatusCode(500, new { message = ex.Message, type = ex.GetType().Name, stack = ex.StackTrace });
+        }
     }
 
     [HttpGet("extras/export/pdf")]
@@ -266,7 +276,7 @@ public class DespesasController : ControllerBase
         return File(pdf, "application/pdf", "despesas_extras.pdf");
     }
 
-    private static byte[] GerarPdfFixas(List<MinhasFinancas.Domain.Entities.DespesaFixa> despesas)
+    private static byte[] GerarPdfFixas(List<DespesaFixaDto> despesas)
     {
         QuestPDF.Settings.License = LicenseType.Community;
         var culture = new System.Globalization.CultureInfo("pt-BR");
@@ -462,10 +472,9 @@ public class DespesasController : ControllerBase
                                 {
                                     idx++;
                                     string bg, tc;
-                                    if (p.Paga)          { bg = "#E8F5E9"; tc = Verde; }
-                                    else if (p.DataVencimento < DateOnly.FromDateTime(DateTime.UtcNow))
-                                                          { bg = "#FFEBEE"; tc = Vermelho; }
-                                    else                  { bg = idx % 2 == 0 ? "#F5F5F5" : "#FFFFFF"; tc = "#212121"; }
+                                    if (p.Paga)        { bg = "#E8F5E9"; tc = Verde; }
+                                    else if (p.Vencida) { bg = "#FFEBEE"; tc = Vermelho; }
+                                    else               { bg = idx % 2 == 0 ? "#F5F5F5" : "#FFFFFF"; tc = "#212121"; }
 
                                     void TD(IContainer c, string t) =>
                                         c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
@@ -475,7 +484,7 @@ public class DespesasController : ControllerBase
                                     table.Cell().Element(c => TD(c, p.Numero.ToString()));
                                     table.Cell().Element(c => TD(c, p.DataVencimento.ToString("dd/MM/yyyy")));
                                     table.Cell().Element(c => TD(c, p.Valor.ToString("C2", culture)));
-                                    table.Cell().Element(c => TD(c, p.Paga ? "✓ Paga" : "Pendente"));
+                                    table.Cell().Element(c => TD(c, p.Paga ? "Paga" : "Pendente"));
                                 }
                             });
                         });

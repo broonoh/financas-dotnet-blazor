@@ -36,31 +36,45 @@ public class DividasController : ControllerBase
 
     [HttpGet("export/pdf")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> ExportarPdf([FromQuery] string nomeDevedor, CancellationToken ct)
+    public async Task<IActionResult> ExportarPdf([FromQuery] string nomeDevedor, [FromQuery] int mes, [FromQuery] int ano, CancellationToken ct)
     {
         var usuarioId = ObterUsuarioId();
         if (usuarioId == null) return Unauthorized();
 
         var todas = await _mediator.Send(new ListarDividasQuery(usuarioId.Value), ct);
-        var dividas = todas
+        var dividasBruto = todas
             .Where(d => d.NomeDevedor.Trim().Equals(nomeDevedor.Trim(), StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        if (!dividas.Any())
-            return NotFound(new { message = "Nenhuma dívida encontrada para esta pessoa." });
+        // Filtra parcelas pelo mês/ano selecionado e mantém apenas dívidas com parcelas no período
+        var dividas = dividasBruto
+            .Select(d => d with
+            {
+                Parcelas = d.Parcelas
+                    .Where(p => p.DataVencimento.Year == ano && p.DataVencimento.Month == mes)
+                    .ToList()
+            })
+            .Where(d => d.Parcelas.Any())
+            .ToList();
 
-        var pdf = GerarPdf(nomeDevedor, dividas);
-        var nomeArquivo = $"dividas_{nomeDevedor.Replace(" ", "_")}.pdf";
+        if (!dividas.Any())
+            return NotFound(new { message = "Nenhuma dívida encontrada para este período." });
+
+        var periodo = new System.Globalization.CultureInfo("pt-BR")
+            .DateTimeFormat.GetMonthName(mes) + $"/{ano}";
+
+        var pdf = GerarPdf(nomeDevedor, dividas, periodo);
+        var nomeArquivo = $"dividas_{nomeDevedor.Replace(" ", "_")}_{mes:D2}_{ano}.pdf";
         return File(pdf, "application/pdf", nomeArquivo);
     }
 
-    private static byte[] GerarPdf(string nomeDevedor, List<DividaDto> dividas)
+    private static byte[] GerarPdf(string nomeDevedor, List<DividaDto> dividas, string periodo)
     {
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
         var culture       = new System.Globalization.CultureInfo("pt-BR");
-        var totalGeral    = dividas.Sum(d => d.ValorTotal);
-        var saldoGeral    = dividas.Sum(d => d.SaldoRestante);
+        var totalGeral    = dividas.Sum(d => d.Parcelas.Sum(p => p.Valor));
+        var saldoGeral    = dividas.Sum(d => d.Parcelas.Where(p => !p.Paga).Sum(p => p.Valor));
         var pagas         = dividas.Sum(d => d.Parcelas.Count(p => p.Paga));
         var totalParcelas = dividas.Sum(d => d.Parcelas.Count());
         var geradoEm      = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
@@ -93,7 +107,7 @@ public class DividasController : ControllerBase
                     // Banner azul — somente título, sem colunas à direita
                     h.Item().Background(Azul).Padding(12).Column(col =>
                     {
-                        col.Item().Text("Minhas Finanças — Relatório de Contas a Receber")
+                        col.Item().Text($"Minhas Finanças — Relatório de Contas a Receber • {periodo}")
                             .FontColor("#B3C9F4").FontSize(9).SemiBold();
                         col.Item().Text(nomeDevedor)
                             .FontColor("#FFFFFF").FontSize(18).Bold();
@@ -301,7 +315,7 @@ public class DividasController : ControllerBase
                                     table.Cell().Element(c => TD(c, p.Numero.ToString()));
                                     table.Cell().Element(c => TD(c, p.DataVencimento.ToString("dd/MM/yyyy")));
                                     table.Cell().Element(c => TD(c, p.Valor.ToString("C2", culture)));
-                                    table.Cell().Element(c => TD(c, p.Paga ? "✓ Sim" : "Não"));
+                                    table.Cell().Element(c => TD(c, p.Paga ? "Sim" : "Não"));
                                     table.Cell().Element(c => TD(c, p.DataPagamento?.ToString("dd/MM/yyyy") ?? "—"));
                                 }
                             });

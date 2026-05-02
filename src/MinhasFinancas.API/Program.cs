@@ -113,6 +113,7 @@ try
         });
     }
     
+    
     app.UseMiddleware<ErrorHandlingMiddleware>();
     app.UseSerilogRequestLogging();
     app.UseHttpsRedirection();

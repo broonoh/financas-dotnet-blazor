@@ -11095,8 +11095,8 @@
       ]
     },
     {
-      "Route": "_framework/MinhasFinancas.Web.lmugbsy925.pdb",
-      "AssetFile": "_framework/MinhasFinancas.Web.lmugbsy925.pdb",
+      "Route": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm",
+      "AssetFile": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -11109,44 +11109,44 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "195988"
+          "Value": "427797"
         },
         {
           "Name": "Content-Type",
-          "Value": "application/octet-stream"
+          "Value": "application/wasm"
         },
         {
           "Name": "ETag",
-          "Value": "\"DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ=\""
+          "Value": "\"N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lmugbsy925"
+          "Value": "1mrwif4kht"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ="
+          "Value": "sha256-N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg="
         },
         {
           "Name": "label",
-          "Value": "_framework/MinhasFinancas.Web.pdb"
+          "Value": "_framework/MinhasFinancas.Web.wasm"
         }
       ]
     },
     {
-      "Route": "_framework/MinhasFinancas.Web.lmugbsy925.pdb",
-      "AssetFile": "_framework/MinhasFinancas.Web.lmugbsy925.pdb.gz",
+      "Route": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm",
+      "AssetFile": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000006837139"
+          "Quality": "0.000007378495"
         }
       ],
       "ResponseHeaders": [
@@ -11164,23 +11164,23 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "146259"
+          "Value": "135528"
         },
         {
           "Name": "Content-Type",
-          "Value": "application/octet-stream"
+          "Value": "application/wasm"
         },
         {
           "Name": "ETag",
-          "Value": "\"bgEMAnCodK+AgGzXfBXr7+ug5MxsYZrWG2dAaKXycO8=\""
+          "Value": "\"SnksEyiWCGQIuiOI5wAE5lKGrI3avBiWdhCfI9lhbHg=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ=\""
+          "Value": "W/\"N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         },
         {
           "Name": "Vary",
@@ -11190,21 +11190,21 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lmugbsy925"
+          "Value": "1mrwif4kht"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ="
+          "Value": "sha256-N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg="
         },
         {
           "Name": "label",
-          "Value": "_framework/MinhasFinancas.Web.pdb"
+          "Value": "_framework/MinhasFinancas.Web.wasm"
         }
       ]
     },
     {
-      "Route": "_framework/MinhasFinancas.Web.lmugbsy925.pdb.gz",
-      "AssetFile": "_framework/MinhasFinancas.Web.lmugbsy925.pdb.gz",
+      "Route": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm.gz",
+      "AssetFile": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -11221,19 +11221,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "146259"
+          "Value": "135528"
         },
         {
           "Name": "Content-Type",
-          "Value": "application/octet-stream"
+          "Value": "application/wasm"
         },
         {
           "Name": "ETag",
-          "Value": "\"bgEMAnCodK+AgGzXfBXr7+ug5MxsYZrWG2dAaKXycO8=\""
+          "Value": "\"SnksEyiWCGQIuiOI5wAE5lKGrI3avBiWdhCfI9lhbHg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         },
         {
           "Name": "Vary",
@@ -11243,11 +11243,309 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lmugbsy925"
+          "Value": "1mrwif4kht"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-bgEMAnCodK+AgGzXfBXr7+ug5MxsYZrWG2dAaKXycO8="
+          "Value": "sha256-SnksEyiWCGQIuiOI5wAE5lKGrI3avBiWdhCfI9lhbHg="
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/MinhasFinancas.Web.wasm.gz"
+        }
+      ]
+    },
+    {
+      "Route": "_framework/MinhasFinancas.Web.pdb",
+      "AssetFile": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "204240"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/MinhasFinancas.Web.pdb",
+      "AssetFile": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000006535051"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "153020"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"95tRsLxuBepOhO4DV3H9tgfWNoZjzIuVQTDqr1FyEyo=\""
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/MinhasFinancas.Web.pdb.gz",
+      "AssetFile": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "153020"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"95tRsLxuBepOhO4DV3H9tgfWNoZjzIuVQTDqr1FyEyo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-95tRsLxuBepOhO4DV3H9tgfWNoZjzIuVQTDqr1FyEyo="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb",
+      "AssetFile": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "204240"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "pm4l7l4vnt"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM="
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/MinhasFinancas.Web.pdb"
+        }
+      ]
+    },
+    {
+      "Route": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb",
+      "AssetFile": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000006535051"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "153020"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"95tRsLxuBepOhO4DV3H9tgfWNoZjzIuVQTDqr1FyEyo=\""
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "pm4l7l4vnt"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-seVCnJcv+zBtqDe6a9TxTvCHk640b6X6962fh4Ce2GM="
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/MinhasFinancas.Web.pdb"
+        }
+      ]
+    },
+    {
+      "Route": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb.gz",
+      "AssetFile": "_framework/MinhasFinancas.Web.pm4l7l4vnt.pdb.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "153020"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"95tRsLxuBepOhO4DV3H9tgfWNoZjzIuVQTDqr1FyEyo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "pm4l7l4vnt"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-95tRsLxuBepOhO4DV3H9tgfWNoZjzIuVQTDqr1FyEyo="
         },
         {
           "Name": "label",
@@ -11256,145 +11554,8 @@
       ]
     },
     {
-      "Route": "_framework/MinhasFinancas.Web.pdb",
-      "AssetFile": "_framework/MinhasFinancas.Web.lmugbsy925.pdb",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "195988"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/MinhasFinancas.Web.pdb",
-      "AssetFile": "_framework/MinhasFinancas.Web.lmugbsy925.pdb.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000006837139"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "146259"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"bgEMAnCodK+AgGzXfBXr7+ug5MxsYZrWG2dAaKXycO8=\""
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-DTrmYXESeE0GpmvojbIn/QW/Ra3+kEEtVUWZmHVPQkQ="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/MinhasFinancas.Web.pdb.gz",
-      "AssetFile": "_framework/MinhasFinancas.Web.lmugbsy925.pdb.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "146259"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"bgEMAnCodK+AgGzXfBXr7+ug5MxsYZrWG2dAaKXycO8=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-bgEMAnCodK+AgGzXfBXr7+ug5MxsYZrWG2dAaKXycO8="
-        }
-      ]
-    },
-    {
       "Route": "_framework/MinhasFinancas.Web.wasm",
-      "AssetFile": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm",
+      "AssetFile": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -11407,7 +11568,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "412949"
+          "Value": "427797"
         },
         {
           "Name": "Content-Type",
@@ -11415,28 +11576,28 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU=\""
+          "Value": "\"N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU="
+          "Value": "sha256-N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg="
         }
       ]
     },
     {
       "Route": "_framework/MinhasFinancas.Web.wasm",
-      "AssetFile": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm.gz",
+      "AssetFile": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000007606124"
+          "Quality": "0.000007378495"
         }
       ],
       "ResponseHeaders": [
@@ -11454,7 +11615,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "131472"
+          "Value": "135528"
         },
         {
           "Name": "Content-Type",
@@ -11462,15 +11623,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"gmIft5swKEEWkz5IVRIHKti+0IQbZoBZRpMjHobIbBM=\""
+          "Value": "\"SnksEyiWCGQIuiOI5wAE5lKGrI3avBiWdhCfI9lhbHg=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU=\""
+          "Value": "W/\"N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         },
         {
           "Name": "Vary",
@@ -11480,13 +11641,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU="
+          "Value": "sha256-N369qyr+pcXrtodNYqQXHG+GvAq4mw2EkaIEqfD+qpg="
         }
       ]
     },
     {
       "Route": "_framework/MinhasFinancas.Web.wasm.gz",
-      "AssetFile": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm.gz",
+      "AssetFile": "_framework/MinhasFinancas.Web.1mrwif4kht.wasm.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -11503,7 +11664,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "131472"
+          "Value": "135528"
         },
         {
           "Name": "Content-Type",
@@ -11511,11 +11672,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"gmIft5swKEEWkz5IVRIHKti+0IQbZoBZRpMjHobIbBM=\""
+          "Value": "\"SnksEyiWCGQIuiOI5wAE5lKGrI3avBiWdhCfI9lhbHg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         },
         {
           "Name": "Vary",
@@ -11525,168 +11686,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-gmIft5swKEEWkz5IVRIHKti+0IQbZoBZRpMjHobIbBM="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm",
-      "AssetFile": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "412949"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/wasm"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "xh6eanb91z"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU="
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/MinhasFinancas.Web.wasm"
-        }
-      ]
-    },
-    {
-      "Route": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm",
-      "AssetFile": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000007606124"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "131472"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/wasm"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"gmIft5swKEEWkz5IVRIHKti+0IQbZoBZRpMjHobIbBM=\""
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "xh6eanb91z"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-ZQ6CW8vZxq9HnD2QtrU70FivB6H0jWN8I+j+gtPb6hU="
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/MinhasFinancas.Web.wasm"
-        }
-      ]
-    },
-    {
-      "Route": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm.gz",
-      "AssetFile": "_framework/MinhasFinancas.Web.xh6eanb91z.wasm.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "131472"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/wasm"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"gmIft5swKEEWkz5IVRIHKti+0IQbZoBZRpMjHobIbBM=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:49:25 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "xh6eanb91z"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-gmIft5swKEEWkz5IVRIHKti+0IQbZoBZRpMjHobIbBM="
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/MinhasFinancas.Web.wasm.gz"
+          "Value": "sha256-SnksEyiWCGQIuiOI5wAE5lKGrI3avBiWdhCfI9lhbHg="
         }
       ]
     },
@@ -60287,17 +60287,17 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"PlIvPw8RPYr52EpDKzS/PMa+8e0ssNBklFxlBCnj+ck=\""
+          "Value": "\"MyqR3zBwmeeYHddoMIatbjAspf1wC9btXaZc/NrJz5w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 15:03:32 GMT"
+          "Value": "Sat, 02 May 2026 16:29:44 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-PlIvPw8RPYr52EpDKzS/PMa+8e0ssNBklFxlBCnj+ck="
+          "Value": "sha256-MyqR3zBwmeeYHddoMIatbjAspf1wC9btXaZc/NrJz5w="
         }
       ]
     },
@@ -60308,7 +60308,7 @@
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000077237970"
+          "Quality": "0.000077255871"
         }
       ],
       "ResponseHeaders": [
@@ -60326,7 +60326,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12946"
+          "Value": "12943"
         },
         {
           "Name": "Content-Type",
@@ -60334,15 +60334,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"35/YtVtwNiQ+HilQR7quaHCMfTZLor7ymx/Vclg4rwA=\""
+          "Value": "\"ZeihwpQ5jOHbMh/b7/EQvbGPl+G4SGEUmiyzPNqhd8A=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"PlIvPw8RPYr52EpDKzS/PMa+8e0ssNBklFxlBCnj+ck=\""
+          "Value": "W/\"MyqR3zBwmeeYHddoMIatbjAspf1wC9btXaZc/NrJz5w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:51:00 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         },
         {
           "Name": "Vary",
@@ -60352,7 +60352,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-PlIvPw8RPYr52EpDKzS/PMa+8e0ssNBklFxlBCnj+ck="
+          "Value": "sha256-MyqR3zBwmeeYHddoMIatbjAspf1wC9btXaZc/NrJz5w="
         }
       ]
     },
@@ -60375,7 +60375,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12946"
+          "Value": "12943"
         },
         {
           "Name": "Content-Type",
@@ -60383,11 +60383,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"35/YtVtwNiQ+HilQR7quaHCMfTZLor7ymx/Vclg4rwA=\""
+          "Value": "\"ZeihwpQ5jOHbMh/b7/EQvbGPl+G4SGEUmiyzPNqhd8A=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 26 Apr 2026 14:51:00 GMT"
+          "Value": "Sat, 02 May 2026 16:29:28 GMT"
         },
         {
           "Name": "Vary",
@@ -60397,7 +60397,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-35/YtVtwNiQ+HilQR7quaHCMfTZLor7ymx/Vclg4rwA="
+          "Value": "sha256-ZeihwpQ5jOHbMh/b7/EQvbGPl+G4SGEUmiyzPNqhd8A="
         }
       ]
     },
@@ -65173,174 +65173,13 @@
       ]
     },
     {
-      "Route": "index.benp4ehg4v.html",
-      "AssetFile": "index.html.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000937207123"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "1066"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"2m58Px0HHwpHwd20uldrvhBjNNmO4eMHBjrN2aOLMnY=\""
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 20 Apr 2026 20:19:51 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "benp4ehg4v"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw="
-        },
-        {
-          "Name": "label",
-          "Value": "index.html"
-        }
-      ]
-    },
-    {
-      "Route": "index.benp4ehg4v.html",
-      "AssetFile": "index.html",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "2318"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 20 Apr 2026 20:19:51 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "benp4ehg4v"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw="
-        },
-        {
-          "Name": "label",
-          "Value": "index.html"
-        }
-      ]
-    },
-    {
-      "Route": "index.benp4ehg4v.html.gz",
-      "AssetFile": "index.html.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "1066"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"2m58Px0HHwpHwd20uldrvhBjNNmO4eMHBjrN2aOLMnY=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 20 Apr 2026 20:19:51 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "benp4ehg4v"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-2m58Px0HHwpHwd20uldrvhBjNNmO4eMHBjrN2aOLMnY="
-        },
-        {
-          "Name": "label",
-          "Value": "index.html.gz"
-        }
-      ]
-    },
-    {
       "Route": "index.html",
       "AssetFile": "index.html.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000937207123"
+          "Quality": "0.000826446281"
         }
       ],
       "ResponseHeaders": [
@@ -65358,7 +65197,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1066"
+          "Value": "1209"
         },
         {
           "Name": "Content-Type",
@@ -65366,15 +65205,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"2m58Px0HHwpHwd20uldrvhBjNNmO4eMHBjrN2aOLMnY=\""
+          "Value": "\"xfUKBxO/Qs14h8efS6ExFHP6mqwNupCyHiIQbiU+hs8=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw=\""
+          "Value": "W/\"US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 20 Apr 2026 20:19:51 GMT"
+          "Value": "Sat, 02 May 2026 01:29:04 GMT"
         },
         {
           "Name": "Vary",
@@ -65384,7 +65223,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw="
+          "Value": "sha256-US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI="
         }
       ]
     },
@@ -65403,7 +65242,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "2318"
+          "Value": "2717"
         },
         {
           "Name": "Content-Type",
@@ -65411,17 +65250,17 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw=\""
+          "Value": "\"US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 20 Apr 2026 20:19:51 GMT"
+          "Value": "Sat, 02 May 2026 01:29:04 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-TTGuoDbzB8OQJTKR/miaYPBcHKPTEM17rzSdkd6RCRw="
+          "Value": "sha256-US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI="
         }
       ]
     },
@@ -65444,7 +65283,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1066"
+          "Value": "1209"
         },
         {
           "Name": "Content-Type",
@@ -65452,11 +65291,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"2m58Px0HHwpHwd20uldrvhBjNNmO4eMHBjrN2aOLMnY=\""
+          "Value": "\"xfUKBxO/Qs14h8efS6ExFHP6mqwNupCyHiIQbiU+hs8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 20 Apr 2026 20:19:51 GMT"
+          "Value": "Sat, 02 May 2026 01:29:04 GMT"
         },
         {
           "Name": "Vary",
@@ -65466,7 +65305,168 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-2m58Px0HHwpHwd20uldrvhBjNNmO4eMHBjrN2aOLMnY="
+          "Value": "sha256-xfUKBxO/Qs14h8efS6ExFHP6mqwNupCyHiIQbiU+hs8="
+        }
+      ]
+    },
+    {
+      "Route": "index.tpzmoq92m6.html",
+      "AssetFile": "index.html.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000826446281"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1209"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xfUKBxO/Qs14h8efS6ExFHP6mqwNupCyHiIQbiU+hs8=\""
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 01:29:04 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "tpzmoq92m6"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI="
+        },
+        {
+          "Name": "label",
+          "Value": "index.html"
+        }
+      ]
+    },
+    {
+      "Route": "index.tpzmoq92m6.html",
+      "AssetFile": "index.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2717"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 01:29:04 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "tpzmoq92m6"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-US4O7jU10Xsuclo5Bvi5b60lb7UUPPtTOgSIGBD84YI="
+        },
+        {
+          "Name": "label",
+          "Value": "index.html"
+        }
+      ]
+    },
+    {
+      "Route": "index.tpzmoq92m6.html.gz",
+      "AssetFile": "index.html.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1209"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xfUKBxO/Qs14h8efS6ExFHP6mqwNupCyHiIQbiU+hs8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 02 May 2026 01:29:04 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "tpzmoq92m6"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-xfUKBxO/Qs14h8efS6ExFHP6mqwNupCyHiIQbiU+hs8="
+        },
+        {
+          "Name": "label",
+          "Value": "index.html.gz"
         }
       ]
     },
