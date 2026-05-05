@@ -141,8 +141,9 @@ public class DividasController : ControllerBase
                         table.ColumnsDefinition(cols =>
                         {
                             cols.RelativeColumn(2);  // Vencimento
+                            cols.RelativeColumn(2);  // Dt. Compra
                             cols.RelativeColumn(3);  // Devedor
-                            cols.RelativeColumn(4);  // Descrição
+                            cols.RelativeColumn(3);  // Descrição
                             cols.RelativeColumn(1);  // Parc.
                             cols.RelativeColumn(2);  // Valor
                             cols.RelativeColumn(2);  // Status
@@ -159,6 +160,7 @@ public class DividasController : ControllerBase
                         table.Header(h =>
                         {
                             h.Cell().Element(c => TH(c, "Vencimento"));
+                            h.Cell().Element(c => TH(c, "Dt. Compra"));
                             h.Cell().Element(c => THL(c, "Devedor"));
                             h.Cell().Element(c => THL(c, "Descrição"));
                             h.Cell().Element(c => TH(c, "Parc."));
@@ -188,6 +190,7 @@ public class DividasController : ControllerBase
                                  .AlignCenter().Text(t).FontColor(tc).FontSize(8);
 
                             table.Cell().Element(c => TDC(c, x.p.DataVencimento.ToString("dd/MM/yyyy")));
+                            table.Cell().Element(c => TDC(c, x.d.DataCompra.ToString("dd/MM/yyyy")));
                             table.Cell().Element(c => TD(c, x.d.NomeDevedor));
                             table.Cell().Element(c => TD(c, x.d.Descricao));
                             table.Cell().Element(c => TDC(c, $"{x.p.Numero}/{x.d.QuantidadeParcelas}"));
@@ -199,7 +202,7 @@ public class DividasController : ControllerBase
 
                         table.Footer(f =>
                         {
-                            f.Cell().ColumnSpan(4).Background(VermClaro).PaddingVertical(6).PaddingHorizontal(6)
+                            f.Cell().ColumnSpan(5).Background(VermClaro).PaddingVertical(6).PaddingHorizontal(6)
                                 .Text("TOTAL").Bold().FontSize(9).FontColor(Vermelho);
                             f.Cell().Background(VermClaro).PaddingVertical(6).PaddingHorizontal(6)
                                 .AlignCenter().Text(totalMes.ToString("C2", culture))

@@ -370,10 +370,11 @@ public class DespesasController : ControllerBase
                         table.ColumnsDefinition(cols =>
                         {
                             cols.RelativeColumn(2);  // Vencimento
-                            cols.RelativeColumn(4);  // Descrição
+                            cols.RelativeColumn(2);  // Dt. Compra
+                            cols.RelativeColumn(3);  // Descrição
                             cols.RelativeColumn(1);  // Parc.
-                            cols.RelativeColumn(3);  // Categoria
-                            cols.RelativeColumn(3);  // Forma Pgto
+                            cols.RelativeColumn(2);  // Categoria
+                            cols.RelativeColumn(2);  // Forma Pgto
                             cols.RelativeColumn(2);  // Valor
                             cols.RelativeColumn(2);  // Status
                         });
@@ -389,6 +390,7 @@ public class DespesasController : ControllerBase
                         table.Header(h =>
                         {
                             h.Cell().Element(c => TH(c, "Vencimento"));
+                            h.Cell().Element(c => TH(c, "Dt. Compra"));
                             h.Cell().Element(c => THL(c, "Descrição"));
                             h.Cell().Element(c => TH(c, "Parc."));
                             h.Cell().Element(c => THL(c, "Categoria"));
@@ -419,6 +421,7 @@ public class DespesasController : ControllerBase
                                  .AlignCenter().Text(t).FontColor(tc).FontSize(8);
 
                             table.Cell().Element(c => TDC(c, x.p.DataVencimento.ToString("dd/MM/yyyy")));
+                            table.Cell().Element(c => TDC(c, x.d.DataCompra.ToString("dd/MM/yyyy")));
                             table.Cell().Element(c => TD(c, x.d.Descricao));
                             table.Cell().Element(c => TDC(c, $"{x.p.Numero}/{x.d.QuantidadeParcelas}"));
                             table.Cell().Element(c => TD(c, x.d.Categoria));
@@ -431,7 +434,7 @@ public class DespesasController : ControllerBase
 
                         table.Footer(f =>
                         {
-                            f.Cell().ColumnSpan(5).Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
+                            f.Cell().ColumnSpan(6).Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
                                 .Text("TOTAL").Bold().FontSize(9).FontColor(Roxo);
                             f.Cell().Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
                                 .AlignCenter().Text(totalMes.ToString("C2", culture))
@@ -535,9 +538,10 @@ public class DespesasController : ControllerBase
                         table.ColumnsDefinition(cols =>
                         {
                             cols.RelativeColumn(2);  // Vencimento
-                            cols.RelativeColumn(5);  // Descrição
-                            cols.RelativeColumn(3);  // Categoria
-                            cols.RelativeColumn(3);  // Forma Pgto
+                            cols.RelativeColumn(2);  // Dt. Compra
+                            cols.RelativeColumn(4);  // Descrição
+                            cols.RelativeColumn(2);  // Categoria
+                            cols.RelativeColumn(2);  // Forma Pgto
                             cols.RelativeColumn(2);  // Valor
                             cols.RelativeColumn(2);  // Status
                         });
@@ -553,6 +557,7 @@ public class DespesasController : ControllerBase
                         table.Header(h =>
                         {
                             h.Cell().Element(c => TH(c, "Vencimento"));
+                            h.Cell().Element(c => TH(c, "Dt. Compra"));
                             h.Cell().Element(c => THL(c, "Descrição"));
                             h.Cell().Element(c => THL(c, "Categoria"));
                             h.Cell().Element(c => THL(c, "Forma Pgto"));
@@ -582,6 +587,7 @@ public class DespesasController : ControllerBase
                                  .AlignCenter().Text(t).FontColor(tc).FontSize(8);
 
                             table.Cell().Element(c => TDC(c, dataRef));
+                            table.Cell().Element(c => TDC(c, d.DataDespesa.ToString("dd/MM/yyyy")));
                             table.Cell().Element(c => TD(c, d.Descricao));
                             table.Cell().Element(c => TD(c, d.Categoria));
                             table.Cell().Element(c => TD(c, FmtPagto(d.FormaPagamento)));
@@ -593,7 +599,7 @@ public class DespesasController : ControllerBase
 
                         table.Footer(f =>
                         {
-                            f.Cell().ColumnSpan(4).Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
+                            f.Cell().ColumnSpan(5).Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
                                 .Text("TOTAL").Bold().FontSize(9).FontColor(Laranja);
                             f.Cell().Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
                                 .AlignCenter().Text(totalMes.ToString("C2", culture))
