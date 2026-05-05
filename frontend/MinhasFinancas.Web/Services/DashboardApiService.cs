@@ -201,9 +201,9 @@ public class DashboardApiService
         return await response.Content.ReadAsByteArrayAsync();
     }
 
-    public async Task<(byte[]? Data, string? Error)> DownloadDespesasFixasPdfAsync()
+    public async Task<(byte[]? Data, string? Error)> DownloadDespesasFixasPdfAsync(int mes, int ano)
     {
-        var response = await _http.GetAsync("api/despesas/fixas/export/pdf");
+        var response = await _http.GetAsync($"api/despesas/fixas/export/pdf?mes={mes}&ano={ano}");
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync();
@@ -212,9 +212,9 @@ public class DashboardApiService
         return (await response.Content.ReadAsByteArrayAsync(), null);
     }
 
-    public async Task<byte[]?> DownloadDespesasExtrasPdfAsync()
+    public async Task<byte[]?> DownloadDespesasExtrasPdfAsync(int mes, int ano)
     {
-        var response = await _http.GetAsync("api/despesas/extras/export/pdf");
+        var response = await _http.GetAsync($"api/despesas/extras/export/pdf?mes={mes}&ano={ano}");
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync();
     }

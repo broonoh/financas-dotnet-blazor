@@ -241,14 +241,21 @@ public class DespesasController : ControllerBase
 
     [HttpGet("fixas/export/pdf")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> ExportarFixasPdf(CancellationToken ct)
+    public async Task<IActionResult> ExportarFixasPdf([FromQuery] int mes, [FromQuery] int ano, CancellationToken ct)
     {
         var usuarioId = ObterUsuarioId();
         if (usuarioId == null) return Unauthorized();
 
-        var despesas = (await _mediator.Send(new ListarDespesasFixasQuery(usuarioId.Value), ct)).ToList();
+        var todas = (await _mediator.Send(new ListarDespesasFixasQuery(usuarioId.Value), ct)).ToList();
+        var despesas = (mes > 0 && ano > 0)
+            ? todas
+                .Select(d => d with { Parcelas = d.Parcelas.Where(p => p.DataVencimento.Year == ano && p.DataVencimento.Month == mes).ToList() })
+                .Where(d => d.Parcelas.Any())
+                .ToList()
+            : todas;
+
         if (!despesas.Any())
-            return NotFound(new { message = "Nenhuma despesa fixa encontrada." });
+            return NotFound(new { message = "Nenhuma despesa fixa encontrada para este período." });
 
         try
         {
@@ -263,14 +270,18 @@ public class DespesasController : ControllerBase
 
     [HttpGet("extras/export/pdf")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> ExportarExtrasPdf(CancellationToken ct)
+    public async Task<IActionResult> ExportarExtrasPdf([FromQuery] int mes, [FromQuery] int ano, CancellationToken ct)
     {
         var usuarioId = ObterUsuarioId();
         if (usuarioId == null) return Unauthorized();
 
-        var despesas = (await _despesaRepo.ListarExtrasPorUsuarioAsync(usuarioId.Value, ct)).ToList();
+        var todas = (await _despesaRepo.ListarExtrasPorUsuarioAsync(usuarioId.Value, ct)).ToList();
+        var despesas = (mes > 0 && ano > 0)
+            ? todas.Where(d => d.DataDespesa.Year == ano && d.DataDespesa.Month == mes).ToList()
+            : todas;
+
         if (!despesas.Any())
-            return NotFound(new { message = "Nenhuma despesa extra encontrada." });
+            return NotFound(new { message = "Nenhuma despesa extra encontrada para este período." });
 
         var pdf = GerarPdfExtras(despesas);
         return File(pdf, "application/pdf", "despesas_extras.pdf");

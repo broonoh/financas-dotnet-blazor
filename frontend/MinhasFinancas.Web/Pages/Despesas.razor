@@ -94,24 +94,27 @@
             <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
                 <div class="d-flex align-center gap-2 flex-wrap">
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
-                    <MudSelect T="int" @bind-Value="_filtroMes" @bind-Value:after="OnFiltroChanged" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+                    <MudSelect T="int" @bind-Value="_filtroMes" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
                         @foreach (var (num, nome) in _meses)
                         {
                             <MudSelectItem Value="@num">@nome</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudSelect T="int" @bind-Value="_filtroAno" @bind-Value:after="OnFiltroChanged" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+                    <MudSelect T="int" @bind-Value="_filtroAno" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
                         @foreach (var ano in _anosOpcoes)
                         {
                             <MudSelectItem Value="@ano">@ano</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudButton StartIcon="@Icons.Material.Filled.Search" Color="Color.Primary" Variant="Variant.Filled" Size="Size.Medium" OnClick="BuscarFixas" Disabled="_carregandoFixas">
+                        Buscar
+                    </MudButton>
                 </div>
             </MudPaper>
             @if (_despesasFixas?.Count > 0)
             {
                 var _todasParc = _despesasFixas.SelectMany(d => d.Parcelas ?? []).ToList();
-                var _parcsDoMes = _todasParc.Where(p => p.DataVencimento.Year == _filtroAno && p.DataVencimento.Month == _filtroMes).ToList();
+                var _parcsDoMes = _todasParc.Where(p => p.DataVencimento.Year == _filtroAnoAplicado && p.DataVencimento.Month == _filtroMesAplicado).ToList();
                 var _totMes = _parcsDoMes.Sum(p => p.Valor);
                 var _totPagoMes = _parcsDoMes.Where(p => p.Paga).Sum(p => p.Valor);
                 var _saldoMes = _totMes - _totPagoMes;
@@ -331,23 +334,26 @@ else if (_activeTab == 1)
             <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
                 <div class="d-flex align-center gap-2 flex-wrap">
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
-                    <MudSelect T="int" @bind-Value="_filtroMes" @bind-Value:after="OnFiltroChanged" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+                    <MudSelect T="int" @bind-Value="_filtroMes" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
                         @foreach (var (num, nome) in _meses)
                         {
                             <MudSelectItem Value="@num">@nome</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudSelect T="int" @bind-Value="_filtroAno" @bind-Value:after="OnFiltroChanged" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+                    <MudSelect T="int" @bind-Value="_filtroAno" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
                         @foreach (var ano in _anosOpcoes)
                         {
                             <MudSelectItem Value="@ano">@ano</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudButton StartIcon="@Icons.Material.Filled.Search" Color="Color.Warning" Variant="Variant.Filled" Size="Size.Medium" OnClick="BuscarExtras" Disabled="_carregandoExtras">
+                        Buscar
+                    </MudButton>
                 </div>
             </MudPaper>
             @{
                 var _extrasDoMes = (_despesasExtras ?? [])
-                    .Where(e => e.DataDespesa.Year == _filtroAno && e.DataDespesa.Month == _filtroMes)
+                    .Where(e => e.DataDespesa.Year == _filtroAnoAplicado && e.DataDespesa.Month == _filtroMesAplicado)
                     .ToList();
             }
             @if (!_carregandoExtras && _extrasDoMes.Count > 0)
@@ -468,7 +474,7 @@ else if (_activeTab == 1)
             }
             @if (!_carregandoExtras && _extrasDoMes.Count == 0)
             {
-                <MudAlert Severity="Severity.Info">Nenhuma despesa extra em @_meses.First(m => m.Num == _filtroMes).Nome/@_filtroAno.</MudAlert>
+                <MudAlert Severity="Severity.Info">Nenhuma despesa extra em @_meses.First(m => m.Num == _filtroMesAplicado).Nome/@_filtroAnoAplicado.</MudAlert>
             }
         </MudPaper>
 }
@@ -525,18 +531,21 @@ else if (_activeTab == 2)
             <MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
                 <div class="d-flex align-center gap-2 flex-wrap">
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
-                    <MudSelect T="int" @bind-Value="_filtroMes" @bind-Value:after="OnFiltroChanged" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+                    <MudSelect T="int" @bind-Value="_filtroMes" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
                         @foreach (var (num, nome) in _meses)
                         {
                             <MudSelectItem Value="@num">@nome</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudSelect T="int" @bind-Value="_filtroAno" @bind-Value:after="OnFiltroChanged" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+                    <MudSelect T="int" @bind-Value="_filtroAno" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
                         @foreach (var ano in _anosOpcoes)
                         {
                             <MudSelectItem Value="@ano">@ano</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudButton StartIcon="@Icons.Material.Filled.Search" Color="Color.Error" Variant="Variant.Filled" Size="Size.Medium" OnClick="BuscarDividas" Disabled="_carregandoDividas">
+                        Buscar
+                    </MudButton>
                 </div>
             </MudPaper>
             @if (!_carregandoDividas && _dividas?.Count > 0)
@@ -777,13 +786,10 @@ else if (_activeTab == 2)
                 <MudSelectItem Value="@("Boleto")">Boleto</MudSelectItem>
             </MudSelect>
         </MudItem>
-        @if (_extraFormaPagamento == "CartaoCredito")
-        {
-            <MudItem xs="12" md="3">
-                <MudDatePicker @bind-Date="_extraPagaEm" Label="Vencimento"
-                               Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" Clearable="true" />
-            </MudItem>
-        }
+        <MudItem xs="12" md="3">
+            <MudDatePicker @bind-Date="_extraPagaEm" Label="Vencimento"
+                           Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" Clearable="true" />
+        </MudItem>
         <MudItem xs="12">
             @if (!string.IsNullOrEmpty(_extraErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_extraErro</MudAlert> }
             <MudButton Color="Color.Warning" Variant="Variant.Filled"
@@ -802,6 +808,8 @@ else if (_activeTab == 2)
     // Filtro de período compartilhado entre as abas
     private int _filtroMes;
     private int _filtroAno;
+    private int _filtroMesAplicado;
+    private int _filtroAnoAplicado;
     private int[] _anosOpcoes = [];
     private readonly (int Num, string Nome)[] _meses =
     [
@@ -888,6 +896,8 @@ else if (_activeTab == 2)
         var hoje = DateTime.Now;
         _filtroMes = hoje.Month;
         _filtroAno = hoje.Year;
+        _filtroMesAplicado = hoje.Month;
+        _filtroAnoAplicado = hoje.Year;
         _anosOpcoes = Enumerable.Range(hoje.Year - 3, 7).ToArray();
     }
 
@@ -896,7 +906,26 @@ else if (_activeTab == 2)
         await Task.WhenAll(CarregarFixas(), CarregarExtras(), CarregarDividas(), CarregarCategorias());
     }
 
-    private void OnFiltroChanged() => ProcessarGruposDividas();
+    private async Task BuscarFixas()
+    {
+        _filtroMesAplicado = _filtroMes;
+        _filtroAnoAplicado = _filtroAno;
+        await CarregarFixas();
+    }
+
+    private async Task BuscarExtras()
+    {
+        _filtroMesAplicado = _filtroMes;
+        _filtroAnoAplicado = _filtroAno;
+        await CarregarExtras();
+    }
+
+    private async Task BuscarDividas()
+    {
+        _filtroMesAplicado = _filtroMes;
+        _filtroAnoAplicado = _filtroAno;
+        await CarregarDividas();
+    }
 
     private async Task CarregarCategorias()
     {
@@ -947,10 +976,10 @@ else if (_activeTab == 2)
                 var dividas = g.ToList();
                 var todasParc = dividas.SelectMany(d => d.Parcelas ?? []).ToList();
                 var valorMes = todasParc
-                    .Where(p => p.DataVencimento.Year == _filtroAno && p.DataVencimento.Month == _filtroMes)
+                    .Where(p => p.DataVencimento.Year == _filtroAnoAplicado && p.DataVencimento.Month == _filtroMesAplicado)
                     .Sum(p => p.Valor);
-                var labelMes = (_filtroAno != hoje.Year || _filtroMes != hoje.Month)
-                    ? $"A pagar ({new DateOnly(_filtroAno, _filtroMes, 1).ToString("MMM/yy", _ptBR)})"
+                var labelMes = (_filtroAnoAplicado != hoje.Year || _filtroMesAplicado != hoje.Month)
+                    ? $"A pagar ({new DateOnly(_filtroAnoAplicado, _filtroMesAplicado, 1).ToString("MMM/yy", _ptBR)})"
                     : "Este mês (a pagar)";
                 return new GrupoDivida(
                     Nome: g.Key,
@@ -1149,8 +1178,7 @@ else if (_activeTab == 2)
             DataDespesa = DateOnly.FromDateTime(_extraDataDespesa!.Value),
             Categoria = _extraCategoria,
             FormaPagamento = _extraFormaPagamento,
-            PagaEm = _extraFormaPagamento == "CartaoCredito" && _extraPagaEm.HasValue
-                ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null
+            PagaEm = _extraPagaEm.HasValue ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null
         };
 
         var (sucesso, erro) = await ApiService.CriarDespesaExtraAsync(payload);
@@ -1183,8 +1211,7 @@ else if (_activeTab == 2)
             DataDespesa = DateOnly.FromDateTime(_extraDataDespesa!.Value),
             Categoria = _extraCategoria,
             FormaPagamento = _extraFormaPagamento,
-            PagaEm = _extraFormaPagamento == "CartaoCredito" && _extraPagaEm.HasValue
-                ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null
+            PagaEm = _extraPagaEm.HasValue ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null
         };
 
         var (sucesso, erro) = await ApiService.AtualizarDespesaExtraAsync(_editandoExtraId!.Value, payload);
@@ -1355,14 +1382,15 @@ else if (_activeTab == 2)
         _baixandoFixasPdf = true;
         try
         {
-            var (bytes, error) = await ApiService.DownloadDespesasFixasPdfAsync();
+            var (bytes, error) = await ApiService.DownloadDespesasFixasPdfAsync(_filtroMesAplicado, _filtroAnoAplicado);
             if (bytes is null || bytes.Length == 0)
             {
-                var msg = TryExtractMessage(error) ?? "Erro ao gerar PDF de despesas fixas.";
-                Snackbar.Add(msg, Severity.Error);
+                var msg = TryExtractMessage(error) ?? "Nenhuma despesa fixa encontrada para este período.";
+                Snackbar.Add(msg, Severity.Warning);
                 return;
             }
-            await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_fixas.pdf", "application/pdf", Convert.ToBase64String(bytes));
+            var nomeMes = _meses.First(m => m.Num == _filtroMesAplicado).Nome.ToLower();
+            await JS.InvokeVoidAsync("downloadFileFromBytes", $"despesas_fixas_{nomeMes}_{_filtroAnoAplicado}.pdf", "application/pdf", Convert.ToBase64String(bytes));
         }
         catch (Exception ex) { Snackbar.Add($"Erro ao baixar PDF: {ex.Message}", Severity.Error); }
         finally { _baixandoFixasPdf = false; }
@@ -1373,9 +1401,10 @@ else if (_activeTab == 2)
         _baixandoExtrasPdf = true;
         try
         {
-            var bytes = await ApiService.DownloadDespesasExtrasPdfAsync();
-            if (bytes is null || bytes.Length == 0) { Snackbar.Add("Erro ao gerar PDF de despesas extras.", Severity.Error); return; }
-            await JS.InvokeVoidAsync("downloadFileFromBytes", "despesas_extras.pdf", "application/pdf", Convert.ToBase64String(bytes));
+            var bytes = await ApiService.DownloadDespesasExtrasPdfAsync(_filtroMesAplicado, _filtroAnoAplicado);
+            if (bytes is null || bytes.Length == 0) { Snackbar.Add("Nenhuma despesa extra encontrada para este período.", Severity.Warning); return; }
+            var nomeMes = _meses.First(m => m.Num == _filtroMesAplicado).Nome.ToLower();
+            await JS.InvokeVoidAsync("downloadFileFromBytes", $"despesas_extras_{nomeMes}_{_filtroAnoAplicado}.pdf", "application/pdf", Convert.ToBase64String(bytes));
         }
         catch { Snackbar.Add("Erro ao baixar PDF.", Severity.Error); }
         finally { _baixandoExtrasPdf = false; }

@@ -157,6 +157,8 @@ window.renderizarGraficoDevedores = (id, labels, totais, saldos) => {
                     barPercentage: 0.75,
                     categoryPercentage: 0.9
                 },
+                
+                
                 {
                     label: 'Saldo Restante',
                     data: saldos,
