@@ -259,7 +259,7 @@ public class DespesasController : ControllerBase
 
         try
         {
-            var pdf = GerarPdfFixas(despesas);
+            var pdf = GerarPdfFixas(despesas, mes, ano);
             return File(pdf, "application/pdf", "despesas_fixas.pdf");
         }
         catch (Exception ex) when (_env.IsDevelopment())
@@ -277,32 +277,49 @@ public class DespesasController : ControllerBase
 
         var todas = (await _despesaRepo.ListarExtrasPorUsuarioAsync(usuarioId.Value, ct)).ToList();
         var despesas = (mes > 0 && ano > 0)
-            ? todas.Where(d => d.DataDespesa.Year == ano && d.DataDespesa.Month == mes).ToList()
+            ? todas.Where(d => { var dt = d.PagaEm ?? d.DataDespesa; return dt.Year == ano && dt.Month == mes; }).ToList()
             : todas;
 
         if (!despesas.Any())
             return NotFound(new { message = "Nenhuma despesa extra encontrada para este período." });
 
-        var pdf = GerarPdfExtras(despesas);
+        var pdf = GerarPdfExtras(despesas, mes, ano);
         return File(pdf, "application/pdf", "despesas_extras.pdf");
     }
 
-    private static byte[] GerarPdfFixas(List<DespesaFixaDto> despesas)
+    private static byte[] GerarPdfFixas(List<DespesaFixaDto> despesas, int mes, int ano)
     {
         QuestPDF.Settings.License = LicenseType.Community;
         var culture = new System.Globalization.CultureInfo("pt-BR");
 
-        const string Roxo       = "#5C35CC";
-        const string RoxoClaro  = "#EDE7F6";
-        const string Cinza      = "#ECEFF1";
-        const string CinzaTexto = "#546E7A";
-        const string Verde      = "#2E7D32";
-        const string Vermelho   = "#C62828";
+        const string Roxo      = "#5C35CC";
+        const string RoxoClaro = "#EDE7F6";
+        const string Cinza     = "#ECEFF1";
+        const string CinzaTxt  = "#546E7A";
+        const string Verde     = "#2E7D32";
+        const string VerdeFnd  = "#E8F5E9";
+        const string Vermelho  = "#C62828";
+        const string VermFnd   = "#FFEBEE";
 
-        var totalGeral  = despesas.Sum(d => d.ValorTotal);
-        var totalPagas  = despesas.Sum(d => d.Parcelas.Count(p => p.Paga));
-        var totalParc   = despesas.Sum(d => d.Parcelas.Count);
-        var geradoEm    = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        var periodo  = culture.DateTimeFormat.GetMonthName(mes) + $"/{ano}";
+        var geradoEm = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+        static string FmtPagto(FormaPagamentoDespesaFixa f) => f switch
+        {
+            FormaPagamentoDespesaFixa.CartaoCredito   => "Cartão de Crédito",
+            FormaPagamentoDespesaFixa.PixParcelado    => "Pix Parcelado",
+            FormaPagamentoDespesaFixa.BoletoParcelado => "Boleto Parcelado",
+            _ => f.ToString()
+        };
+
+        var linhas = despesas
+            .SelectMany(d => d.Parcelas.Select(p => new { d, p }))
+            .OrderBy(x => x.p.DataVencimento).ThenBy(x => x.d.Descricao)
+            .ToList();
+
+        var totalMes  = linhas.Sum(x => x.p.Valor);
+        var totalPago = linhas.Where(x => x.p.Paga).Sum(x => x.p.Valor);
+        var emAberto  = totalMes - totalPago;
 
         return Document.Create(container =>
         {
@@ -319,14 +336,14 @@ public class DespesasController : ControllerBase
                 {
                     h.Item().Background(Roxo).Padding(12).Column(col =>
                     {
-                        col.Item().Text("Minhas Finanças — Relatório de Despesas Fixas")
+                        col.Item().Text($"Minhas Finanças — Despesas Fixas  •  {periodo}")
                             .FontColor("#D1C4E9").FontSize(9).SemiBold();
-                        col.Item().Text($"Total: {totalGeral.ToString("C2", culture)}  •  {despesas.Count} despesa(s)  •  {totalPagas}/{totalParc} parcelas pagas")
+                        col.Item().Text($"{linhas.Count} parcela(s)  •  Total: {totalMes.ToString("C2", culture)}  •  Em aberto: {emAberto.ToString("C2", culture)}")
                             .FontColor("#FFFFFF").FontSize(13).Bold();
                     });
 
                     h.Item().Background(Cinza).PaddingHorizontal(12).PaddingVertical(3)
-                        .Text($"Gerado em: {geradoEm}").FontSize(7).FontColor(CinzaTexto);
+                        .Text($"Gerado em: {geradoEm}").FontSize(7).FontColor(CinzaTxt);
 
                     h.Item().Background(RoxoClaro).PaddingVertical(8).PaddingHorizontal(30).Row(row =>
                     {
@@ -334,13 +351,13 @@ public class DespesasController : ControllerBase
                             row.RelativeItem().Column(c =>
                             {
                                 c.Item().AlignCenter().Text(valor).Bold().FontSize(13).FontColor(cor);
-                                c.Item().AlignCenter().Text(label).FontSize(7).FontColor(CinzaTexto);
+                                c.Item().AlignCenter().Text(label).FontSize(7).FontColor(CinzaTxt);
                             });
 
-                        Card(despesas.Count.ToString(),                  "Despesas",        Roxo);
-                        Card(totalGeral.ToString("C2", culture),         "Valor Total",     Roxo);
-                        Card($"{totalPagas}/{totalParc}",                "Parcelas Pagas",  totalPagas == totalParc ? Verde : Roxo);
-                        Card(despesas.Sum(d => d.Parcelas.Count(p => !p.Paga)).ToString(), "Em Aberto", Vermelho);
+                        Card(despesas.Count.ToString(),           "Despesas",     Roxo);
+                        Card(totalMes.ToString("C2", culture),    "Total do Mês", Roxo);
+                        Card(totalPago.ToString("C2", culture),   "Já Pago",      Verde);
+                        Card(emAberto.ToString("C2", culture),    "Em Aberto",    emAberto > 0 ? Vermelho : Verde);
                     });
 
                     h.Item().PaddingBottom(8);
@@ -348,163 +365,85 @@ public class DespesasController : ControllerBase
 
                 page.Content().Column(col =>
                 {
-                    // ── Resumo por Mês ───────────────────────────────────
-                    var resumoMes = despesas
-                        .SelectMany(d => d.Parcelas.Select(p => new { p.DataVencimento, p.Valor, p.Paga }))
-                        .GroupBy(p => new { p.DataVencimento.Year, p.DataVencimento.Month })
-                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
-                        .Select(g => new
-                        {
-                            Periodo = $"{culture.DateTimeFormat.GetMonthName(g.Key.Month)[..3]}/{g.Key.Year}",
-                            Total = g.Sum(p => p.Valor),
-                            Pagas = g.Count(p => p.Paga),
-                            Pendentes = g.Count(p => !p.Paga),
-                        }).ToList();
-
-                    col.Item().PaddingBottom(12).Column(resumo =>
+                    col.Item().Table(table =>
                     {
-                        resumo.Item().Background(RoxoClaro).PaddingHorizontal(10).PaddingVertical(6)
-                            .Text("Resumo por Mês").Bold().FontSize(10).FontColor(Roxo);
-
-                        resumo.Item().Table(table =>
+                        table.ColumnsDefinition(cols =>
                         {
-                            table.ColumnsDefinition(cols =>
-                            {
-                                cols.RelativeColumn(3);  // Mês
-                                cols.RelativeColumn(3);  // Total
-                                cols.RelativeColumn(2);  // Pagas
-                                cols.RelativeColumn(2);  // Pendentes
-                            });
+                            cols.RelativeColumn(2);  // Vencimento
+                            cols.RelativeColumn(4);  // Descrição
+                            cols.RelativeColumn(1);  // Parc.
+                            cols.RelativeColumn(3);  // Categoria
+                            cols.RelativeColumn(3);  // Forma Pgto
+                            cols.RelativeColumn(2);  // Valor
+                            cols.RelativeColumn(2);  // Status
+                        });
 
-                            static void TH(IContainer c, string t) =>
-                                c.Background("#5C35CC").PaddingVertical(4).PaddingHorizontal(6)
-                                 .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
+                        static void TH(IContainer c, string t) =>
+                            c.Background("#5C35CC").PaddingVertical(5).PaddingHorizontal(6)
+                             .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
 
-                            table.Header(h =>
-                            {
-                                h.Cell().Element(c => TH(c, "Mês"));
-                                h.Cell().Element(c => TH(c, "Total a Pagar"));
-                                h.Cell().Element(c => TH(c, "Parcelas Pagas"));
-                                h.Cell().Element(c => TH(c, "Pendentes"));
-                            });
+                        static void THL(IContainer c, string t) =>
+                            c.Background("#5C35CC").PaddingVertical(5).PaddingHorizontal(6)
+                             .Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
 
-                            var idx = 0;
-                            foreach (var m in resumoMes)
-                            {
-                                idx++;
-                                var bg = idx % 2 == 0 ? "#F3EEF9" : "#FFFFFF";
-                                void TD(IContainer c, string t, string? cor = null) =>
-                                    c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                                     .PaddingVertical(4).PaddingHorizontal(6)
-                                     .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
+                        table.Header(h =>
+                        {
+                            h.Cell().Element(c => TH(c, "Vencimento"));
+                            h.Cell().Element(c => THL(c, "Descrição"));
+                            h.Cell().Element(c => TH(c, "Parc."));
+                            h.Cell().Element(c => THL(c, "Categoria"));
+                            h.Cell().Element(c => THL(c, "Forma Pgto"));
+                            h.Cell().Element(c => TH(c, "Valor"));
+                            h.Cell().Element(c => TH(c, "Status"));
+                        });
 
-                                table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                                    .PaddingVertical(4).PaddingHorizontal(6)
-                                    .Text(m.Periodo).Bold().FontSize(8).FontColor(Roxo);
-                                table.Cell().Element(c => TD(c, m.Total.ToString("C2", culture), Roxo));
-                                table.Cell().Element(c => TD(c, m.Pagas.ToString(), Verde));
-                                table.Cell().Element(c => TD(c, m.Pendentes.ToString(), m.Pendentes > 0 ? Vermelho : Verde));
-                            }
+                        var idx = 0;
+                        foreach (var x in linhas)
+                        {
+                            idx++;
+                            string bg, tc;
+                            if (x.p.Paga)         { bg = VerdeFnd; tc = Verde; }
+                            else if (x.p.Vencida) { bg = VermFnd;  tc = Vermelho; }
+                            else                  { bg = idx % 2 == 0 ? "#F3EEF9" : "#FFFFFF"; tc = "#212121"; }
 
-                            table.Footer(f =>
-                            {
-                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .Text("TOTAL").Bold().FontSize(8).FontColor(Roxo);
-                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .AlignCenter().Text(resumoMes.Sum(m => m.Total).ToString("C2", culture))
-                                    .Bold().FontSize(8).FontColor(Roxo);
-                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .AlignCenter().Text(resumoMes.Sum(m => m.Pagas).ToString())
-                                    .Bold().FontSize(8).FontColor(Verde);
-                                f.Cell().Background(RoxoClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .AlignCenter().Text(resumoMes.Sum(m => m.Pendentes).ToString())
-                                    .Bold().FontSize(8).FontColor(Vermelho);
-                            });
+                            string status = x.p.Paga ? "Pago" : x.p.Vencida ? "Vencida" : "Pendente";
+
+                            void TD(IContainer c, string t) =>
+                                c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                 .PaddingVertical(5).PaddingHorizontal(6)
+                                 .Text(t).FontColor(tc).FontSize(8);
+
+                            void TDC(IContainer c, string t) =>
+                                c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                 .PaddingVertical(5).PaddingHorizontal(6)
+                                 .AlignCenter().Text(t).FontColor(tc).FontSize(8);
+
+                            table.Cell().Element(c => TDC(c, x.p.DataVencimento.ToString("dd/MM/yyyy")));
+                            table.Cell().Element(c => TD(c, x.d.Descricao));
+                            table.Cell().Element(c => TDC(c, $"{x.p.Numero}/{x.d.QuantidadeParcelas}"));
+                            table.Cell().Element(c => TD(c, x.d.Categoria));
+                            table.Cell().Element(c => TD(c, FmtPagto(x.d.FormaPagamento)));
+                            table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                .PaddingVertical(5).PaddingHorizontal(6).AlignCenter()
+                                .Text(x.p.Valor.ToString("C2", culture)).Bold().FontColor(tc).FontSize(8);
+                            table.Cell().Element(c => TDC(c, status));
+                        }
+
+                        table.Footer(f =>
+                        {
+                            f.Cell().ColumnSpan(5).Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
+                                .Text("TOTAL").Bold().FontSize(9).FontColor(Roxo);
+                            f.Cell().Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
+                                .AlignCenter().Text(totalMes.ToString("C2", culture))
+                                .Bold().FontSize(9).FontColor(Roxo);
+                            f.Cell().Background(RoxoClaro);
                         });
                     });
-
-                    foreach (var d in despesas)
-                    {
-                        var parcelasTotal = d.Parcelas.Count;
-                        var parcelasPagas = d.Parcelas.Count(p => p.Paga);
-                        var pct = parcelasTotal > 0 ? (decimal)parcelasPagas / parcelasTotal * 100m : 0;
-
-                        col.Item().PaddingBottom(10).Border(1).BorderColor("#CFD8DC").Column(inner =>
-                        {
-                            inner.Item().Background(Cinza).PaddingHorizontal(10).PaddingTop(6).PaddingBottom(2)
-                                .Row(r =>
-                                {
-                                    r.RelativeItem().Text(d.Descricao).Bold().FontSize(11);
-                                    r.RelativeItem().Column(c =>
-                                        c.Item().AlignRight().Text(d.ValorTotal.ToString("C2", culture))
-                                            .Bold().FontSize(11).FontColor(Roxo));
-                                });
-
-                            inner.Item().Background(Cinza).PaddingHorizontal(10).PaddingBottom(5)
-                                .Row(r =>
-                                {
-                                    r.RelativeItem().Text(
-                                        $"Compra: {d.DataCompra:dd/MM/yyyy}   •   " +
-                                        $"1ª Parcela: {d.DataPrimeiraParcela:dd/MM/yyyy}   •   " +
-                                        $"{d.QuantidadeParcelas} parcela(s)   •   " +
-                                        $"Categoria: {d.Categoria}   •   " +
-                                        $"Quitado: {pct:F0}%")
-                                        .FontSize(8).FontColor(CinzaTexto);
-                                    r.RelativeItem().Column(c =>
-                                        c.Item().AlignRight()
-                                            .Text($"{parcelasPagas}/{parcelasTotal} pagas")
-                                            .FontSize(8).FontColor(parcelasPagas == parcelasTotal ? Verde : Vermelho).SemiBold());
-                                });
-
-                            inner.Item().Table(table =>
-                            {
-                                table.ColumnsDefinition(cols =>
-                                {
-                                    cols.RelativeColumn(1);  // #
-                                    cols.RelativeColumn(3);  // Vencimento
-                                    cols.RelativeColumn(3);  // Valor
-                                    cols.RelativeColumn(2);  // Status
-                                });
-
-                                static void TH(IContainer c, string t) =>
-                                    c.Background("#5C35CC").PaddingVertical(4).PaddingHorizontal(6)
-                                     .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
-
-                                table.Header(h =>
-                                {
-                                    h.Cell().Element(c => TH(c, "#"));
-                                    h.Cell().Element(c => TH(c, "Vencimento"));
-                                    h.Cell().Element(c => TH(c, "Valor"));
-                                    h.Cell().Element(c => TH(c, "Status"));
-                                });
-
-                                var idx = 0;
-                                foreach (var p in d.Parcelas.OrderBy(x => x.Numero))
-                                {
-                                    idx++;
-                                    string bg, tc;
-                                    if (p.Paga)        { bg = "#E8F5E9"; tc = Verde; }
-                                    else if (p.Vencida) { bg = "#FFEBEE"; tc = Vermelho; }
-                                    else               { bg = idx % 2 == 0 ? "#F5F5F5" : "#FFFFFF"; tc = "#212121"; }
-
-                                    void TD(IContainer c, string t) =>
-                                        c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                                         .PaddingVertical(4).PaddingHorizontal(6)
-                                         .AlignCenter().Text(t).FontColor(tc).FontSize(8);
-
-                                    table.Cell().Element(c => TD(c, p.Numero.ToString()));
-                                    table.Cell().Element(c => TD(c, p.DataVencimento.ToString("dd/MM/yyyy")));
-                                    table.Cell().Element(c => TD(c, p.Valor.ToString("C2", culture)));
-                                    table.Cell().Element(c => TD(c, p.Paga ? "Paga" : "Pendente"));
-                                }
-                            });
-                        });
-                    }
                 });
 
                 page.Footer().BorderTop(1).BorderColor("#CFD8DC").PaddingTop(4).Row(r =>
                 {
-                    r.RelativeItem().Text("Minhas Finanças — Relatório de Despesas Fixas").FontSize(7).FontColor("#9E9E9E");
+                    r.RelativeItem().Text($"Minhas Finanças — Despesas Fixas  •  {periodo}").FontSize(7).FontColor("#9E9E9E");
                     r.RelativeItem().AlignRight().Text(x =>
                     {
                         x.Span("Página ").FontSize(7).FontColor("#9E9E9E");
@@ -517,24 +456,41 @@ public class DespesasController : ControllerBase
         }).GeneratePdf();
     }
 
-    private static byte[] GerarPdfExtras(List<MinhasFinancas.Domain.Entities.DespesaExtra> despesas)
+    private static byte[] GerarPdfExtras(List<MinhasFinancas.Domain.Entities.DespesaExtra> despesas, int mes, int ano)
     {
         QuestPDF.Settings.License = LicenseType.Community;
         var culture = new System.Globalization.CultureInfo("pt-BR");
 
         const string Laranja     = "#E65100";
-        const string LaranjaClaro = "#FFF3E0";
+        const string LaranjaFnd  = "#FFF3E0";
         const string Cinza       = "#ECEFF1";
-        const string CinzaTexto  = "#546E7A";
+        const string CinzaTxt    = "#546E7A";
+        const string Verde       = "#2E7D32";
+        const string VerdeFnd    = "#E8F5E9";
+        const string Vermelho    = "#C62828";
 
-        var totalGeral = despesas.Sum(d => d.ValorTotal);
-        var geradoEm   = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        var periodo  = culture.DateTimeFormat.GetMonthName(mes) + $"/{ano}";
+        var geradoEm = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+        static string FmtPagto(FormaPagamentoDespesaExtra f) => f switch
+        {
+            FormaPagamentoDespesaExtra.CartaoCredito => "Cartão de Crédito",
+            FormaPagamentoDespesaExtra.Pix           => "Pix",
+            FormaPagamentoDespesaExtra.Dinheiro      => "Dinheiro",
+            FormaPagamentoDespesaExtra.Boleto        => "Boleto",
+            _ => f.ToString()
+        };
+
+        var linhas    = despesas.OrderBy(d => d.PagaEm ?? d.DataDespesa).ThenBy(d => d.Descricao).ToList();
+        var totalMes  = linhas.Sum(d => d.ValorTotal);
+        var totalPago = linhas.Where(d => d.Paga).Sum(d => d.ValorTotal);
+        var emAberto  = totalMes - totalPago;
 
         return Document.Create(container =>
         {
             PageExtensions.Page(container, page =>
             {
-                page.Size(PageSizes.A4);
+                page.Size(PageSizes.A4.Landscape());
                 page.MarginLeft(40, QuestPDF.Infrastructure.Unit.Point);
                 page.MarginRight(40, QuestPDF.Infrastructure.Unit.Point);
                 page.MarginTop(25, QuestPDF.Infrastructure.Unit.Point);
@@ -545,169 +501,111 @@ public class DespesasController : ControllerBase
                 {
                     h.Item().Background(Laranja).Padding(12).Column(col =>
                     {
-                        col.Item().Text("Minhas Finanças — Relatório de Despesas Extras")
+                        col.Item().Text($"Minhas Finanças — Despesas Extras  •  {periodo}")
                             .FontColor("#FFE0B2").FontSize(9).SemiBold();
-                        col.Item().Text($"Total: {totalGeral.ToString("C2", culture)}  •  {despesas.Count} despesa(s)")
+                        col.Item().Text($"{linhas.Count} despesa(s)  •  Total: {totalMes.ToString("C2", culture)}  •  Em aberto: {emAberto.ToString("C2", culture)}")
                             .FontColor("#FFFFFF").FontSize(13).Bold();
                     });
 
                     h.Item().Background(Cinza).PaddingHorizontal(12).PaddingVertical(3)
-                        .Text($"Gerado em: {geradoEm}").FontSize(7).FontColor(CinzaTexto);
+                        .Text($"Gerado em: {geradoEm}").FontSize(7).FontColor(CinzaTxt);
 
-                    h.Item().Background(LaranjaClaro).PaddingVertical(8).PaddingHorizontal(30).Row(row =>
+                    h.Item().Background(LaranjaFnd).PaddingVertical(8).PaddingHorizontal(30).Row(row =>
                     {
-                        void Card(string valor, string label) =>
+                        void Card(string valor, string label, string cor) =>
                             row.RelativeItem().Column(c =>
                             {
-                                c.Item().AlignCenter().Text(valor).Bold().FontSize(13).FontColor(Laranja);
-                                c.Item().AlignCenter().Text(label).FontSize(7).FontColor(CinzaTexto);
+                                c.Item().AlignCenter().Text(valor).Bold().FontSize(13).FontColor(cor);
+                                c.Item().AlignCenter().Text(label).FontSize(7).FontColor(CinzaTxt);
                             });
 
-                        Card(despesas.Count.ToString(),          "Despesas");
-                        Card(totalGeral.ToString("C2", culture), "Valor Total");
-                        Card(despesas.Select(d => d.Categoria).Distinct().Count().ToString(), "Categorias");
+                        Card(linhas.Count.ToString(),           "Despesas",     Laranja);
+                        Card(totalMes.ToString("C2", culture),  "Total do Mês", Laranja);
+                        Card(totalPago.ToString("C2", culture), "Já Pago",      Verde);
+                        Card(emAberto.ToString("C2", culture),  "Em Aberto",    emAberto > 0 ? Vermelho : Verde);
                     });
 
                     h.Item().PaddingBottom(8);
                 });
 
-                page.Content().Column(contentCol =>
+                page.Content().Column(col =>
                 {
-                    // ── Resumo por Mês ───────────────────────────────────
-                    var resumoMes = despesas
-                        .GroupBy(d => new { d.DataDespesa.Year, d.DataDespesa.Month })
-                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
-                        .Select(g => new
-                        {
-                            Periodo = $"{culture.DateTimeFormat.GetMonthName(g.Key.Month)[..3]}/{g.Key.Year}",
-                            Total = g.Sum(d => d.ValorTotal),
-                            Qtd = g.Count(),
-                        }).ToList();
-
-                    contentCol.Item().PaddingBottom(12).Column(resumo =>
+                    col.Item().Table(table =>
                     {
-                        resumo.Item().Background(LaranjaClaro).PaddingHorizontal(10).PaddingVertical(6)
-                            .Text("Resumo por Mês").Bold().FontSize(10).FontColor(Laranja);
-
-                        resumo.Item().Table(table =>
+                        table.ColumnsDefinition(cols =>
                         {
-                            table.ColumnsDefinition(cols =>
-                            {
-                                cols.RelativeColumn(3);
-                                cols.RelativeColumn(3);
-                                cols.RelativeColumn(2);
-                            });
+                            cols.RelativeColumn(2);  // Vencimento
+                            cols.RelativeColumn(5);  // Descrição
+                            cols.RelativeColumn(3);  // Categoria
+                            cols.RelativeColumn(3);  // Forma Pgto
+                            cols.RelativeColumn(2);  // Valor
+                            cols.RelativeColumn(2);  // Status
+                        });
 
-                            static void TH(IContainer c, string t) =>
-                                c.Background("#E65100").PaddingVertical(4).PaddingHorizontal(6)
-                                 .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
+                        static void TH(IContainer c, string t) =>
+                            c.Background("#E65100").PaddingVertical(5).PaddingHorizontal(6)
+                             .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
 
-                            table.Header(h =>
-                            {
-                                h.Cell().Element(c => TH(c, "Mês"));
-                                h.Cell().Element(c => TH(c, "Total"));
-                                h.Cell().Element(c => TH(c, "Lançamentos"));
-                            });
+                        static void THL(IContainer c, string t) =>
+                            c.Background("#E65100").PaddingVertical(5).PaddingHorizontal(6)
+                             .Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
 
-                            var idx = 0;
-                            foreach (var m in resumoMes)
-                            {
-                                idx++;
-                                var bg = idx % 2 == 0 ? "#FFF8F0" : "#FFFFFF";
-                                void TD(IContainer c, string t, string? cor = null) =>
-                                    c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                                     .PaddingVertical(4).PaddingHorizontal(6)
-                                     .AlignCenter().Text(t).FontColor(cor ?? "#212121").FontSize(8);
+                        table.Header(h =>
+                        {
+                            h.Cell().Element(c => TH(c, "Vencimento"));
+                            h.Cell().Element(c => THL(c, "Descrição"));
+                            h.Cell().Element(c => THL(c, "Categoria"));
+                            h.Cell().Element(c => THL(c, "Forma Pgto"));
+                            h.Cell().Element(c => TH(c, "Valor"));
+                            h.Cell().Element(c => TH(c, "Status"));
+                        });
 
-                                table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                                    .PaddingVertical(4).PaddingHorizontal(6)
-                                    .Text(m.Periodo).Bold().FontSize(8).FontColor(Laranja);
-                                table.Cell().Element(c => TD(c, m.Total.ToString("C2", culture), Laranja));
-                                table.Cell().Element(c => TD(c, m.Qtd.ToString()));
-                            }
+                        var idx = 0;
+                        foreach (var d in linhas)
+                        {
+                            idx++;
+                            string bg, tc;
+                            if (d.Paga) { bg = VerdeFnd; tc = Verde; }
+                            else        { bg = idx % 2 == 0 ? "#FFF8F0" : "#FFFFFF"; tc = "#212121"; }
 
-                            table.Footer(f =>
-                            {
-                                f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .Text("TOTAL").Bold().FontSize(8).FontColor(Laranja);
-                                f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .AlignCenter().Text(resumoMes.Sum(m => m.Total).ToString("C2", culture))
-                                    .Bold().FontSize(8).FontColor(Laranja);
-                                f.Cell().Background(LaranjaClaro).PaddingVertical(5).PaddingHorizontal(6)
-                                    .AlignCenter().Text(resumoMes.Sum(m => m.Qtd).ToString())
-                                    .Bold().FontSize(8);
-                            });
+                            string status  = d.Paga ? "Pago" : "Pendente";
+                            string dataRef = (d.PagaEm ?? d.DataDespesa).ToString("dd/MM/yyyy");
+
+                            void TD(IContainer c, string t) =>
+                                c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                 .PaddingVertical(5).PaddingHorizontal(6)
+                                 .Text(t).FontColor(tc).FontSize(8);
+
+                            void TDC(IContainer c, string t) =>
+                                c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                 .PaddingVertical(5).PaddingHorizontal(6)
+                                 .AlignCenter().Text(t).FontColor(tc).FontSize(8);
+
+                            table.Cell().Element(c => TDC(c, dataRef));
+                            table.Cell().Element(c => TD(c, d.Descricao));
+                            table.Cell().Element(c => TD(c, d.Categoria));
+                            table.Cell().Element(c => TD(c, FmtPagto(d.FormaPagamento)));
+                            table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
+                                .PaddingVertical(5).PaddingHorizontal(6).AlignCenter()
+                                .Text(d.ValorTotal.ToString("C2", culture)).Bold().FontColor(tc).FontSize(8);
+                            table.Cell().Element(c => TDC(c, status));
+                        }
+
+                        table.Footer(f =>
+                        {
+                            f.Cell().ColumnSpan(4).Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
+                                .Text("TOTAL").Bold().FontSize(9).FontColor(Laranja);
+                            f.Cell().Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
+                                .AlignCenter().Text(totalMes.ToString("C2", culture))
+                                .Bold().FontSize(9).FontColor(Laranja);
+                            f.Cell().Background(LaranjaFnd);
                         });
                     });
-
-                    contentCol.Item().Table(table =>
-                    {
-                    table.ColumnsDefinition(cols =>
-                    {
-                        cols.RelativeColumn(4);  // Descrição
-                        cols.RelativeColumn(2);  // Data
-                        cols.RelativeColumn(2);  // Valor
-                        cols.RelativeColumn(2);  // Categoria
-                        cols.RelativeColumn(2);  // Forma Pagamento
-                        cols.RelativeColumn(2);  // Paga Em
-                    });
-
-                    static void TH(IContainer c, string t) =>
-                        c.Background("#E65100").PaddingVertical(5).PaddingHorizontal(6)
-                         .AlignCenter().Text(t).FontColor("#FFFFFF").Bold().FontSize(8);
-
-                    table.Header(h =>
-                    {
-                        h.Cell().Element(c => TH(c, "Descrição"));
-                        h.Cell().Element(c => TH(c, "Data"));
-                        h.Cell().Element(c => TH(c, "Valor"));
-                        h.Cell().Element(c => TH(c, "Categoria"));
-                        h.Cell().Element(c => TH(c, "Pagamento"));
-                        h.Cell().Element(c => TH(c, "Paga Em"));
-                    });
-
-                    var idx = 0;
-                    foreach (var d in despesas.OrderByDescending(x => x.DataDespesa))
-                    {
-                        idx++;
-                        var bg = idx % 2 == 0 ? "#F5F5F5" : "#FFFFFF";
-
-                        void TD(IContainer c, string t, bool bold = false) =>
-                            c.Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                             .PaddingVertical(5).PaddingHorizontal(6)
-                             .AlignCenter().Text(t).FontColor("#212121")
-                             .FontSize(8);
-
-                        table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                            .PaddingVertical(5).PaddingHorizontal(6)
-                            .Text(d.Descricao).FontSize(8);
-                        table.Cell().Element(c => TD(c, d.DataDespesa.ToString("dd/MM/yyyy")));
-                        table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
-                            .PaddingVertical(5).PaddingHorizontal(6)
-                            .AlignCenter().Text(d.ValorTotal.ToString("C2", culture))
-                            .FontSize(8).Bold().FontColor(Laranja);
-                        table.Cell().Element(c => TD(c, d.Categoria));
-                        table.Cell().Element(c => TD(c, d.FormaPagamento.ToString()));
-                        table.Cell().Element(c => TD(c, d.PagaEm.HasValue ? d.PagaEm.Value.ToString("dd/MM/yyyy") : "—"));
-                    }
-
-                    // Linha de total
-                    table.Footer(f =>
-                    {
-                        f.Cell().ColumnSpan(2).Background("#FFF3E0").PaddingVertical(6).PaddingHorizontal(6)
-                            .Text("TOTAL").Bold().FontSize(9).FontColor(Laranja);
-                        f.Cell().Background("#FFF3E0").PaddingVertical(6).PaddingHorizontal(6)
-                            .AlignCenter().Text(totalGeral.ToString("C2", culture))
-                            .Bold().FontSize(9).FontColor(Laranja);
-                        f.Cell().ColumnSpan(3).Background("#FFF3E0");
-                    });
-                    }); // fim contentCol.Item().Table
-
-                }); // fim page.Content().Column
+                });
 
                 page.Footer().BorderTop(1).BorderColor("#CFD8DC").PaddingTop(4).Row(r =>
                 {
-                    r.RelativeItem().Text("Minhas Finanças — Relatório de Despesas Extras").FontSize(7).FontColor("#9E9E9E");
+                    r.RelativeItem().Text($"Minhas Finanças — Despesas Extras  •  {periodo}").FontSize(7).FontColor("#9E9E9E");
                     r.RelativeItem().AlignRight().Text(x =>
                     {
                         x.Span("Página ").FontSize(7).FontColor("#9E9E9E");

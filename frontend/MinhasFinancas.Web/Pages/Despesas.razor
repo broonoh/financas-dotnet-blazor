@@ -113,7 +113,8 @@
             </MudPaper>
             @if (_despesasFixas?.Count > 0)
             {
-                var _todasParc = _despesasFixas.SelectMany(d => d.Parcelas ?? []).ToList();
+                var _fixasDoMes = _despesasFixas.Where(d => (d.Parcelas ?? []).Any(p => p.DataVencimento.Year == _filtroAnoAplicado && p.DataVencimento.Month == _filtroMesAplicado)).ToList();
+                var _todasParc = _fixasDoMes.SelectMany(d => d.Parcelas ?? []).ToList();
                 var _parcsDoMes = _todasParc.Where(p => p.DataVencimento.Year == _filtroAnoAplicado && p.DataVencimento.Month == _filtroMesAplicado).ToList();
                 var _totMes = _parcsDoMes.Sum(p => p.Valor);
                 var _totPagoMes = _parcsDoMes.Where(p => p.Paga).Sum(p => p.Valor);
@@ -135,12 +136,12 @@
                         </MudItem>
                         <MudItem xs="12" sm="3">
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Despesas ativas</MudText>
-                            <MudText Typo="Typo.h6"><strong>@_despesasFixas.Count</strong></MudText>
+                            <MudText Typo="Typo.h6"><strong>@_fixasDoMes.Count</strong></MudText>
                         </MudItem>
                     </MudGrid>
                 </MudPaper>
 
-                @foreach (var fixа in _despesasFixas)
+                @foreach (var fixа in _fixasDoMes)
                 {
                     var parcelasPagas = (fixа.Parcelas ?? []).Count(p => p.Paga);
                     var totalParcelas = fixа.QuantidadeParcelas;
@@ -301,7 +302,7 @@
             }
             else if (!_carregandoFixas)
             {
-                <MudAlert Severity="Severity.Info">Nenhuma despesa fixa cadastrada.</MudAlert>
+                <MudAlert Severity="Severity.Info">Nenhuma despesa fixa com vencimento em @_meses.First(m => m.Num == _filtroMesAplicado).Nome/@_filtroAnoAplicado.</MudAlert>
             }
         </MudPaper>
 }
@@ -353,7 +354,7 @@ else if (_activeTab == 1)
             </MudPaper>
             @{
                 var _extrasDoMes = (_despesasExtras ?? [])
-                    .Where(e => e.DataDespesa.Year == _filtroAnoAplicado && e.DataDespesa.Month == _filtroMesAplicado)
+                    .Where(e => { var dt = e.PagaEm ?? e.DataDespesa; return dt.Year == _filtroAnoAplicado && dt.Month == _filtroMesAplicado; })
                     .ToList();
             }
             @if (!_carregandoExtras && _extrasDoMes.Count > 0)
@@ -973,7 +974,7 @@ else if (_activeTab == 2)
             .OrderBy(g => g.Key)
             .Select(g =>
             {
-                var dividas = g.ToList();
+                var dividas = g.Where(d => (d.Parcelas ?? []).Any(p => p.DataVencimento.Year == _filtroAnoAplicado && p.DataVencimento.Month == _filtroMesAplicado)).ToList();
                 var todasParc = dividas.SelectMany(d => d.Parcelas ?? []).ToList();
                 var valorMes = todasParc
                     .Where(p => p.DataVencimento.Year == _filtroAnoAplicado && p.DataVencimento.Month == _filtroMesAplicado)
@@ -992,6 +993,7 @@ else if (_activeTab == 2)
                     ProximaParc: todasParc.Where(p => !p.Paga).OrderBy(p => p.DataVencimento).FirstOrDefault()
                 );
             })
+            .Where(g => g.Dividas.Count > 0)
             .ToList();
 
         if (!_gruposDividas.Any(g => g.Nome == _devedorSelecionado))
@@ -1369,9 +1371,9 @@ else if (_activeTab == 2)
     {
         try
         {
-            var bytes = await ApiService.DownloadDividasPdfAsync(nomeDevedor, _filtroMes, _filtroAno);
+            var bytes = await ApiService.DownloadDividasPdfAsync(nomeDevedor, _filtroMesAplicado, _filtroAnoAplicado);
             if (bytes is null || bytes.Length == 0) { Snackbar.Add("Nenhuma dívida encontrada para este período.", Severity.Warning); return; }
-            var fileName = $"dividas_{nomeDevedor.Replace(" ", "_")}_{_filtroMes:D2}_{_filtroAno}.pdf";
+            var fileName = $"dividas_{nomeDevedor.Replace(" ", "_")}_{_filtroMesAplicado:D2}_{_filtroAnoAplicado}.pdf";
             await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, "application/pdf", Convert.ToBase64String(bytes));
         }
         catch { Snackbar.Add("Erro ao baixar PDF.", Severity.Error); }

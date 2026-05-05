@@ -36,7 +36,7 @@ public class DespesaExtra : Despesa
             DataDespesa = dataDespesa,
             Categoria = categoria,
             FormaPagamento = formaPagamento,
-            PagaEm = formaPagamento == FormaPagamentoDespesaExtra.CartaoCredito ? pagaEm : null,
+            PagaEm = pagaEm,
             TipoDespesa = TipoDespesa.Extra,
             DataCriacao = DateTime.UtcNow
         };
@@ -47,7 +47,7 @@ public class DespesaExtra : Despesa
         Paga = paga;
 
         if (FormaPagamento != FormaPagamentoDespesaExtra.CartaoCredito)
-            PagaEm = paga ? (dataHoje ?? DateOnly.FromDateTime(DateTime.UtcNow)) : null;
+            PagaEm = paga ? (PagaEm ?? dataHoje ?? DateOnly.FromDateTime(DateTime.UtcNow)) : null;
     }
 
     public void Atualizar(string descricao, decimal valor, DateOnly dataDespesa, string categoria, FormaPagamentoDespesaExtra formaPagamento, DateOnly? pagaEm = null)
@@ -62,6 +62,6 @@ public class DespesaExtra : Despesa
         DataDespesa = dataDespesa;
         Categoria = categoria;
         FormaPagamento = formaPagamento;
-        PagaEm = formaPagamento == FormaPagamentoDespesaExtra.CartaoCredito ? pagaEm : null;
+        PagaEm = pagaEm;
     }
 }
