@@ -20,7 +20,7 @@
                                OnClick="@ToggleDrawer" />
                 <MudText Typo="Typo.h6" Class="ml-3">💰 Minhas Finanças</MudText>
                 <MudSpacer />
-                <MudText Class="mr-2">Olá, @AuthState.Value.NomeUsuario</MudText>
+                <MudText Class="mr-2">Olá, @(_nomeUsuario ?? AuthState.Value.NomeUsuario)</MudText>
                 <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit"
                                OnClick="Sair" />
             </MudAppBar>
@@ -59,6 +59,12 @@
 
 @code {
     private bool _drawerOpen = true;
+    private string? _nomeUsuario;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _nomeUsuario = await _authStateProvider.ObterNomeAsync();
+    }
 
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 
