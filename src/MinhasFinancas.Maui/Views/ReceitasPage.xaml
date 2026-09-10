@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Name="RaizPagina"
+    x:Class="MinhasFinancas.Maui.Views.ReceitasPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    xmlns:models="clr-namespace:MinhasFinancas.Application.DTOs;assembly=MinhasFinancas.Application"
+    x:DataType="vm:ReceitasViewModel"
+    Title="Receitas">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="{Binding TotalGeral, StringFormat='💵 Total: {0:C2}'}" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="📄 PDF" Command="{Binding ExportarPdfCommand}" IsEnabled="{Binding Exportando, Converter={StaticResource InversorBoolConverter}}"
+                        BackgroundColor="#64748B" TextColor="White" CornerRadius="10" FontSize="12" />
+            </Grid>
+
+            <Border Style="{StaticResource CardStyle}" Padding="16" BackgroundColor="#F8FAFC">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding TituloFormulario}" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" />
+                    <Label Text="Descrição" FontSize="12" TextColor="#64748B" />
+                    <Entry Text="{Binding Descricao}" Placeholder="Descrição" />
+                    <Label Text="Valor (R$)" FontSize="12" TextColor="#64748B" />
+                    <Entry Text="{Binding ValorStr}" Placeholder="Valor (R$)" Keyboard="Numeric" />
+                    <Label Text="Data de Recebimento" FontSize="12" TextColor="#64748B" />
+                    <DatePicker Date="{Binding DataRecebimento}" Format="dd/MM/yyyy" />
+                    <Label Text="Categoria" FontSize="12" TextColor="#64748B" />
+                    <Picker Title="Categoria" ItemsSource="{Binding Categorias}" ItemDisplayBinding="{Binding Nome}"
+                            SelectedItem="{Binding CategoriaSelecionada}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox IsChecked="{Binding Recorrente}" />
+                        <Label Text="Receita recorrente" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Salvar" Command="{Binding SalvarCommand}" BackgroundColor="#2E7D32" TextColor="White" CornerRadius="10" />
+                        <Button Text="Cancelar" Command="{Binding CancelarEdicaoCommand}" IsVisible="{Binding EmEdicao}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" />
+
+            <CollectionView ItemsSource="{Binding Itens}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ReceitaDto">
+                        <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding Descricao}" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" TextColor="#2E7D32" FontAttributes="Bold" />
+                                </Grid>
+                                <Label Text="{Binding Categoria}" FontSize="12" TextColor="#64748b" />
+                                <Label Text="{Binding DataRecebimento, StringFormat='{0:dd/MM/yyyy}'}" FontSize="12" TextColor="#64748b" />
+                                <HorizontalStackLayout Spacing="8">
+                                    <Button Text="Editar" FontSize="12"
+                                            Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.EditarCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Excluir" FontSize="12" BackgroundColor="#C62828" TextColor="White"
+                                            Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ExcluirCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

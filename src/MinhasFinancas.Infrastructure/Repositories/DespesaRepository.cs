@@ -88,4 +88,7 @@ public class DespesaRepository : IDespesaRepository
 
     public void Remover(Despesa despesa)
         => _context.Despesas.Remove(despesa);
+
+    public Task<bool> ExisteDespesaParaCredorAsync(Guid credorId, CancellationToken ct = default)
+        => _context.Despesas.AnyAsync(d => d.CredorId == credorId, ct);
 }

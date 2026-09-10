@@ -7,10 +7,8 @@ public class CriarDividaCommandValidator : AbstractValidator<CriarDividaCommand>
 {
     public CriarDividaCommandValidator()
     {
-        RuleFor(x => x.NomeDevedor)
-            .NotEmpty().WithMessage("Nome do devedor é obrigatório.")
-            .MinimumLength(2).WithMessage("Nome do devedor deve ter pelo menos 2 caracteres.")
-            .MaximumLength(100).WithMessage("Nome do devedor deve ter no máximo 100 caracteres.");
+        RuleFor(x => x.DevedorId)
+            .NotEmpty().WithMessage("Devedor é obrigatório.");
 
         RuleFor(x => x.Descricao)
             .NotEmpty().WithMessage("Descrição é obrigatória.")

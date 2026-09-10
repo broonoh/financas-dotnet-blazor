@@ -1,7 +1,6 @@
 using FluentAssertions;
 using MinhasFinancas.Application.Commands.Despesas;
 using MinhasFinancas.Application.Validators;
-using MinhasFinancas.Domain.Enums;
 
 namespace MinhasFinancas.Tests.Unit;
 
@@ -20,7 +19,7 @@ public class CriarDespesaFixaCommandValidatorTests
         DataCompra,
         DataFutura,
         "Transporte",
-        FormaPagamentoDespesaFixa.CartaoCredito);
+        "Cartão de Crédito");
 
     [Fact]
     public void Validar_ComDadosValidos_DevePassar()

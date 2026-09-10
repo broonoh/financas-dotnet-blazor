@@ -12,7 +12,12 @@ public class AtualizarPerfilCommandHandler : IRequestHandler<AtualizarPerfilComm
     {
         var u = await _repo.ObterPorIdAsync(request.UsuarioId, ct)
             ?? throw new KeyNotFoundException("Usuário não encontrado.");
-        u.AtualizarPerfil(request.Nome, request.Telefone);
+
+        if (!string.IsNullOrWhiteSpace(request.Email) && !string.Equals(request.Email.Trim(), u.Email.Valor, StringComparison.OrdinalIgnoreCase)
+            && await _repo.ExisteEmailAsync(request.Email, ct))
+            throw new ArgumentException("Este e-mail já está em uso.", nameof(request.Email));
+
+        u.AtualizarPerfil(request.Nome, request.Telefone, request.Email, request.DataNascimento);
         _repo.Atualizar(u);
         await _uow.CommitAsync(ct);
         return new PerfilDto(u.Id, u.Nome, u.Email.Valor, u.DataNascimento, u.Telefone, u.DataCadastro);

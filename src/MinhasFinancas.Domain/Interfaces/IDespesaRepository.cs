@@ -16,4 +16,5 @@ public interface IDespesaRepository
     Task AtualizarFixaAsync(DespesaFixa despesa, CancellationToken ct = default);
     void AtualizarExtra(DespesaExtra despesa);
     void Remover(Despesa despesa);
+    Task<bool> ExisteDespesaParaCredorAsync(Guid credorId, CancellationToken ct = default);
 }

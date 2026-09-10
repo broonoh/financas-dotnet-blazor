@@ -1,6 +1,5 @@
 using FluentAssertions;
 using MinhasFinancas.Domain.Entities;
-using MinhasFinancas.Domain.Enums;
 
 namespace MinhasFinancas.Tests.Unit;
 
@@ -15,7 +14,7 @@ public class DespesaFixaTests
     {
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Financiamento Carro", 1200.00m, 12, DataCompra, DataFutura,
-            "Transporte", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Transporte", "Cartão de Crédito");
 
         despesa.Parcelas.Should().HaveCount(12);
         despesa.ValorTotal.Should().Be(1200.00m);
@@ -26,7 +25,7 @@ public class DespesaFixaTests
     {
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Notebook", 999.99m, 12, DataCompra, DataFutura,
-            "Educação", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Educação", "Cartão de Crédito");
 
         var soma = despesa.Parcelas.Sum(p => p.Valor);
         soma.Should().Be(999.99m);
@@ -39,7 +38,7 @@ public class DespesaFixaTests
         // Parcelas 1 e 2: R$ 33,33; Parcela 3: R$ 33,34
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Curso Online", 100.00m, 3, DataCompra, DataFutura,
-            "Educação", FormaPagamentoDespesaFixa.BoletoParcelado);
+            "Educação", "Boleto Parcelado");
 
         var parcelas = despesa.Parcelas.ToList();
         parcelas[0].Valor.Should().Be(33.33m);
@@ -54,7 +53,7 @@ public class DespesaFixaTests
     {
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Academia", 360m, 6, DataCompra, DataFutura,
-            "Saúde", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Saúde", "Cartão de Crédito");
 
         for (int i = 0; i < despesa.Parcelas.Count; i++)
         {
@@ -68,7 +67,7 @@ public class DespesaFixaTests
     {
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Plano de Saúde", 240m, 12, DataCompra, DataFutura,
-            "Saúde", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Saúde", "Cartão de Crédito");
 
         despesa.Parcelas.Should().AllSatisfy(p => p.Paga.Should().BeFalse());
     }
@@ -80,7 +79,7 @@ public class DespesaFixaTests
     {
         var act = () => DespesaFixa.Criar(
             UsuarioId, "Teste", 100m, quantidade, DataCompra, DataFutura,
-            "Outros", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Outros", "Cartão de Crédito");
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*parcelas*");
@@ -91,7 +90,7 @@ public class DespesaFixaTests
     {
         var act = () => DespesaFixa.Criar(
             UsuarioId, "Teste", 0m, 3, DataCompra, DataFutura,
-            "Outros", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Outros", "Cartão de Crédito");
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*Valor total*");
@@ -103,7 +102,7 @@ public class DespesaFixaTests
         var dataPasada = DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1));
         var act = () => DespesaFixa.Criar(
             UsuarioId, "Teste", 100m, 3, DataCompra, dataPasada,
-            "Outros", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Outros", "Cartão de Crédito");
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*anterior*");
@@ -114,7 +113,7 @@ public class DespesaFixaTests
     {
         var act = () => DespesaFixa.Criar(
             UsuarioId, "AB", 100m, 3, DataCompra, DataFutura,
-            "Outros", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Outros", "Cartão de Crédito");
 
         act.Should().Throw<ArgumentException>();
     }
@@ -125,7 +124,7 @@ public class DespesaFixaTests
         // 1000 / 4 = 250.00 exato, sem resto
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Empréstimo", 1000m, 4, DataCompra, DataFutura,
-            "Outros", FormaPagamentoDespesaFixa.PixParcelado);
+            "Outros", "Pix Parcelado");
 
         despesa.Parcelas.Should().AllSatisfy(p => p.Valor.Should().Be(250m));
         despesa.Parcelas.Sum(p => p.Valor).Should().Be(1000m);
@@ -139,7 +138,7 @@ public class DespesaFixaTests
 
         var despesa = DespesaFixa.Criar(
             UsuarioId, "Cartão Compra", 300m, 3, dataCompra, vencimento,
-            "Outros", FormaPagamentoDespesaFixa.CartaoCredito);
+            "Outros", "Cartão de Crédito");
 
         despesa.DataCompra.Should().Be(dataCompra);
         despesa.DataPrimeiraParcela.Should().Be(vencimento);

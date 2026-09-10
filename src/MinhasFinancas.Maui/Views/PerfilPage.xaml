@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MinhasFinancas.Maui.Views.PerfilPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    x:DataType="vm:PerfilViewModel"
+    Title="Meu Perfil">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" Color="#4F46E5" />
+
+            <Border Style="{StaticResource CardStyle}" Padding="18">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="👤 Meu Perfil" FontSize="18" FontAttributes="Bold" TextColor="#4F46E5" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Nome" FontAttributes="Bold" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding Nome}" Placeholder="Seu nome" TextColor="#1E293B" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="E-mail" FontAttributes="Bold" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding Email}" Placeholder="seu@email.com" Keyboard="Email" TextColor="#1E293B" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Data de Nascimento" FontAttributes="Bold" FontSize="12" TextColor="#64748B" />
+                        <DatePicker Date="{Binding DataNascimento}" Format="dd/MM/yyyy" TextColor="#1E293B" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Telefone" FontAttributes="Bold" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding Telefone}" Placeholder="(00) 00000-0000" Keyboard="Telephone" TextColor="#1E293B" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Membro desde" FontAttributes="Bold" FontSize="12" TextColor="#64748B" />
+                        <Label Text="{Binding DataCadastro}" TextColor="#1E293B" FontSize="15" />
+                    </VerticalStackLayout>
+
+                    <Button Text="Salvar Alterações" Command="{Binding SalvarCommand}" IsEnabled="{Binding Salvando, Converter={StaticResource InversorBoolConverter}}"
+                            BackgroundColor="#4F46E5" TextColor="White" CornerRadius="10" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="🚪 Sair do App" Command="{Binding SairDoAppCommand}"
+                    BackgroundColor="#C62828" TextColor="White" CornerRadius="10" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

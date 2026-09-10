@@ -47,7 +47,9 @@ public record DespesaFixaListDto(
     string Categoria,
     string FormaPagamento,
     DateTime DataCriacao,
-    List<ParcelaDto> Parcelas);
+    List<ParcelaDto> Parcelas,
+    Guid? CredorId = null,
+    string? NomeCredor = null);
 
 public record DespesaExtraListDto(
     Guid Id,
@@ -58,7 +60,9 @@ public record DespesaExtraListDto(
     string FormaPagamento,
     DateOnly? PagaEm,
     bool Paga,
-    DateTime DataCriacao);
+    DateTime DataCriacao,
+    Guid? CredorId = null,
+    string? NomeCredor = null);
 
 public record ParcelaDividaDto(
     Guid Id,
@@ -73,6 +77,7 @@ public record ParcelaDividaDto(
 
 public record DividaDto(
     Guid Id,
+    Guid DevedorId,
     string NomeDevedor,
     string Descricao,
     decimal ValorTotal,
@@ -87,6 +92,12 @@ public record DividaDto(
 public record PerfilDto(Guid Id, string Nome, string Email, DateOnly DataNascimento, string? Telefone, DateTime DataCadastro);
 
 public record CategoriaDto(Guid Id, string Nome, DateTime DataCriacao);
+
+public record DevedorDto(Guid Id, string Nome, DateTime DataCriacao);
+
+public record CredorDto(Guid Id, string Nome, DateTime DataCriacao);
+
+public record FormaPagamentoDto(Guid Id, string Nome, DateTime DataCriacao);
 
 public record ResumoMensalDto(
     int Ano,

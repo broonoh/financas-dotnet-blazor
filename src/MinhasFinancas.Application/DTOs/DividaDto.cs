@@ -13,6 +13,7 @@ public record ParcelaDividaDto(
 
 public record DividaDto(
     Guid Id,
+    Guid DevedorId,
     string NomeDevedor,
     string Descricao,
     decimal ValorTotal,

@@ -5,7 +5,7 @@ namespace MinhasFinancas.Application.Commands.Dividas;
 
 public record CriarDividaCommand(
     Guid UsuarioId,
-    string NomeDevedor,
+    Guid DevedorId,
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,

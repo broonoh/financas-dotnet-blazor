@@ -7,7 +7,7 @@ public class DespesaFixa : Despesa
     public int QuantidadeParcelas { get; private set; }
     public DateOnly DataCompra { get; private set; }
     public DateOnly DataPrimeiraParcela { get; private set; }
-    public FormaPagamentoDespesaFixa FormaPagamento { get; private set; }
+    public string FormaPagamento { get; private set; } = string.Empty;
 
     private readonly List<Parcela> _parcelas = new();
     public IReadOnlyList<Parcela> Parcelas => _parcelas.AsReadOnly();
@@ -23,7 +23,8 @@ public class DespesaFixa : Despesa
         DateOnly dataCompra,
         DateOnly dataPrimeiraParcela,
         string categoria,
-        FormaPagamentoDespesaFixa formaPagamento)
+        string formaPagamento,
+        Guid? credorId = null)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
@@ -44,6 +45,7 @@ public class DespesaFixa : Despesa
         {
             Id = Guid.NewGuid(),
             UsuarioId = usuarioId,
+            CredorId = credorId,
             Descricao = descricao.Trim(),
             ValorTotal = valorTotal,
             QuantidadeParcelas = quantidadeParcelas,
@@ -59,7 +61,7 @@ public class DespesaFixa : Despesa
         return despesa;
     }
 
-    public void Atualizar(string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela, string categoria, FormaPagamentoDespesaFixa formaPagamento)
+    public void Atualizar(string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela, string categoria, string formaPagamento, Guid? credorId = null)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
@@ -75,6 +77,7 @@ public class DespesaFixa : Despesa
         DataPrimeiraParcela = dataPrimeiraParcela;
         Categoria = categoria;
         FormaPagamento = formaPagamento;
+        CredorId = credorId;
         GerarParcelas();
     }
 

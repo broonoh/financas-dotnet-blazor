@@ -20,6 +20,9 @@ public class UsuarioRepository : IUsuarioRepository
     public Task<Usuario?> ObterPorEmailAsync(string email, CancellationToken ct = default)
         => _context.Usuarios.FirstOrDefaultAsync(u => u.Email.Valor == email.ToLowerInvariant(), ct);
 
+    public Task<Usuario?> ObterPrimeiroAsync(CancellationToken ct = default)
+        => _context.Usuarios.OrderBy(u => u.DataCadastro).FirstOrDefaultAsync(ct);
+
     public Task<bool> ExisteEmailAsync(string email, CancellationToken ct = default)
         => _context.Usuarios.AnyAsync(u => u.Email.Valor == email.ToLowerInvariant(), ct);
 

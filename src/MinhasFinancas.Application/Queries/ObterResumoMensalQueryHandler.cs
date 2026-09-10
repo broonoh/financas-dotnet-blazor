@@ -8,12 +8,14 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
 {
     private readonly IDespesaRepository _despesaRepo;
     private readonly IDividaRepository _dividaRepo;
+    private readonly IDevedorRepository _devedorRepo;
     private readonly IReceitaRepository _receitaRepo;
 
-    public ObterResumoMensalQueryHandler(IDespesaRepository despesaRepo, IDividaRepository dividaRepo, IReceitaRepository receitaRepo)
+    public ObterResumoMensalQueryHandler(IDespesaRepository despesaRepo, IDividaRepository dividaRepo, IDevedorRepository devedorRepo, IReceitaRepository receitaRepo)
     {
         _despesaRepo = despesaRepo;
         _dividaRepo = dividaRepo;
+        _devedorRepo = devedorRepo;
         _receitaRepo = receitaRepo;
     }
 
@@ -24,6 +26,8 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
         var despesasFixas = await _despesaRepo.ListarFixasComParcelasAsync(usuarioId, ct);
         var despesasExtras = await _despesaRepo.ListarExtrasDoMesAsync(usuarioId, ano, mes, ct);
         var dividas = await _dividaRepo.ListarPorUsuarioAsync(usuarioId);
+        var devedoresCadastrados = await _devedorRepo.ListarPorUsuarioAsync(usuarioId, ct);
+        var nomesPorDevedorId = devedoresCadastrados.ToDictionary(d => d.Id, d => d.Nome);
         var receitas = await _receitaRepo.ListarPorUsuarioMesAsync(usuarioId, ano, mes, ct);
 
         // Despesas Fixas — parcelas com vencimento no mês solicitado
@@ -61,7 +65,8 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
                         p.Valor, p.DataVencimento, p.Paga))
                     .ToList();
 
-                return (d.NomeDevedor, Parcelas: parcelasDoMes);
+                var nomeDevedor = nomesPorDevedorId.GetValueOrDefault(d.DevedorId, "Desconhecido");
+                return (NomeDevedor: nomeDevedor, Parcelas: parcelasDoMes);
             })
             .Where(x => x.Parcelas.Count > 0)
             .GroupBy(x => x.NomeDevedor)

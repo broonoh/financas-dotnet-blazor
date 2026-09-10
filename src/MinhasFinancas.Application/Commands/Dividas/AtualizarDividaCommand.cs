@@ -6,7 +6,7 @@ namespace MinhasFinancas.Application.Commands.Dividas;
 public record AtualizarDividaCommand(
     Guid Id,
     Guid UsuarioId,
-    string NomeDevedor,
+    Guid DevedorId,
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,

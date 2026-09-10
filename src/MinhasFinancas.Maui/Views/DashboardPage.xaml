@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Name="RaizPagina"
+    x:Class="MinhasFinancas.Maui.Views.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    xmlns:dtos="clr-namespace:MinhasFinancas.Application.DTOs;assembly=MinhasFinancas.Application"
+    x:DataType="vm:DashboardViewModel"
+    Title="Dashboard">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="🚪 Sair" Command="{Binding SairDoAppCommand}" Order="Primary" Priority="0" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" Color="#4F46E5" />
+
+            <VerticalStackLayout Spacing="12" BindingContext="{Binding Dashboard}" x:DataType="dtos:DashboardDto">
+                <Border StrokeShape="RoundRectangle 16" Stroke="Transparent" Padding="20"
+                        BackgroundColor="{Binding SaldoMesAtual, Converter={StaticResource ValorParaCorConverter}}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.18" Radius="14" Offset="0,6" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="💰 Saldo do mês" TextColor="White" FontSize="13" Opacity="0.9" />
+                        <Label Text="{Binding SaldoMesAtual, StringFormat='{0:C2}'}" TextColor="White" FontSize="30" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="14">
+                        <Grid ColumnDefinitions="4,*">
+                            <BoxView Grid.Column="0" BackgroundColor="#2E7D32" />
+                            <VerticalStackLayout Grid.Column="1" Padding="10,0,0,0" Spacing="2">
+                                <Label Text="💵 Receitas" FontSize="12" TextColor="#64748B" />
+                                <Label Text="{Binding TotalReceitasMes, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#2E7D32" FontSize="17" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="14">
+                        <Grid ColumnDefinitions="4,*">
+                            <BoxView Grid.Column="0" BackgroundColor="#C62828" />
+                            <VerticalStackLayout Grid.Column="1" Padding="10,0,0,0" Spacing="2">
+                                <Label Text="💳 Despesas" FontSize="12" TextColor="#64748B" />
+                                <Label Text="{Binding TotalDespesasMes, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#C62828" FontSize="17" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource CardStyle}" Padding="14">
+                    <Grid ColumnDefinitions="4,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#9333EA" />
+                        <VerticalStackLayout Grid.Column="1" Padding="10,0,0,0" Spacing="2">
+                            <Label Text="🔮 Projeção próximos 30 dias" FontSize="12" TextColor="#64748B" />
+                            <Label Text="{Binding ProjecaoProximos30Dias, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#9333EA" FontSize="17" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Evolução Últimos 12 Meses -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="📈 Evolução Últimos 12 Meses" Style="{StaticResource SectionTitleStyle}" />
+                        <Button Grid.Column="1" Text="{Binding ExpandEvolucao, Converter={StaticResource ExpandirParaTextoConverter}}" FontSize="12"
+                                Command="{Binding ToggleEvolucaoCommand}" BackgroundColor="Transparent" TextColor="#4F46E5" Padding="0" />
+                    </Grid>
+                    <Label Text="Somente meses com movimentação são exibidos." FontSize="11" TextColor="#94A3B8" IsVisible="{Binding ExpandEvolucao}" />
+
+                    <CollectionView ItemsSource="{Binding Evolucao12Meses}" IsVisible="{Binding ExpandEvolucao}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma movimentação nos últimos 12 meses." FontSize="13" TextColor="#94A3B8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DashboardViewModel+MesBarraItem">
+                                <VerticalStackLayout Spacing="2" Padding="0,6">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Mes}" FontSize="12" FontAttributes="Bold" TextColor="#1E293B" WidthRequest="40" />
+                                        <Label Grid.Column="2" Text="{Binding Saldo, StringFormat='{0:C2}'}" FontSize="11"
+                                               TextColor="{Binding Saldo, Converter={StaticResource ValorParaCorConverter}}" HorizontalTextAlignment="End" />
+                                    </Grid>
+                                    <BoxView HeightRequest="8" CornerRadius="4" BackgroundColor="#2E7D32" HorizontalOptions="Start" WidthRequest="{Binding LarguraReceitas}" />
+                                    <BoxView HeightRequest="8" CornerRadius="4" BackgroundColor="#C62828" HorizontalOptions="Start" WidthRequest="{Binding LarguraDespesas}" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <HorizontalStackLayout Spacing="16" IsVisible="{Binding ExpandEvolucao}">
+                        <HorizontalStackLayout Spacing="4"><BoxView WidthRequest="10" HeightRequest="10" CornerRadius="5" BackgroundColor="#2E7D32" /><Label Text="Receitas" FontSize="11" TextColor="#64748B" /></HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="4"><BoxView WidthRequest="10" HeightRequest="10" CornerRadius="5" BackgroundColor="#C62828" /><Label Text="Despesas" FontSize="11" TextColor="#64748B" /></HorizontalStackLayout>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Despesas por Categoria -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🥧 Despesas por Categoria" Style="{StaticResource SectionTitleStyle}" />
+                    <CollectionView ItemsSource="{Binding DistribuicaoCategorias}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma despesa este mês." FontSize="13" TextColor="#94A3B8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DashboardViewModel+CategoriaBarraItem">
+                                <VerticalStackLayout Spacing="2" Padding="0,6">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Categoria}" FontSize="12" FontAttributes="Bold" TextColor="#1E293B" />
+                                        <Label Grid.Column="1" FontSize="11" TextColor="#64748B">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Valor, StringFormat='{0:C2}'}" />
+                                                    <Span Text="  •  " />
+                                                    <Span Text="{Binding Percentual, StringFormat='{0:F1}%'}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </Grid>
+                                    <BoxView HeightRequest="10" CornerRadius="5" BackgroundColor="#9333EA" HorizontalOptions="Start" WidthRequest="{Binding Largura}" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Comparativo Últimos 6 Meses -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="📊 Comparativo Últimos 6 Meses" Style="{StaticResource SectionTitleStyle}" />
+                        <Button Grid.Column="1" Text="{Binding ExpandComparativo, Converter={StaticResource ExpandirParaTextoConverter}}" FontSize="12"
+                                Command="{Binding ToggleComparativoCommand}" BackgroundColor="Transparent" TextColor="#4F46E5" Padding="0" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding Comparativo6Meses}" IsVisible="{Binding ExpandComparativo}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma movimentação nos últimos 6 meses." FontSize="13" TextColor="#94A3B8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DashboardViewModel+MesBarraItem">
+                                <VerticalStackLayout Spacing="2" Padding="0,6">
+                                    <Label Text="{Binding Mes}" FontSize="12" FontAttributes="Bold" TextColor="#1E293B" />
+                                    <BoxView HeightRequest="8" CornerRadius="4" BackgroundColor="#2E7D32" HorizontalOptions="Start" WidthRequest="{Binding LarguraReceitas}" />
+                                    <BoxView HeightRequest="8" CornerRadius="4" BackgroundColor="#C62828" HorizontalOptions="Start" WidthRequest="{Binding LarguraDespesas}" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="📋 Parcelas do mês" Style="{StaticResource SectionTitleStyle}" Margin="0,10,0,0" />
+
+            <CollectionView ItemsSource="{Binding Parcelas}">
+                <CollectionView.EmptyView>
+                    <Label Text="Nenhuma parcela neste mês." FontSize="13" TextColor="#94A3B8" Margin="0,8" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:ParcelaDto">
+                        <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding DescricaoDespesa}" FontAttributes="Bold" TextColor="#1E293B" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#1E293B" />
+                                <Label Grid.Row="1" Grid.Column="0" Text="{Binding DataVencimento, StringFormat='Venc. {0:dd/MM/yyyy}'}" FontSize="12" TextColor="#64748b" />
+                                <Button Grid.Row="1" Grid.Column="1" FontSize="12"
+                                        Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                        BackgroundColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" TextColor="White"
+                                        Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleParcelaCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

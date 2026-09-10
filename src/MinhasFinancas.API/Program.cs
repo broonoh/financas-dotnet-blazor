@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MinhasFinancas.API.Middlewares;
 using MinhasFinancas.Application;
@@ -7,6 +8,7 @@ using MinhasFinancas.Infrastructure;
 using MinhasFinancas.Infrastructure.Data;
 using Serilog;
 using Serilog.Events;
+using System.Text;
 
 // ======================================================
 // SERILOG — Configurar antes do builder para capturar
@@ -36,6 +38,31 @@ try
     // ======================================================
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
+
+    // JWT Authentication (fica na API — Infrastructure não pode depender do
+    // ASP.NET Core, pois também é referenciada pelo app MAUI local)
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var jwtSecretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey não configurada.");
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["Issuer"] ?? "MinhasFinancas",
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["Audience"] ?? "MinhasFinancasApp",
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero // Sem tolerância de clock — token expira exatamente em 15min
+        };
+    });
 
     builder.Services.AddControllers()
         .AddJsonOptions(opts =>

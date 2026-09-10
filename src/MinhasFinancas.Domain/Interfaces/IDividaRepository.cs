@@ -11,4 +11,6 @@ public interface IDividaRepository
     Task AtualizarAsync(Divida divida, CancellationToken ct = default);
     void Remover(Divida divida);
     void AtualizarParcela(ParcelaDivida parcela);
+    Task<IEnumerable<ParcelaDivida>> ListarParcelasPendentesDoMesAsync(Guid usuarioId, int ano, int mes);
+    Task<bool> ExisteDividaParaDevedorAsync(Guid devedorId);
 }

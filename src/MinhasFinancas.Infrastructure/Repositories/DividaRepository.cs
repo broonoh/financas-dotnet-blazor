@@ -54,4 +54,17 @@ public class DividaRepository : IDividaRepository
 
     public void AtualizarParcela(ParcelaDivida parcela)
         => _context.ParcelasDivida.Update(parcela);
+
+    public async Task<IEnumerable<ParcelaDivida>> ListarParcelasPendentesDoMesAsync(Guid usuarioId, int ano, int mes)
+        => await _context.ParcelasDivida
+            .Join(_context.Dividas, p => p.DividaId, d => d.Id, (p, d) => new { Parcela = p, d.UsuarioId })
+            .Where(x => x.UsuarioId == usuarioId
+                && !x.Parcela.Paga
+                && x.Parcela.DataVencimento.Year == ano
+                && x.Parcela.DataVencimento.Month == mes)
+            .Select(x => x.Parcela)
+            .ToListAsync();
+
+    public Task<bool> ExisteDividaParaDevedorAsync(Guid devedorId)
+        => _context.Dividas.AnyAsync(d => d.DevedorId == devedorId);
 }

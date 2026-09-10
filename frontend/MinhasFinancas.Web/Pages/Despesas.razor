@@ -29,6 +29,11 @@
                 @if (_baixandoFixasPdf) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
                 Exportar PDF
             </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Success"
+                       Variant="Variant.Outlined" OnClick="ConfirmarFixasPagasDoMes" Disabled="_confirmandoPagamentoMassivo" Class="mb-4 ml-2">
+                @if (_confirmandoPagamentoMassivo) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+                Confirmação de Pagamento Massivo
+            </MudButton>
 
             @if (_mostrarFormFixa && _editandoFixaId == null)
             {
@@ -69,10 +74,27 @@
                             }
                         </MudItem>
                         <MudItem xs="12" md="5">
-                            <MudSelect T="string" @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
-                                <MudSelectItem Value="@("CartaoCredito")">Cartão de Crédito</MudSelectItem>
-                                <MudSelectItem Value="@("PixParcelado")">Pix Parcelado</MudSelectItem>
-                                <MudSelectItem Value="@("BoletoParcelado")">Boleto Parcelado</MudSelectItem>
+                            @if (_formasPagamento?.Count > 0)
+                            {
+                                <MudSelect T="string" @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
+                                    @foreach (var fp in _formasPagamento)
+                                    {
+                                        <MudSelectItem Value="@fp.Nome">@fp.Nome</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                            else
+                            {
+                                <MudTextField @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true"
+                                              Placeholder="Nenhuma forma cadastrada. Cadastre em Categorias > Forma de Pagamento" />
+                            }
+                        </MudItem>
+                        <MudItem xs="12" md="4">
+                            <MudSelect T="Guid?" @bind-Value="_fixaCredorId" Label="Credor (opcional)" Variant="Variant.Outlined" FullWidth="true" Clearable="true">
+                                @foreach (var cred in _credores ?? [])
+                                {
+                                    <MudSelectItem Value="@((Guid?)cred.Id)">@cred.Nome</MudSelectItem>
+                                }
                             </MudSelect>
                         </MudItem>
                         <MudItem xs="12">
@@ -189,10 +211,26 @@
                                             }
                                         </MudItem>
                                         <MudItem xs="12" md="3">
-                                            <MudSelect T="string" @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
-                                                <MudSelectItem Value="@("CartaoCredito")">Cartão de Crédito</MudSelectItem>
-                                                <MudSelectItem Value="@("PixParcelado")">Pix Parcelado</MudSelectItem>
-                                                <MudSelectItem Value="@("BoletoParcelado")">Boleto Parcelado</MudSelectItem>
+                                            @if (_formasPagamento?.Count > 0)
+                                            {
+                                                <MudSelect T="string" @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
+                                                    @foreach (var fp in _formasPagamento)
+                                                    {
+                                                        <MudSelectItem Value="@fp.Nome">@fp.Nome</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            }
+                                            else
+                                            {
+                                                <MudTextField @bind-Value="_fixaFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true" />
+                                            }
+                                        </MudItem>
+                                        <MudItem xs="12" md="3">
+                                            <MudSelect T="Guid?" @bind-Value="_fixaCredorId" Label="Credor (opcional)" Variant="Variant.Outlined" FullWidth="true" Clearable="true">
+                                                @foreach (var cred in _credores ?? [])
+                                                {
+                                                    <MudSelectItem Value="@((Guid?)cred.Id)">@cred.Nome</MudSelectItem>
+                                                }
                                             </MudSelect>
                                         </MudItem>
                                         <MudItem xs="12">
@@ -218,6 +256,7 @@
                                             </MudText>
                                             <MudText Typo="Typo.caption" Color="Color.Secondary">
                                                 @fixа.Categoria &bull; 1ª parcela: @fixа.DataPrimeiraParcela.ToString("dd/MM/yyyy")
+                                                @if (!string.IsNullOrEmpty(fixа.NomeCredor)) { <span> &bull; Credor: @fixа.NomeCredor</span> }
                                             </MudText>
                                         </div>
                                         <div class="d-flex align-center gap-2">
@@ -319,6 +358,11 @@ else if (_activeTab == 1)
                 @if (_baixandoExtrasPdf) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
                 Exportar PDF
             </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Success"
+                       Variant="Variant.Outlined" OnClick="ConfirmarExtrasPagasDoMes" Disabled="_confirmandoPagamentoMassivo" Class="mb-4 ml-2">
+                @if (_confirmandoPagamentoMassivo) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+                Confirmação de Pagamento Massivo
+            </MudButton>
 
             @if (_mostrarFormExtra && _editandoExtraId == null)
             {
@@ -399,6 +443,7 @@ else if (_activeTab == 1)
                                             <MudText Typo="Typo.caption" Color="Color.Secondary">
                                                 @extra.Categoria &bull; @extra.DataDespesa.ToString("dd/MM/yyyy")
                                                 @if (extra.PagaEm.HasValue) { <span> &bull; Pgto: @extra.PagaEm.Value.ToString("dd/MM/yyyy")</span> }
+                                                @if (!string.IsNullOrEmpty(extra.NomeCredor)) { <span> &bull; Credor: @extra.NomeCredor</span> }
                                             </MudText>
                                         </div>
                                         <div class="d-flex align-center gap-2">
@@ -487,6 +532,18 @@ else if (_activeTab == 2)
                        Variant="Variant.Filled" OnClick="@(() => { _mostrarFormDivida = !_mostrarFormDivida; _editandoDividaId = null; })" Class="mb-4">
                 Nova Dívida
             </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Success"
+                       Variant="Variant.Outlined" OnClick="ConfirmarDividasPagasDoMes" Disabled="_confirmandoPagamentoMassivo" Class="mb-4 ml-2">
+                @if (_confirmandoPagamentoMassivo) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+                Confirmação de Pagamento Massivo
+            </MudButton>
+
+            @if (_devedores?.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info" Class="mb-4">
+                    Nenhum devedor cadastrado. <MudLink Href="/devedores">Cadastre um devedor</MudLink> antes de registrar uma dívida.
+                </MudAlert>
+            }
 
             @if (_mostrarFormDivida && _editandoDividaId == null)
             {
@@ -494,7 +551,12 @@ else if (_activeTab == 2)
                     <MudText Typo="Typo.h6" Class="mb-3">Nova Dívida</MudText>
                     <MudGrid>
                         <MudItem xs="12" md="4">
-                            <MudTextField @bind-Value="_dividaNomeDevedor" Label="Nome do Devedor" Variant="Variant.Outlined" FullWidth="true" />
+                            <MudSelect T="Guid?" @bind-Value="_dividaDevedorId" Label="Devedor" Variant="Variant.Outlined" FullWidth="true">
+                                @foreach (var dev in _devedores ?? [])
+                                {
+                                    <MudSelectItem Value="@((Guid?)dev.Id)">@dev.Nome</MudSelectItem>
+                                }
+                            </MudSelect>
                         </MudItem>
                         <MudItem xs="12" md="8">
                             <MudTextField @bind-Value="_dividaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
@@ -627,7 +689,12 @@ else if (_activeTab == 2)
                                     {
                                         <MudGrid>
                                             <MudItem xs="12" md="4">
-                                                <MudTextField @bind-Value="_dividaNomeDevedor" Label="Nome do Devedor" Variant="Variant.Outlined" FullWidth="true" />
+                                                <MudSelect T="Guid?" @bind-Value="_dividaDevedorId" Label="Devedor" Variant="Variant.Outlined" FullWidth="true">
+                                                    @foreach (var dev in _devedores ?? [])
+                                                    {
+                                                        <MudSelectItem Value="@((Guid?)dev.Id)">@dev.Nome</MudSelectItem>
+                                                    }
+                                                </MudSelect>
                                             </MudItem>
                                             <MudItem xs="12" md="8">
                                                 <MudTextField @bind-Value="_dividaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
@@ -780,16 +847,32 @@ else if (_activeTab == 2)
             }
         </MudItem>
         <MudItem xs="12" md="5">
-            <MudSelect T="string" @bind-Value="_extraFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
-                <MudSelectItem Value="@("CartaoCredito")">Cartão de Crédito</MudSelectItem>
-                <MudSelectItem Value="@("Pix")">Pix</MudSelectItem>
-                <MudSelectItem Value="@("Dinheiro")">Dinheiro</MudSelectItem>
-                <MudSelectItem Value="@("Boleto")">Boleto</MudSelectItem>
-            </MudSelect>
+            @if (_formasPagamento?.Count > 0)
+            {
+                <MudSelect T="string" @bind-Value="_extraFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true">
+                    @foreach (var fp in _formasPagamento)
+                    {
+                        <MudSelectItem Value="@fp.Nome">@fp.Nome</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            else
+            {
+                <MudTextField @bind-Value="_extraFormaPagamento" Label="Forma de Pagamento" Variant="Variant.Outlined" FullWidth="true"
+                              Placeholder="Nenhuma forma cadastrada. Cadastre em Categorias > Forma de Pagamento" />
+            }
         </MudItem>
         <MudItem xs="12" md="3">
             <MudDatePicker @bind-Date="_extraPagaEm" Label="Vencimento"
                            Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" Clearable="true" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudSelect T="Guid?" @bind-Value="_extraCredorId" Label="Credor (opcional)" Variant="Variant.Outlined" FullWidth="true" Clearable="true">
+                @foreach (var cred in _credores ?? [])
+                {
+                    <MudSelectItem Value="@((Guid?)cred.Id)">@cred.Nome</MudSelectItem>
+                }
+            </MudSelect>
         </MudItem>
         <MudItem xs="12">
             @if (!string.IsNullOrEmpty(_extraErro)) { <MudAlert Severity="Severity.Error" Class="mb-2">@_extraErro</MudAlert> }
@@ -838,7 +921,8 @@ else if (_activeTab == 2)
     private DateTime? _fixaDataCompra;
     private DateTime? _fixaDataPrimeiraParcela;
     private string _fixaCategoria = "Outros";
-    private string _fixaFormaPagamento = "CartaoCredito";
+    private string _fixaFormaPagamento = "Cartão de Crédito";
+    private Guid? _fixaCredorId;
 
     // Despesas Extras
     private List<DespesaExtraListDto>? _despesasExtras;
@@ -855,7 +939,8 @@ else if (_activeTab == 2)
     private DateTime? _extraDataDespesa;
     private DateTime? _extraPagaEm;
     private string _extraCategoria = "Outros";
-    private string _extraFormaPagamento = "CartaoCredito";
+    private string _extraFormaPagamento = "Cartão de Crédito";
+    private Guid? _extraCredorId;
 
     // Cultura pt-BR reutilizada no template
     private readonly System.Globalization.CultureInfo _ptBR = new("pt-BR");
@@ -874,12 +959,16 @@ else if (_activeTab == 2)
     private Guid? _excluindoDividaId;
     private Guid? _expandedDividaId;
     private Guid? _editandoDividaId;
-    private string _dividaNomeDevedor = string.Empty;
+    private Guid? _dividaDevedorId;
     private string _dividaDescricao = string.Empty;
     private string _dividaValorStr = string.Empty;
     private string _dividaParcelasStr = "1";
     private DateTime? _dividaDataCompra;
     private DateTime? _dividaDataPrimeiraParcela;
+    private List<DevedorDto>? _devedores;
+    private List<CredorDto>? _credores;
+    private List<FormaPagamentoDto>? _formasPagamento;
+    private bool _confirmandoPagamentoMassivo;
 
     private record GrupoDivida(
         string Nome,
@@ -904,7 +993,7 @@ else if (_activeTab == 2)
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.WhenAll(CarregarFixas(), CarregarExtras(), CarregarDividas(), CarregarCategorias());
+        await Task.WhenAll(CarregarFixas(), CarregarExtras(), CarregarDividas(), CarregarCategorias(), CarregarDevedores(), CarregarCredores(), CarregarFormasPagamento());
     }
 
     private async Task BuscarFixas()
@@ -935,6 +1024,24 @@ else if (_activeTab == 2)
             _fixaCategoria = _categoriasDespesa[0].Nome;
         if (_extraCategoria == "Outros" && _categoriasDespesa.Count > 0)
             _extraCategoria = _categoriasDespesa[0].Nome;
+    }
+
+    private async Task CarregarDevedores()
+    {
+        try { _devedores = await ApiService.ListarDevedoresAsync() ?? []; }
+        catch { _devedores = []; }
+    }
+
+    private async Task CarregarCredores()
+    {
+        try { _credores = await ApiService.ListarCredoresAsync() ?? []; }
+        catch { _credores = []; }
+    }
+
+    private async Task CarregarFormasPagamento()
+    {
+        try { _formasPagamento = await ApiService.ListarFormasPagamentoAsync() ?? []; }
+        catch { _formasPagamento = []; }
     }
 
     private async Task CarregarFixas()
@@ -1019,6 +1126,7 @@ else if (_activeTab == 2)
         _fixaDataPrimeiraParcela = d.DataPrimeiraParcela.ToDateTime(TimeOnly.MinValue);
         _fixaCategoria = d.Categoria;
         _fixaFormaPagamento = d.FormaPagamento;
+        _fixaCredorId = d.CredorId;
         _fixaErro = string.Empty;
     }
 
@@ -1032,7 +1140,8 @@ else if (_activeTab == 2)
         _fixaDataCompra = null;
         _fixaDataPrimeiraParcela = null;
         _fixaCategoria = _categoriasDespesa?.FirstOrDefault()?.Nome ?? string.Empty;
-        _fixaFormaPagamento = "CartaoCredito";
+        _fixaFormaPagamento = "Cartão de Crédito";
+        _fixaCredorId = null;
         _fixaErro = string.Empty;
     }
 
@@ -1066,7 +1175,8 @@ else if (_activeTab == 2)
             DataCompra = DateOnly.FromDateTime(_fixaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_fixaDataPrimeiraParcela!.Value),
             Categoria = _fixaCategoria,
-            FormaPagamento = _fixaFormaPagamento
+            FormaPagamento = _fixaFormaPagamento,
+            CredorId = _fixaCredorId
         };
 
         var (sucesso, erro) = await ApiService.CriarDespesaFixaAsync(payload);
@@ -1105,7 +1215,8 @@ else if (_activeTab == 2)
             DataCompra = DateOnly.FromDateTime(_fixaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_fixaDataPrimeiraParcela!.Value),
             Categoria = _fixaCategoria,
-            FormaPagamento = _fixaFormaPagamento
+            FormaPagamento = _fixaFormaPagamento,
+            CredorId = _fixaCredorId
         };
         var (sucesso, erro) = await ApiService.AtualizarDespesaFixaAsync(_editandoFixaId!.Value, payload);
         _fixaSalvando = false;
@@ -1141,6 +1252,7 @@ else if (_activeTab == 2)
         _extraPagaEm = d.PagaEm.HasValue ? d.PagaEm.Value.ToDateTime(TimeOnly.MinValue) : null;
         _extraCategoria = d.Categoria;
         _extraFormaPagamento = d.FormaPagamento;
+        _extraCredorId = d.CredorId;
         _extraErro = string.Empty;
     }
 
@@ -1153,7 +1265,8 @@ else if (_activeTab == 2)
         _extraDataDespesa = null;
         _extraPagaEm = null;
         _extraCategoria = _categoriasDespesa?.FirstOrDefault()?.Nome ?? string.Empty;
-        _extraFormaPagamento = "CartaoCredito";
+        _extraFormaPagamento = "Cartão de Crédito";
+        _extraCredorId = null;
         _extraErro = string.Empty;
     }
 
@@ -1180,7 +1293,8 @@ else if (_activeTab == 2)
             DataDespesa = DateOnly.FromDateTime(_extraDataDespesa!.Value),
             Categoria = _extraCategoria,
             FormaPagamento = _extraFormaPagamento,
-            PagaEm = _extraPagaEm.HasValue ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null
+            PagaEm = _extraPagaEm.HasValue ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null,
+            CredorId = _extraCredorId
         };
 
         var (sucesso, erro) = await ApiService.CriarDespesaExtraAsync(payload);
@@ -1213,7 +1327,8 @@ else if (_activeTab == 2)
             DataDespesa = DateOnly.FromDateTime(_extraDataDespesa!.Value),
             Categoria = _extraCategoria,
             FormaPagamento = _extraFormaPagamento,
-            PagaEm = _extraPagaEm.HasValue ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null
+            PagaEm = _extraPagaEm.HasValue ? (DateOnly?)DateOnly.FromDateTime(_extraPagaEm.Value) : null,
+            CredorId = _extraCredorId
         };
 
         var (sucesso, erro) = await ApiService.AtualizarDespesaExtraAsync(_editandoExtraId!.Value, payload);
@@ -1248,7 +1363,7 @@ else if (_activeTab == 2)
     {
         _editandoDividaId = d.Id;
         _mostrarFormDivida = false;
-        _dividaNomeDevedor = d.NomeDevedor;
+        _dividaDevedorId = d.DevedorId;
         _dividaDescricao = d.Descricao;
         _dividaValorStr = d.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
         _dividaParcelasStr = d.QuantidadeParcelas.ToString();
@@ -1261,7 +1376,7 @@ else if (_activeTab == 2)
     {
         _mostrarFormDivida = false;
         _editandoDividaId = null;
-        _dividaNomeDevedor = string.Empty;
+        _dividaDevedorId = null;
         _dividaDescricao = string.Empty;
         _dividaValorStr = string.Empty;
         _dividaParcelasStr = "1";
@@ -1273,7 +1388,7 @@ else if (_activeTab == 2)
     private async Task SalvarDivida()
     {
         _dividaErro = string.Empty;
-        if (string.IsNullOrWhiteSpace(_dividaNomeDevedor) || string.IsNullOrWhiteSpace(_dividaDescricao)
+        if (_dividaDevedorId is null || _dividaDevedorId == Guid.Empty || string.IsNullOrWhiteSpace(_dividaDescricao)
             || string.IsNullOrWhiteSpace(_dividaValorStr) || _dividaDataCompra is null || _dividaDataPrimeiraParcela is null)
         {
             _dividaErro = "Preencha todos os campos obrigatórios.";
@@ -1294,7 +1409,7 @@ else if (_activeTab == 2)
         _dividaSalvando = true;
         var payload = new
         {
-            NomeDevedor = _dividaNomeDevedor,
+            DevedorId = _dividaDevedorId!.Value,
             Descricao = _dividaDescricao,
             ValorTotal = valor,
             QuantidadeParcelas = parcelas,
@@ -1312,7 +1427,7 @@ else if (_activeTab == 2)
     private async Task AtualizarDivida()
     {
         _dividaErro = string.Empty;
-        if (string.IsNullOrWhiteSpace(_dividaNomeDevedor) || string.IsNullOrWhiteSpace(_dividaDescricao)
+        if (_dividaDevedorId is null || _dividaDevedorId == Guid.Empty || string.IsNullOrWhiteSpace(_dividaDescricao)
             || string.IsNullOrWhiteSpace(_dividaValorStr) || _dividaDataCompra is null || _dividaDataPrimeiraParcela is null)
         {
             _dividaErro = "Preencha todos os campos obrigatórios.";
@@ -1333,7 +1448,7 @@ else if (_activeTab == 2)
         _dividaSalvando = true;
         var payload = new
         {
-            NomeDevedor = _dividaNomeDevedor,
+            DevedorId = _dividaDevedorId!.Value,
             Descricao = _dividaDescricao,
             ValorTotal = valor,
             QuantidadeParcelas = parcelas,
@@ -1345,6 +1460,63 @@ else if (_activeTab == 2)
 
         if (sucesso) { CancelarDivida(); await CarregarDividas(); }
         else _dividaErro = erro ?? "Erro ao atualizar dívida.";
+    }
+
+    private async Task<bool> ConfirmarAcaoMassiva(string nomeMes, int ano)
+        => await JS.InvokeAsync<bool>("confirm", $"Confirmar todas as parcelas pendentes de {nomeMes}/{ano} como pagas?");
+
+    private async Task ConfirmarFixasPagasDoMes()
+    {
+        var nomeMes = _meses.First(m => m.Num == _filtroMesAplicado).Nome;
+        if (!await ConfirmarAcaoMassiva(nomeMes, _filtroAnoAplicado)) return;
+
+        _confirmandoPagamentoMassivo = true;
+        try
+        {
+            var quantidade = await ApiService.MarcarTodasFixasPagasDoMesAsync(_filtroMesAplicado, _filtroAnoAplicado);
+            Snackbar.Add(quantidade > 0
+                ? $"{quantidade} parcela(s) de despesa fixa marcada(s) como paga(s)."
+                : $"Nenhuma parcela pendente em {nomeMes}/{_filtroAnoAplicado}.", quantidade > 0 ? Severity.Success : Severity.Info);
+            await CarregarFixas();
+        }
+        catch { Snackbar.Add("Erro ao confirmar pagamentos.", Severity.Error); }
+        finally { _confirmandoPagamentoMassivo = false; }
+    }
+
+    private async Task ConfirmarExtrasPagasDoMes()
+    {
+        var nomeMes = _meses.First(m => m.Num == _filtroMesAplicado).Nome;
+        if (!await ConfirmarAcaoMassiva(nomeMes, _filtroAnoAplicado)) return;
+
+        _confirmandoPagamentoMassivo = true;
+        try
+        {
+            var quantidade = await ApiService.MarcarTodasExtrasPagasDoMesAsync(_filtroMesAplicado, _filtroAnoAplicado);
+            Snackbar.Add(quantidade > 0
+                ? $"{quantidade} despesa(s) extra(s) marcada(s) como paga(s)."
+                : $"Nenhuma despesa extra pendente em {nomeMes}/{_filtroAnoAplicado}.", quantidade > 0 ? Severity.Success : Severity.Info);
+            await CarregarExtras();
+        }
+        catch { Snackbar.Add("Erro ao confirmar pagamentos.", Severity.Error); }
+        finally { _confirmandoPagamentoMassivo = false; }
+    }
+
+    private async Task ConfirmarDividasPagasDoMes()
+    {
+        var nomeMes = _meses.First(m => m.Num == _filtroMesAplicado).Nome;
+        if (!await ConfirmarAcaoMassiva(nomeMes, _filtroAnoAplicado)) return;
+
+        _confirmandoPagamentoMassivo = true;
+        try
+        {
+            var quantidade = await ApiService.MarcarTodasDividasPagasDoMesAsync(_filtroMesAplicado, _filtroAnoAplicado);
+            Snackbar.Add(quantidade > 0
+                ? $"{quantidade} parcela(s) de dívida marcada(s) como paga(s)."
+                : $"Nenhuma parcela pendente em {nomeMes}/{_filtroAnoAplicado}.", quantidade > 0 ? Severity.Success : Severity.Info);
+            await CarregarDividas();
+        }
+        catch { Snackbar.Add("Erro ao confirmar pagamentos.", Severity.Error); }
+        finally { _confirmandoPagamentoMassivo = false; }
     }
 
     private async Task ExcluirDivida(Guid id)

@@ -1,0 +1,50 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:MinhasFinancas.Maui"
+             xmlns:conv="clr-namespace:MinhasFinancas.Maui.Converters"
+             x:Class="MinhasFinancas.Maui.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:InversorBoolConverter x:Key="InversorBoolConverter" />
+            <conv:IdsIguaisConverter x:Key="IdsIguaisConverter" />
+            <conv:ValorParaCorConverter x:Key="ValorParaCorConverter" />
+            <conv:PagaParaTextoConverter x:Key="PagaParaTextoConverter" />
+            <conv:PagaParaCorConverter x:Key="PagaParaCorConverter" />
+            <conv:BoolParaOpacidadeConverter x:Key="BoolParaOpacidadeConverter" />
+            <conv:RecorrenteParaTextoConverter x:Key="RecorrenteParaTextoConverter" />
+            <conv:ParcelaStatusTextoConverter x:Key="ParcelaStatusTextoConverter" />
+            <conv:ParcelaStatusCorConverter x:Key="ParcelaStatusCorConverter" />
+            <conv:NullableDateConverter x:Key="NullableDateConverter" />
+            <conv:ExpandirParaTextoConverter x:Key="ExpandirParaTextoConverter" />
+            <conv:QuitadoParaTextoConverter x:Key="QuitadoParaTextoConverter" />
+            <conv:QuitadoParaCorConverter x:Key="QuitadoParaCorConverter" />
+            <conv:StringNaoVazioConverter x:Key="StringNaoVazioConverter" />
+
+            <!-- Card padrão: fundo branco, cantos arredondados e sombra suave —
+                 dá profundidade em vez do visual "chapado" sem contraste. -->
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="Black" Opacity="0.08" Radius="10" Offset="0,3" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Título de seção com barra colorida à esquerda -->
+            <Style x:Key="SectionTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="#1E293B" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

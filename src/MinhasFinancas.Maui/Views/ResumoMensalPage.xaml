@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MinhasFinancas.Maui.Views.ResumoMensalPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    xmlns:dtos="clr-namespace:MinhasFinancas.Application.DTOs;assembly=MinhasFinancas.Application"
+    x:DataType="vm:ResumoMensalViewModel"
+    Title="Resumo Mensal">
+
+    <ContentPage.Resources>
+        <Style x:Key="StatCardStyle" TargetType="Border">
+            <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+            <Setter Property="Stroke" Value="Transparent" />
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="Shadow">
+                <Setter.Value>
+                    <Shadow Brush="Black" Opacity="0.10" Radius="12" Offset="0,4" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="StatLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextColor" Value="#64748B" />
+        </Style>
+        <Style x:Key="StatValueStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="19" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+        <Style x:Key="StatCaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextColor" Value="#94A3B8" />
+        </Style>
+        <Style x:Key="SectionHeaderTextStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#1E293B" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+        <Style x:Key="ItemTitleStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextColor" Value="#1E293B" />
+        </Style>
+        <Style x:Key="ItemSubStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextColor" Value="#64748B" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Border Style="{StaticResource CardStyle}" Padding="10">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Button Grid.Column="0" Text="◀" Command="{Binding MesAnteriorCommand}" BackgroundColor="#4F46E5" />
+                    <Label Grid.Column="1" FontSize="16" FontAttributes="Bold" TextColor="#1E293B"
+                           HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="📅 " />
+                                <Span Text="{Binding LabelPeriodo}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Button Grid.Column="2" Text="▶" Command="{Binding MesSeguinteCommand}" BackgroundColor="#4F46E5" />
+                </Grid>
+            </Border>
+
+            <Button Text="📄 Exportar PDF" Command="{Binding ExportarPdfCommand}"
+                    IsEnabled="{Binding Exportando, Converter={StaticResource InversorBoolConverter}}"
+                    BackgroundColor="#64748B" TextColor="White" CornerRadius="10" />
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" Color="#4F46E5" />
+
+            <!-- Cards de totais — igual à versão web (grade uniforme, borda colorida à esquerda) -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#5C35CC" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="🧾 Despesas Fixas" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding Resumo.TotalDespesasFixas, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}" TextColor="#5C35CC" />
+                            <Label Text="{Binding Resumo.DespesasFixas.Count, StringFormat='{0} parcela(s)'}" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#E65100" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="🛍️ Despesas Extras" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding Resumo.TotalDespesasExtras, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}" TextColor="#E65100" />
+                            <Label Text="{Binding Resumo.DespesasExtras.Count, StringFormat='{0} lançamento(s)'}" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#9333EA" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="📤 Total Saídas" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding TotalSaidas, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}" TextColor="#9333EA" />
+                            <Label Text="fixas + extras" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#DB2777" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="⏳ A Quitar" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding TotalAQuitar, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}" TextColor="#DB2777" />
+                            <Label Text="saídas ainda não pagas" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#2E7D32" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="💵 Receitas" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding Resumo.TotalReceitas, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}" TextColor="#2E7D32" />
+                            <Label Text="{Binding Resumo.Receitas.Count, StringFormat='{0} lançamento(s)'}" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="{Binding Resumo.Saldo, Converter={StaticResource ValorParaCorConverter}}" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="💰 Saldo do Mês" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding Resumo.Saldo, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}"
+                                   TextColor="{Binding Resumo.Saldo, Converter={StaticResource ValorParaCorConverter}}" />
+                            <Label Text="receitas - saídas" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource StatCardStyle}">
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0" BackgroundColor="#C62828" />
+                        <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="2">
+                            <Label Text="🤝 Contas a Receber" Style="{StaticResource StatLabelStyle}" />
+                            <Label Text="{Binding Resumo.TotalContasAReceber, StringFormat='{0:C2}'}" Style="{StaticResource StatValueStyle}" TextColor="#C62828" />
+                            <Label Text="{Binding Resumo.ContasAReceber.Count, StringFormat='{0} devedor(es)'}" Style="{StaticResource StatCaptionStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+            </Grid>
+
+            <!-- ===================== DESPESAS FIXAS — ITEMIZADO ===================== -->
+            <Border Style="{StaticResource StatCardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🧾 Despesas Fixas — Parcelas do Mês" Style="{StaticResource SectionHeaderTextStyle}" />
+                    <Button Text="Mostrar/ocultar" Command="{Binding ToggleFixasCommand}"
+                            BackgroundColor="Transparent" TextColor="#5C35CC" HorizontalOptions="Start" Padding="0" FontSize="12" />
+
+                    <CollectionView ItemsSource="{Binding Resumo.DespesasFixas}" IsVisible="{Binding ExpandFixas}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma parcela de despesa fixa neste mês." FontSize="13" TextColor="#94A3B8" Margin="0,6" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:ResumoItemDespesaFixaDto">
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,7">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="{Binding Descricao}" Style="{StaticResource ItemTitleStyle}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Categoria}" Style="{StaticResource ItemSubStyle}" />
+                                        <Label Style="{StaticResource ItemSubStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding NumeroParcela}" />
+                                                    <Span Text="/" />
+                                                    <Span Text="{Binding TotalParcelas}" />
+                                                    <Span Text="  •  venc. " />
+                                                    <Span Text="{Binding DataVencimento, StringFormat='{0:dd/MM/yyyy}'}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
+                                        <Label Text="{Binding Valor, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#1E293B" HorizontalTextAlignment="End" />
+                                        <Label Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                               TextColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" FontSize="11" HorizontalTextAlignment="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ===================== DESPESAS EXTRAS — ITEMIZADO ===================== -->
+            <Border Style="{StaticResource StatCardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🛍️ Despesas Extras do Mês" Style="{StaticResource SectionHeaderTextStyle}" />
+                    <Button Text="Mostrar/ocultar" Command="{Binding ToggleExtrasCommand}"
+                            BackgroundColor="Transparent" TextColor="#E65100" HorizontalOptions="Start" Padding="0" FontSize="12" />
+
+                    <CollectionView ItemsSource="{Binding Resumo.DespesasExtras}" IsVisible="{Binding ExpandExtras}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma despesa extra neste mês." FontSize="13" TextColor="#94A3B8" Margin="0,6" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:ResumoItemDespesaExtraDto">
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,7">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="{Binding Descricao}" Style="{StaticResource ItemTitleStyle}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Categoria}" Style="{StaticResource ItemSubStyle}" />
+                                        <Label Text="{Binding DataDespesa, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource ItemSubStyle}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
+                                        <Label Text="{Binding Valor, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#1E293B" HorizontalTextAlignment="End" />
+                                        <Label Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                               TextColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" FontSize="11" HorizontalTextAlignment="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ===================== RECEITAS — ITEMIZADO ===================== -->
+            <Border Style="{StaticResource StatCardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="💵 Receitas do Mês" Style="{StaticResource SectionHeaderTextStyle}" />
+                    <Button Text="Mostrar/ocultar" Command="{Binding ToggleReceitasCommand}"
+                            BackgroundColor="Transparent" TextColor="#2E7D32" HorizontalOptions="Start" Padding="0" FontSize="12" />
+
+                    <CollectionView ItemsSource="{Binding Resumo.Receitas}" IsVisible="{Binding ExpandReceitas}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma receita neste mês." FontSize="13" TextColor="#94A3B8" Margin="0,6" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:ResumoItemReceitaDto">
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,7">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="{Binding Descricao}" Style="{StaticResource ItemTitleStyle}" FontAttributes="Bold" />
+                                        <Label Style="{StaticResource ItemSubStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Categoria}" />
+                                                    <Span Text="  •  " />
+                                                    <Span Text="{Binding DataRecebimento, StringFormat='{0:dd/MM/yyyy}'}" />
+                                                    <Span Text="{Binding Recorrente, Converter={StaticResource RecorrenteParaTextoConverter}}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#2E7D32" VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ===================== CONTAS A RECEBER POR DEVEDOR ===================== -->
+            <Border Style="{StaticResource StatCardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🤝 Contas a Receber por Devedor" Style="{StaticResource SectionHeaderTextStyle}" />
+                    <Button Text="Mostrar/ocultar" Command="{Binding ToggleReceberCommand}"
+                            BackgroundColor="Transparent" TextColor="#C62828" HorizontalOptions="Start" Padding="0" FontSize="12" />
+
+                    <CollectionView ItemsSource="{Binding Resumo.ContasAReceber}" IsVisible="{Binding ExpandReceber}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhuma conta a receber neste mês." FontSize="13" TextColor="#94A3B8" Margin="0,6" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:ResumoDevedorDto">
+                                <Border StrokeShape="RoundRectangle 10" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F8FAFC" Padding="12" Margin="0,5">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Grid.Column="0" Text="{Binding NomeDevedor}" TextColor="#1E293B" FontAttributes="Bold" FontSize="15" />
+                                            <Label Grid.Column="1" Text="{Binding Total, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#C62828" />
+                                        </Grid>
+                                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Parcelas}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="dtos:ResumoParcelaDevedorDto">
+                                                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="0,3">
+                                                        <Label Grid.Column="0" Text="{Binding Descricao}" FontSize="12" TextColor="#334155" />
+                                                        <Label Grid.Column="1" Text="{Binding DataVencimento, StringFormat='{0:dd/MM/yyyy}'}" FontSize="11" TextColor="#64748B" Margin="0,0,8,0" />
+                                                        <Label Grid.Column="2" Text="{Binding Valor, StringFormat='{0:C2}'}" FontSize="12" FontAttributes="Bold" TextColor="#1E293B" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

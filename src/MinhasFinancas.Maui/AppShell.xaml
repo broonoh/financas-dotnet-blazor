@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MinhasFinancas.Maui.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:MinhasFinancas.Maui.Views"
+    Title="Finanças"
+    FlyoutBehavior="Flyout"
+    FlyoutBackgroundColor="White">
+
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#4F46E5" HeightRequest="140" Padding="20">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                <Label Text="💰 Finanças" FontSize="26" FontAttributes="Bold" TextColor="White" />
+                <Label Text="Suas contas, sempre à mão" FontSize="13" TextColor="#E0E7FF" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <FlyoutItem Title="🏠  Dashboard">
+        <ShellContent ContentTemplate="{DataTemplate views:DashboardPage}" Route="dashboard" />
+    </FlyoutItem>
+    <FlyoutItem Title="🧮  Parcelas">
+        <ShellContent ContentTemplate="{DataTemplate views:ParcelasPage}" Route="parcelas" />
+    </FlyoutItem>
+    <FlyoutItem Title="📅  Resumo Mensal">
+        <ShellContent ContentTemplate="{DataTemplate views:ResumoMensalPage}" Route="resumo" />
+    </FlyoutItem>
+    <FlyoutItem Title="💵  Receitas">
+        <ShellContent ContentTemplate="{DataTemplate views:ReceitasPage}" Route="receitas" />
+    </FlyoutItem>
+    <FlyoutItem Title="💳  Despesas">
+        <ShellContent ContentTemplate="{DataTemplate views:DespesasPage}" Route="despesas" />
+    </FlyoutItem>
+    <FlyoutItem Title="📈  Gráficos">
+        <ShellContent ContentTemplate="{DataTemplate views:GraficosPage}" Route="graficos" />
+    </FlyoutItem>
+    <FlyoutItem Title="🧑‍🤝‍🧑  Devedores">
+        <ShellContent ContentTemplate="{DataTemplate views:DevedoresPage}" Route="devedores" />
+    </FlyoutItem>
+    <FlyoutItem Title="🧾  Credores">
+        <ShellContent ContentTemplate="{DataTemplate views:CredoresPage}" Route="credores" />
+    </FlyoutItem>
+    <FlyoutItem Title="🏷️  Categorias">
+        <ShellContent ContentTemplate="{DataTemplate views:CategoriasPage}" Route="categorias" />
+    </FlyoutItem>
+    <FlyoutItem Title="💳  Forma de Pagamento">
+        <ShellContent ContentTemplate="{DataTemplate views:FormasPagamentoPage}" Route="formas-pagamento" />
+    </FlyoutItem>
+    <FlyoutItem Title="👤  Meu Perfil">
+        <ShellContent ContentTemplate="{DataTemplate views:PerfilPage}" Route="perfil" />
+    </FlyoutItem>
+
+</Shell>

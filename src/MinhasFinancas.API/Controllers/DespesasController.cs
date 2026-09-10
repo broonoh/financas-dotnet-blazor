@@ -2,10 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MinhasFinancas.Application.Commands.Despesas;
-using MinhasFinancas.Domain.Enums;
 using MinhasFinancas.Application.DTOs;
 using MinhasFinancas.Application.Queries;
-using MinhasFinancas.Domain.Interfaces;
 using System.Security.Claims;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -20,13 +18,11 @@ namespace MinhasFinancas.API.Controllers;
 public class DespesasController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly IDespesaRepository _despesaRepo;
     private readonly IWebHostEnvironment _env;
 
-    public DespesasController(IMediator mediator, IDespesaRepository despesaRepo, IWebHostEnvironment env)
+    public DespesasController(IMediator mediator, IWebHostEnvironment env)
     {
         _mediator = mediator;
-        _despesaRepo = despesaRepo;
         _env = env;
     }
 
@@ -70,7 +66,8 @@ public class DespesasController : ControllerBase
                 request.DataCompra,
                 request.DataPrimeiraParcela,
                 request.Categoria,
-                request.FormaPagamento);
+                request.FormaPagamento,
+                request.CredorId);
 
             var resultado = await _mediator.Send(command, ct);
             return CreatedAtAction(nameof(CriarFixa), new { id = resultado.Id }, resultado);
@@ -78,6 +75,10 @@ public class DespesasController : ControllerBase
         catch (FluentValidation.ValidationException ex)
         {
             return BadRequest(new { errors = ex.Errors.Select(e => e.ErrorMessage) });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (ArgumentException ex)
         {
@@ -102,7 +103,8 @@ public class DespesasController : ControllerBase
                 request.DataDespesa,
                 request.Categoria,
                 request.FormaPagamento,
-                request.PagaEm);
+                request.PagaEm,
+                request.CredorId);
 
             var resultado = await _mediator.Send(command, ct);
             return CreatedAtAction(nameof(CriarExtra), new { id = resultado.Id }, resultado);
@@ -110,6 +112,10 @@ public class DespesasController : ControllerBase
         catch (FluentValidation.ValidationException ex)
         {
             return BadRequest(new { errors = ex.Errors.Select(e => e.ErrorMessage) });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -124,7 +130,7 @@ public class DespesasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento);
+            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento, request.CredorId);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -149,7 +155,7 @@ public class DespesasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDespesaExtraCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento, request.PagaEm);
+            var command = new AtualizarDespesaExtraCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataDespesa, request.Categoria, request.FormaPagamento, request.PagaEm, request.CredorId);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -180,6 +186,28 @@ public class DespesasController : ControllerBase
         {
             return NotFound(new { message = ex.Message });
         }
+    }
+
+    [HttpPatch("fixas/parcelas/pagar-mes")]
+    [ProducesResponseType(typeof(object), 200)]
+    public async Task<IActionResult> MarcarTodasFixasDoMesPagas([FromQuery] int mes, [FromQuery] int ano, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        var quantidade = await _mediator.Send(new MarcarTodasParcelasFixasPagasDoMesCommand(usuarioId.Value, ano, mes), ct);
+        return Ok(new { quantidade });
+    }
+
+    [HttpPatch("extras/pagar-mes")]
+    [ProducesResponseType(typeof(object), 200)]
+    public async Task<IActionResult> MarcarTodasExtrasDoMesPagas([FromQuery] int mes, [FromQuery] int ano, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        var quantidade = await _mediator.Send(new MarcarTodasDespesasExtrasPagasDoMesCommand(usuarioId.Value, ano, mes), ct);
+        return Ok(new { quantidade });
     }
 
     [HttpDelete("fixas/{id:guid}")]
@@ -275,7 +303,7 @@ public class DespesasController : ControllerBase
         var usuarioId = ObterUsuarioId();
         if (usuarioId == null) return Unauthorized();
 
-        var todas = (await _despesaRepo.ListarExtrasPorUsuarioAsync(usuarioId.Value, ct)).ToList();
+        var todas = (await _mediator.Send(new ListarDespesasExtrasQuery(usuarioId.Value), ct)).ToList();
         var despesas = (mes > 0 && ano > 0)
             ? todas.Where(d => { var dt = d.PagaEm ?? d.DataDespesa; return dt.Year == ano && dt.Month == mes; }).ToList()
             : todas;
@@ -303,14 +331,6 @@ public class DespesasController : ControllerBase
 
         var periodo  = culture.DateTimeFormat.GetMonthName(mes) + $"/{ano}";
         var geradoEm = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-
-        static string FmtPagto(FormaPagamentoDespesaFixa f) => f switch
-        {
-            FormaPagamentoDespesaFixa.CartaoCredito   => "Cartão de Crédito",
-            FormaPagamentoDespesaFixa.PixParcelado    => "Pix Parcelado",
-            FormaPagamentoDespesaFixa.BoletoParcelado => "Boleto Parcelado",
-            _ => f.ToString()
-        };
 
         var linhas = despesas
             .SelectMany(d => d.Parcelas.Select(p => new { d, p }))
@@ -375,6 +395,7 @@ public class DespesasController : ControllerBase
                             cols.RelativeColumn(1);  // Parc.
                             cols.RelativeColumn(2);  // Categoria
                             cols.RelativeColumn(2);  // Forma Pgto
+                            cols.RelativeColumn(2);  // Credor
                             cols.RelativeColumn(2);  // Valor
                             cols.RelativeColumn(2);  // Status
                         });
@@ -395,6 +416,7 @@ public class DespesasController : ControllerBase
                             h.Cell().Element(c => TH(c, "Parc."));
                             h.Cell().Element(c => THL(c, "Categoria"));
                             h.Cell().Element(c => THL(c, "Forma Pgto"));
+                            h.Cell().Element(c => THL(c, "Credor"));
                             h.Cell().Element(c => TH(c, "Valor"));
                             h.Cell().Element(c => TH(c, "Status"));
                         });
@@ -425,7 +447,8 @@ public class DespesasController : ControllerBase
                             table.Cell().Element(c => TD(c, x.d.Descricao));
                             table.Cell().Element(c => TDC(c, $"{x.p.Numero}/{x.d.QuantidadeParcelas}"));
                             table.Cell().Element(c => TD(c, x.d.Categoria));
-                            table.Cell().Element(c => TD(c, FmtPagto(x.d.FormaPagamento)));
+                            table.Cell().Element(c => TD(c, x.d.FormaPagamento));
+                            table.Cell().Element(c => TD(c, x.d.NomeCredor ?? "-"));
                             table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
                                 .PaddingVertical(5).PaddingHorizontal(6).AlignCenter()
                                 .Text(x.p.Valor.ToString("C2", culture)).Bold().FontColor(tc).FontSize(8);
@@ -434,7 +457,7 @@ public class DespesasController : ControllerBase
 
                         table.Footer(f =>
                         {
-                            f.Cell().ColumnSpan(6).Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
+                            f.Cell().ColumnSpan(7).Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
                                 .Text("TOTAL").Bold().FontSize(9).FontColor(Roxo);
                             f.Cell().Background(RoxoClaro).PaddingVertical(6).PaddingHorizontal(6)
                                 .AlignCenter().Text(totalMes.ToString("C2", culture))
@@ -459,7 +482,7 @@ public class DespesasController : ControllerBase
         }).GeneratePdf();
     }
 
-    private static byte[] GerarPdfExtras(List<MinhasFinancas.Domain.Entities.DespesaExtra> despesas, int mes, int ano)
+    private static byte[] GerarPdfExtras(List<DespesaExtraDto> despesas, int mes, int ano)
     {
         QuestPDF.Settings.License = LicenseType.Community;
         var culture = new System.Globalization.CultureInfo("pt-BR");
@@ -475,18 +498,9 @@ public class DespesasController : ControllerBase
         var periodo  = culture.DateTimeFormat.GetMonthName(mes) + $"/{ano}";
         var geradoEm = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
-        static string FmtPagto(FormaPagamentoDespesaExtra f) => f switch
-        {
-            FormaPagamentoDespesaExtra.CartaoCredito => "Cartão de Crédito",
-            FormaPagamentoDespesaExtra.Pix           => "Pix",
-            FormaPagamentoDespesaExtra.Dinheiro      => "Dinheiro",
-            FormaPagamentoDespesaExtra.Boleto        => "Boleto",
-            _ => f.ToString()
-        };
-
         var linhas    = despesas.OrderBy(d => d.PagaEm ?? d.DataDespesa).ThenBy(d => d.Descricao).ToList();
-        var totalMes  = linhas.Sum(d => d.ValorTotal);
-        var totalPago = linhas.Where(d => d.Paga).Sum(d => d.ValorTotal);
+        var totalMes  = linhas.Sum(d => d.Valor);
+        var totalPago = linhas.Where(d => d.Paga).Sum(d => d.Valor);
         var emAberto  = totalMes - totalPago;
 
         return Document.Create(container =>
@@ -542,6 +556,7 @@ public class DespesasController : ControllerBase
                             cols.RelativeColumn(4);  // Descrição
                             cols.RelativeColumn(2);  // Categoria
                             cols.RelativeColumn(2);  // Forma Pgto
+                            cols.RelativeColumn(2);  // Credor
                             cols.RelativeColumn(2);  // Valor
                             cols.RelativeColumn(2);  // Status
                         });
@@ -561,6 +576,7 @@ public class DespesasController : ControllerBase
                             h.Cell().Element(c => THL(c, "Descrição"));
                             h.Cell().Element(c => THL(c, "Categoria"));
                             h.Cell().Element(c => THL(c, "Forma Pgto"));
+                            h.Cell().Element(c => THL(c, "Credor"));
                             h.Cell().Element(c => TH(c, "Valor"));
                             h.Cell().Element(c => TH(c, "Status"));
                         });
@@ -590,16 +606,17 @@ public class DespesasController : ControllerBase
                             table.Cell().Element(c => TDC(c, d.DataDespesa.ToString("dd/MM/yyyy")));
                             table.Cell().Element(c => TD(c, d.Descricao));
                             table.Cell().Element(c => TD(c, d.Categoria));
-                            table.Cell().Element(c => TD(c, FmtPagto(d.FormaPagamento)));
+                            table.Cell().Element(c => TD(c, d.FormaPagamento));
+                            table.Cell().Element(c => TD(c, d.NomeCredor ?? "-"));
                             table.Cell().Background(bg).BorderBottom(1).BorderColor("#E0E0E0")
                                 .PaddingVertical(5).PaddingHorizontal(6).AlignCenter()
-                                .Text(d.ValorTotal.ToString("C2", culture)).Bold().FontColor(tc).FontSize(8);
+                                .Text(d.Valor.ToString("C2", culture)).Bold().FontColor(tc).FontSize(8);
                             table.Cell().Element(c => TDC(c, status));
                         }
 
                         table.Footer(f =>
                         {
-                            f.Cell().ColumnSpan(5).Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
+                            f.Cell().ColumnSpan(6).Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
                                 .Text("TOTAL").Bold().FontSize(9).FontColor(Laranja);
                             f.Cell().Background(LaranjaFnd).PaddingVertical(6).PaddingHorizontal(6)
                                 .AlignCenter().Text(totalMes.ToString("C2", culture))
@@ -639,15 +656,17 @@ public record AtualizarDespesaFixaRequest(
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,
     string Categoria,
-    FormaPagamentoDespesaFixa FormaPagamento);
+    string FormaPagamento,
+    Guid? CredorId = null);
 
 public record AtualizarDespesaExtraRequest(
     string Descricao,
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento,
-    DateOnly? PagaEm = null);
+    string FormaPagamento,
+    DateOnly? PagaEm = null,
+    Guid? CredorId = null);
 
 public record CriarDespesaFixaRequest(
     string Descricao,
@@ -656,15 +675,17 @@ public record CriarDespesaFixaRequest(
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,
     string Categoria,
-    FormaPagamentoDespesaFixa FormaPagamento);
+    string FormaPagamento,
+    Guid? CredorId = null);
 
 public record CriarDespesaExtraRequest(
     string Descricao,
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento,
-    DateOnly? PagaEm = null);
+    string FormaPagamento,
+    DateOnly? PagaEm = null,
+    Guid? CredorId = null);
 
 public record MarcarParcelaRequest(bool Paga, DateOnly? DataPagamento = null);
 public record MarcarDespesaExtraRequest(bool Paga);

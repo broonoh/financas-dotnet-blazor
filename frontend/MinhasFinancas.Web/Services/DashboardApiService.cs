@@ -133,6 +133,104 @@ public class DashboardApiService
             new { Paga = paga, DataPagamento = (DateOnly?)null });
     }
 
+    public async Task<int> MarcarTodasDividasPagasDoMesAsync(int mes, int ano)
+    {
+        var response = await _http.PatchAsync($"api/dividas/parcelas/pagar-mes?mes={mes}&ano={ano}", null);
+        if (!response.IsSuccessStatusCode) return 0;
+        var resultado = await response.Content.ReadFromJsonAsync<QuantidadeResultado>();
+        return resultado?.Quantidade ?? 0;
+    }
+
+    public async Task<int> MarcarTodasFixasPagasDoMesAsync(int mes, int ano)
+    {
+        var response = await _http.PatchAsync($"api/despesas/fixas/parcelas/pagar-mes?mes={mes}&ano={ano}", null);
+        if (!response.IsSuccessStatusCode) return 0;
+        var resultado = await response.Content.ReadFromJsonAsync<QuantidadeResultado>();
+        return resultado?.Quantidade ?? 0;
+    }
+
+    public async Task<int> MarcarTodasExtrasPagasDoMesAsync(int mes, int ano)
+    {
+        var response = await _http.PatchAsync($"api/despesas/extras/pagar-mes?mes={mes}&ano={ano}", null);
+        if (!response.IsSuccessStatusCode) return 0;
+        var resultado = await response.Content.ReadFromJsonAsync<QuantidadeResultado>();
+        return resultado?.Quantidade ?? 0;
+    }
+
+    private record QuantidadeResultado(int Quantidade);
+
+    public Task<List<DevedorDto>?> ListarDevedoresAsync()
+        => _http.GetFromJsonAsync<List<DevedorDto>>("api/devedores");
+
+    public async Task<(bool Sucesso, string? Erro)> CriarDevedorAsync(string nome)
+    {
+        var response = await _http.PostAsJsonAsync("api/devedores", new { Nome = nome });
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao salvar devedor."));
+    }
+
+    public async Task<(bool Sucesso, string? Erro)> AtualizarDevedorAsync(Guid id, string nome)
+    {
+        var response = await _http.PutAsJsonAsync($"api/devedores/{id}", new { Nome = nome });
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao atualizar devedor."));
+    }
+
+    public async Task<(bool Sucesso, string? Erro)> ExcluirDevedorAsync(Guid id)
+    {
+        var response = await _http.DeleteAsync($"api/devedores/{id}");
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao excluir devedor."));
+    }
+
+    public Task<List<CredorDto>?> ListarCredoresAsync()
+        => _http.GetFromJsonAsync<List<CredorDto>>("api/credores");
+
+    public async Task<(bool Sucesso, string? Erro)> CriarCredorAsync(string nome)
+    {
+        var response = await _http.PostAsJsonAsync("api/credores", new { Nome = nome });
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao salvar credor."));
+    }
+
+    public async Task<(bool Sucesso, string? Erro)> AtualizarCredorAsync(Guid id, string nome)
+    {
+        var response = await _http.PutAsJsonAsync($"api/credores/{id}", new { Nome = nome });
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao atualizar credor."));
+    }
+
+    public async Task<(bool Sucesso, string? Erro)> ExcluirCredorAsync(Guid id)
+    {
+        var response = await _http.DeleteAsync($"api/credores/{id}");
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao excluir credor."));
+    }
+
+    public Task<List<FormaPagamentoDto>?> ListarFormasPagamentoAsync()
+        => _http.GetFromJsonAsync<List<FormaPagamentoDto>>("api/formaspagamento");
+
+    public async Task<(bool Sucesso, string? Erro)> CriarFormaPagamentoAsync(string nome)
+    {
+        var response = await _http.PostAsJsonAsync("api/formaspagamento", new { Nome = nome });
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao salvar forma de pagamento."));
+    }
+
+    public async Task<(bool Sucesso, string? Erro)> AtualizarFormaPagamentoAsync(Guid id, string nome)
+    {
+        var response = await _http.PutAsJsonAsync($"api/formaspagamento/{id}", new { Nome = nome });
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao atualizar forma de pagamento."));
+    }
+
+    public async Task<(bool Sucesso, string? Erro)> ExcluirFormaPagamentoAsync(Guid id)
+    {
+        var response = await _http.DeleteAsync($"api/formaspagamento/{id}");
+        if (response.IsSuccessStatusCode) return (true, null);
+        return (false, await ExtrairErro(response, "Erro ao excluir forma de pagamento."));
+    }
+
     public Task<ResumoMensalDto?> ObterResumoMensalAsync(int ano, int mes)
         => _http.GetFromJsonAsync<ResumoMensalDto>($"api/resumo/mensal?ano={ano}&mes={mes}");
 

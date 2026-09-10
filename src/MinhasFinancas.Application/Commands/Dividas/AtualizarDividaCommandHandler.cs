@@ -7,11 +7,13 @@ namespace MinhasFinancas.Application.Commands.Dividas;
 public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaCommand, DividaDto>
 {
     private readonly IDividaRepository _dividaRepo;
+    private readonly IDevedorRepository _devedorRepo;
     private readonly IUnitOfWork _uow;
 
-    public AtualizarDividaCommandHandler(IDividaRepository dividaRepo, IUnitOfWork uow)
+    public AtualizarDividaCommandHandler(IDividaRepository dividaRepo, IDevedorRepository devedorRepo, IUnitOfWork uow)
     {
         _dividaRepo = dividaRepo;
+        _devedorRepo = devedorRepo;
         _uow = uow;
     }
 
@@ -20,7 +22,10 @@ public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaComm
         var divida = await _dividaRepo.ObterPorIdAsync(request.Id, request.UsuarioId)
             ?? throw new KeyNotFoundException("Dívida não encontrada.");
 
-        divida.Atualizar(request.NomeDevedor, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
+        var devedor = await _devedorRepo.ObterPorIdAsync(request.DevedorId, request.UsuarioId, cancellationToken)
+            ?? throw new KeyNotFoundException("Devedor não encontrado.");
+
+        divida.Atualizar(request.DevedorId, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
         await _dividaRepo.AtualizarAsync(divida, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
 
@@ -32,7 +37,7 @@ public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaComm
 
         var saldoRestante = divida.Parcelas.Where(p => !p.Paga).Sum(p => p.Valor);
 
-        return new DividaDto(divida.Id, divida.NomeDevedor, divida.Descricao, divida.ValorTotal,
+        return new DividaDto(divida.Id, divida.DevedorId, devedor.Nome, divida.Descricao, divida.ValorTotal,
             saldoRestante, divida.QuantidadeParcelas, divida.DataCompra, divida.DataPrimeiraParcela, divida.Ativa, divida.DataCriacao, parcelas);
     }
 }

@@ -8,16 +8,26 @@ namespace MinhasFinancas.Application.Commands.Despesas;
 public class CriarDespesaExtraCommandHandler : IRequestHandler<CriarDespesaExtraCommand, DespesaExtraDto>
 {
     private readonly IDespesaRepository _despesaRepo;
+    private readonly ICredorRepository _credorRepo;
     private readonly IUnitOfWork _uow;
 
-    public CriarDespesaExtraCommandHandler(IDespesaRepository despesaRepo, IUnitOfWork uow)
+    public CriarDespesaExtraCommandHandler(IDespesaRepository despesaRepo, ICredorRepository credorRepo, IUnitOfWork uow)
     {
         _despesaRepo = despesaRepo;
+        _credorRepo = credorRepo;
         _uow = uow;
     }
 
     public async Task<DespesaExtraDto> Handle(CriarDespesaExtraCommand request, CancellationToken cancellationToken)
     {
+        string? nomeCredor = null;
+        if (request.CredorId is Guid credorId)
+        {
+            var credor = await _credorRepo.ObterPorIdAsync(credorId, request.UsuarioId, cancellationToken)
+                ?? throw new KeyNotFoundException("Credor não encontrado.");
+            nomeCredor = credor.Nome;
+        }
+
         var despesa = DespesaExtra.Criar(
             request.UsuarioId,
             request.Descricao,
@@ -25,7 +35,8 @@ public class CriarDespesaExtraCommandHandler : IRequestHandler<CriarDespesaExtra
             request.DataDespesa,
             request.Categoria,
             request.FormaPagamento,
-            request.PagaEm);
+            request.PagaEm,
+            request.CredorId);
 
         await _despesaRepo.AdicionarExtraAsync(despesa, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
@@ -39,6 +50,8 @@ public class CriarDespesaExtraCommandHandler : IRequestHandler<CriarDespesaExtra
             despesa.FormaPagamento,
             despesa.PagaEm,
             despesa.Paga,
-            despesa.DataCriacao);
+            despesa.DataCriacao,
+            despesa.CredorId,
+            nomeCredor);
     }
 }

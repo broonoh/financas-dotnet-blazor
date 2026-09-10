@@ -1,6 +1,5 @@
 using MediatR;
 using MinhasFinancas.Application.DTOs;
-using MinhasFinancas.Domain.Enums;
 
 namespace MinhasFinancas.Application.Commands.Despesas;
 
@@ -11,5 +10,6 @@ public record AtualizarDespesaExtraCommand(
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento,
-    DateOnly? PagaEm = null) : IRequest<DespesaExtraDto>;
+    string FormaPagamento,
+    DateOnly? PagaEm = null,
+    Guid? CredorId = null) : IRequest<DespesaExtraDto>;

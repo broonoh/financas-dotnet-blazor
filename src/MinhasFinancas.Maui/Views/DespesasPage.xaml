@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Name="RaizPagina"
+    x:Class="MinhasFinancas.Maui.Views.DespesasPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    xmlns:dtos="clr-namespace:MinhasFinancas.Application.DTOs;assembly=MinhasFinancas.Application"
+    x:DataType="vm:DespesasViewModel"
+    Title="Despesas">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <HorizontalStackLayout Spacing="6">
+                <Button Text="🧾 Fixas" CommandParameter="fixa" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#5C35CC" TextColor="White" CornerRadius="10"
+                        Opacity="{Binding AbaFixa, Converter={StaticResource BoolParaOpacidadeConverter}}" />
+                <Button Text="🛍️ Extras" CommandParameter="extra" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#E65100" TextColor="White" CornerRadius="10"
+                        Opacity="{Binding AbaExtra, Converter={StaticResource BoolParaOpacidadeConverter}}" />
+                <Button Text="🤝 A Receber" CommandParameter="divida" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#C62828" TextColor="White" CornerRadius="10"
+                        Opacity="{Binding AbaDivida, Converter={StaticResource BoolParaOpacidadeConverter}}" />
+            </HorizontalStackLayout>
+
+            <Border Style="{StaticResource CardStyle}" Padding="10" BackgroundColor="#EEF2FF">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Button Grid.Column="0" Text="◀" Command="{Binding PeriodoAnteriorCommand}" BackgroundColor="#4F46E5" />
+                    <Label Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold" TextColor="#312E81">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="📅 Período: " />
+                                <Span Text="{Binding MesFiltro, StringFormat='{0:D2}'}" />
+                                <Span Text="/" />
+                                <Span Text="{Binding AnoFiltro}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Button Grid.Column="2" Text="▶" Command="{Binding PeriodoSeguinteCommand}" BackgroundColor="#4F46E5" />
+                </Grid>
+            </Border>
+
+            <Button Text="✅ Confirmação de Pagamento Massivo" Command="{Binding ConfirmarPagamentoMassivoCommand}"
+                    IsEnabled="{Binding ConfirmandoPagamentoMassivo, Converter={StaticResource InversorBoolConverter}}"
+                    BackgroundColor="#2E7D32" TextColor="White" CornerRadius="10" />
+
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" />
+
+            <!-- ===================== FIXAS ===================== -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding AbaFixa}">
+                <Border Style="{StaticResource CardStyle}" Padding="16" BackgroundColor="#F8FAFC">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding TituloFormFixa}" FontAttributes="Bold" TextColor="#5C35CC" />
+                        <Label Text="Descrição" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding DescricaoFixa}" Placeholder="Descrição" />
+                        <Label Text="Valor Total (R$)" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ValorFixaStr}" Placeholder="Valor total (R$)" Keyboard="Numeric" />
+                        <Label Text="Parcelas" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ParcelasFixaStr}" Placeholder="Nº de parcelas" Keyboard="Numeric" />
+                        <Label Text="Data da Compra" FontSize="12" TextColor="#64748B" />
+                        <DatePicker Date="{Binding DataCompraFixa}" Format="dd/MM/yyyy" />
+                        <Label Text="Vencimento 1ª Parcela" FontSize="12" TextColor="#64748B" />
+                        <DatePicker Date="{Binding DataPrimeiraParcelaFixa}" Format="dd/MM/yyyy" />
+                        <Label Text="Categoria" FontSize="12" TextColor="#64748B" />
+                        <Picker Title="Categoria" ItemsSource="{Binding Categorias}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding CategoriaFixaSelecionada}" />
+                        <Label Text="Forma de Pagamento" FontSize="12" TextColor="#64748B" />
+                        <Picker Title="Forma de pagamento" ItemsSource="{Binding FormasPagamento}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding FormaPagamentoFixaSelecionada}" />
+                        <Label Text="Credor (opcional)" FontSize="12" TextColor="#64748B" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                            <Picker Grid.Column="0" Title="Nenhum" ItemsSource="{Binding Credores}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding CredorFixaSelecionado}" />
+                            <Button Grid.Column="1" Text="Limpar" FontSize="11" Command="{Binding LimparCredorFixaCommand}" />
+                        </Grid>
+                        <HorizontalStackLayout Spacing="8">
+                            <Button Text="Salvar" Command="{Binding SalvarFixaCommand}" BackgroundColor="#5C35CC" TextColor="White" CornerRadius="10" />
+                            <Button Text="Cancelar" Command="{Binding CancelarEdicaoFixaCommand}" IsVisible="{Binding EmEdicaoFixa}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="🧾 Despesas Fixas" Style="{StaticResource SectionTitleStyle}" />
+                    <Button Grid.Column="1" Text="📄 PDF" FontSize="12" Command="{Binding ExportarPdfFixasCommand}"
+                            IsEnabled="{Binding ExportandoFixa, Converter={StaticResource InversorBoolConverter}}"
+                            BackgroundColor="#64748B" TextColor="White" CornerRadius="8" />
+                </Grid>
+                <CollectionView ItemsSource="{Binding Fixas}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:DespesaFixaDto">
+                            <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                                <VerticalStackLayout Spacing="6">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Descricao}" FontAttributes="Bold" TextColor="#1E293B" />
+                                        <Label Grid.Column="1" Text="{Binding ValorTotal, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#1E293B" />
+                                        <Button Grid.Column="2" Text="▾" FontSize="16" Padding="8,0" BackgroundColor="Transparent" TextColor="#5C35CC"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleExpandFixaCommand}" CommandParameter="{Binding Id}" />
+                                    </Grid>
+                                    <Label Text="{Binding Categoria}" FontSize="12" TextColor="#64748b" />
+                                    <Label Text="{Binding FormaPagamento}" FontSize="12" TextColor="#64748b" />
+                                    <Label Text="{Binding DataCompra, StringFormat='Compra em {0:dd/MM/yyyy}'}" FontSize="12" TextColor="#64748b" />
+                                    <Label Text="{Binding NomeCredor, StringFormat='Credor: {0}'}" FontSize="12" TextColor="#4F46E5" IsVisible="{Binding NomeCredor, Converter={StaticResource StringNaoVazioConverter}}" />
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Button Text="Editar" FontSize="12"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.EditarFixaCommand}" CommandParameter="{Binding .}" />
+                                        <Button Text="Excluir" FontSize="12" BackgroundColor="#C62828" TextColor="White"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ExcluirFixaCommand}" CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Parcelas}">
+                                        <VerticalStackLayout.IsVisible>
+                                            <MultiBinding Converter="{StaticResource IdsIguaisConverter}">
+                                                <Binding Path="Id" />
+                                                <Binding Source="{x:Reference RaizPagina}" Path="BindingContext.ExpandedFixaId" />
+                                            </MultiBinding>
+                                        </VerticalStackLayout.IsVisible>
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="dtos:ParcelaDto">
+                                                <Grid ColumnDefinitions="*,Auto,Auto" Padding="0,2">
+                                                    <Label Grid.Column="0" Text="{Binding DataVencimento, StringFormat='{0:dd/MM/yyyy}'}" FontSize="12" />
+                                                    <Label Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" FontSize="12" Margin="0,0,8,0" />
+                                                    <Button Grid.Column="2" FontSize="11" Padding="8,2"
+                                                            Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                                            BackgroundColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" TextColor="White"
+                                                            Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleParcelaFixaCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- ===================== EXTRAS ===================== -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding AbaExtra}">
+                <Border Style="{StaticResource CardStyle}" Padding="16" BackgroundColor="#F8FAFC">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding TituloFormExtra}" FontAttributes="Bold" TextColor="#E65100" />
+                        <Label Text="Descrição" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding DescricaoExtra}" Placeholder="Descrição" />
+                        <Label Text="Valor (R$)" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ValorExtraStr}" Placeholder="Valor (R$)" Keyboard="Numeric" />
+                        <Label Text="Data da Despesa" FontSize="12" TextColor="#64748B" />
+                        <DatePicker Date="{Binding DataDespesaExtra}" Format="dd/MM/yyyy" />
+                        <Label Text="Vencimento" FontSize="12" TextColor="#64748B" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                            <DatePicker Grid.Column="0" Date="{Binding VencimentoExtra, Converter={StaticResource NullableDateConverter}}" Format="dd/MM/yyyy" />
+                            <Button Grid.Column="1" Text="Limpar" FontSize="11" Command="{Binding LimparVencimentoExtraCommand}" />
+                        </Grid>
+                        <Label Text="Categoria" FontSize="12" TextColor="#64748B" />
+                        <Picker Title="Categoria" ItemsSource="{Binding Categorias}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding CategoriaExtraSelecionada}" />
+                        <Label Text="Forma de Pagamento" FontSize="12" TextColor="#64748B" />
+                        <Picker Title="Forma de pagamento" ItemsSource="{Binding FormasPagamento}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding FormaPagamentoExtraSelecionada}" />
+                        <Label Text="Credor (opcional)" FontSize="12" TextColor="#64748B" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                            <Picker Grid.Column="0" Title="Nenhum" ItemsSource="{Binding Credores}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding CredorExtraSelecionado}" />
+                            <Button Grid.Column="1" Text="Limpar" FontSize="11" Command="{Binding LimparCredorExtraCommand}" />
+                        </Grid>
+                        <HorizontalStackLayout Spacing="8">
+                            <Button Text="Salvar" Command="{Binding SalvarExtraCommand}" BackgroundColor="#E65100" TextColor="White" CornerRadius="10" />
+                            <Button Text="Cancelar" Command="{Binding CancelarEdicaoExtraCommand}" IsVisible="{Binding EmEdicaoExtra}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="🛍️ Despesas Extras" Style="{StaticResource SectionTitleStyle}" />
+                    <Button Grid.Column="1" Text="📄 PDF" FontSize="12" Command="{Binding ExportarPdfExtrasCommand}"
+                            IsEnabled="{Binding ExportandoExtra, Converter={StaticResource InversorBoolConverter}}"
+                            BackgroundColor="#64748B" TextColor="White" CornerRadius="8" />
+                </Grid>
+                <CollectionView ItemsSource="{Binding Extras}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:DespesaExtraDto">
+                            <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                                <VerticalStackLayout Spacing="6">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Descricao}" FontAttributes="Bold" TextColor="#1E293B" />
+                                        <Label Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#1E293B" />
+                                    </Grid>
+                                    <Label Text="{Binding Categoria}" FontSize="12" TextColor="#64748b" />
+                                    <Label Text="{Binding FormaPagamento}" FontSize="12" TextColor="#64748b" />
+                                    <Label Text="{Binding DataDespesa, StringFormat='{0:dd/MM/yyyy}'}" FontSize="12" TextColor="#64748b" />
+                                    <Label Text="{Binding PagaEm, StringFormat='Pago em {0:dd/MM/yyyy}'}" FontSize="12" TextColor="#2E7D32" IsVisible="{Binding Paga}" />
+                                    <Label Text="{Binding NomeCredor, StringFormat='Credor: {0}'}" FontSize="12" TextColor="#4F46E5" IsVisible="{Binding NomeCredor, Converter={StaticResource StringNaoVazioConverter}}" />
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Button FontSize="12" Padding="10,4"
+                                                Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                                BackgroundColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" TextColor="White"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleExtraPagaCommand}" CommandParameter="{Binding .}" />
+                                        <Button Text="Editar" FontSize="12"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.EditarExtraCommand}" CommandParameter="{Binding .}" />
+                                        <Button Text="Excluir" FontSize="12" BackgroundColor="#C62828" TextColor="White"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ExcluirExtraCommand}" CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- ===================== CONTAS A RECEBER (DÍVIDAS) ===================== -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding AbaDivida}">
+                <Border Style="{StaticResource CardStyle}" Padding="16" BackgroundColor="#F8FAFC">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding TituloFormDivida}" FontAttributes="Bold" TextColor="#C62828" />
+                        <Picker Title="Devedor" ItemsSource="{Binding Devedores}" ItemDisplayBinding="{Binding Nome}" SelectedItem="{Binding DevedorSelecionado}" />
+                        <Label Text="Nenhum devedor cadastrado ainda — cadastre em &quot;Devedores&quot;." FontSize="12" TextColor="#C62828" />
+                        <Label Text="Descrição" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding DescricaoDivida}" Placeholder="Descrição" />
+                        <Label Text="Valor Total (R$)" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ValorDividaStr}" Placeholder="Valor total (R$)" Keyboard="Numeric" />
+                        <Label Text="Parcelas" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ParcelasDividaStr}" Placeholder="Nº de parcelas" Keyboard="Numeric" />
+                        <Label Text="Data da Compra" FontSize="12" TextColor="#64748B" />
+                        <DatePicker Date="{Binding DataCompraDivida}" Format="dd/MM/yyyy" />
+                        <Label Text="Vencimento 1ª Parcela" FontSize="12" TextColor="#64748B" />
+                        <DatePicker Date="{Binding DataPrimeiraParcelaDivida}" Format="dd/MM/yyyy" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Button Text="Salvar" Command="{Binding SalvarDividaCommand}" BackgroundColor="#C62828" TextColor="White" CornerRadius="10" />
+                            <Button Text="Cancelar" Command="{Binding CancelarEdicaoDividaCommand}" IsVisible="{Binding EmEdicaoDivida}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="🤝 Contas a Receber" Style="{StaticResource SectionTitleStyle}" />
+
+                <Border Style="{StaticResource CardStyle}" Padding="12" BackgroundColor="#FEF2F2">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Exportar PDF por devedor (período selecionado acima)" FontSize="12" TextColor="#64748B" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Picker Grid.Column="0" Title="Devedor" ItemsSource="{Binding Devedores}" ItemDisplayBinding="{Binding Nome}"
+                                    SelectedItem="{Binding DevedorExportacaoSelecionado}" />
+                            <Button Grid.Column="1" Text="📄 PDF" Command="{Binding ExportarPdfDividaCommand}"
+                                    IsEnabled="{Binding ExportandoDivida, Converter={StaticResource InversorBoolConverter}}"
+                                    BackgroundColor="#C62828" TextColor="White" CornerRadius="8" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <CollectionView ItemsSource="{Binding Dividas}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:DividaDto">
+                            <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                                <VerticalStackLayout Spacing="6">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <VerticalStackLayout Grid.Column="0">
+                                            <Label Text="{Binding NomeDevedor}" FontAttributes="Bold" TextColor="#C62828" />
+                                            <Label Text="{Binding Descricao}" FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding SaldoRestante, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#C62828" VerticalOptions="Center" />
+                                        <Button Grid.Column="2" Text="▾" FontSize="16" Padding="8,0" BackgroundColor="Transparent" TextColor="#C62828"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleExpandDividaCommand}" CommandParameter="{Binding Id}" />
+                                    </Grid>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Button Text="Editar" FontSize="12"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.EditarDividaCommand}" CommandParameter="{Binding .}" />
+                                        <Button Text="Excluir" FontSize="12" BackgroundColor="#C62828" TextColor="White"
+                                                Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ExcluirDividaCommand}" CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Parcelas}">
+                                        <VerticalStackLayout.IsVisible>
+                                            <MultiBinding Converter="{StaticResource IdsIguaisConverter}">
+                                                <Binding Path="Id" />
+                                                <Binding Source="{x:Reference RaizPagina}" Path="BindingContext.ExpandedDividaId" />
+                                            </MultiBinding>
+                                        </VerticalStackLayout.IsVisible>
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="dtos:ParcelaDividaDto">
+                                                <Grid ColumnDefinitions="*,Auto,Auto" Padding="0,2">
+                                                    <Label Grid.Column="0" Text="{Binding DataVencimento, StringFormat='{0:dd/MM/yyyy}'}" FontSize="12" />
+                                                    <Label Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" FontSize="12" Margin="0,0,8,0" />
+                                                    <Button Grid.Column="2" FontSize="11" Padding="8,2"
+                                                            Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                                            BackgroundColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" TextColor="White"
+                                                            Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleParcelaDividaCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -240,7 +240,7 @@ public class DividasController : ControllerBase
         {
             var command = new CriarDividaCommand(
                 usuarioId.Value,
-                request.NomeDevedor,
+                request.DevedorId,
                 request.Descricao,
                 request.ValorTotal,
                 request.QuantidadeParcelas,
@@ -271,7 +271,7 @@ public class DividasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDividaCommand(id, usuarioId.Value, request.NomeDevedor, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
+            var command = new AtualizarDividaCommand(id, usuarioId.Value, request.DevedorId, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -323,6 +323,17 @@ public class DividasController : ControllerBase
         }
     }
 
+    [HttpPatch("parcelas/pagar-mes")]
+    [ProducesResponseType(typeof(object), 200)]
+    public async Task<IActionResult> MarcarTodasDoMesPagas([FromQuery] int mes, [FromQuery] int ano, CancellationToken ct)
+    {
+        var usuarioId = ObterUsuarioId();
+        if (usuarioId == null) return Unauthorized();
+
+        var quantidade = await _mediator.Send(new MarcarTodasParcelasDividaPagasDoMesCommand(usuarioId.Value, ano, mes), ct);
+        return Ok(new { quantidade });
+    }
+
     private Guid? ObterUsuarioId()
     {
         var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -331,7 +342,7 @@ public class DividasController : ControllerBase
 }
 
 public record AtualizarDividaRequest(
-    string NomeDevedor,
+    Guid DevedorId,
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,
@@ -339,7 +350,7 @@ public record AtualizarDividaRequest(
     DateOnly DataPrimeiraParcela);
 
 public record CriarDividaRequest(
-    string NomeDevedor,
+    Guid DevedorId,
     string Descricao,
     decimal ValorTotal,
     int QuantidadeParcelas,

@@ -4,7 +4,7 @@ public class Divida
 {
     public Guid Id { get; private set; }
     public Guid UsuarioId { get; private set; }
-    public string NomeDevedor { get; private set; } = string.Empty;
+    public Guid DevedorId { get; private set; }
     public string Descricao { get; private set; } = string.Empty;
     public decimal ValorTotal { get; private set; }
     public int QuantidadeParcelas { get; private set; }
@@ -21,15 +21,15 @@ public class Divida
 
     public static Divida Criar(
         Guid usuarioId,
-        string nomeDevedor,
+        Guid devedorId,
         string descricao,
         decimal valorTotal,
         int quantidadeParcelas,
         DateOnly dataCompra,
         DateOnly dataPrimeiraParcela)
     {
-        if (string.IsNullOrWhiteSpace(nomeDevedor) || nomeDevedor.Length < 2 || nomeDevedor.Length > 100)
-            throw new ArgumentException("Nome do devedor deve ter entre 2 e 100 caracteres.", nameof(nomeDevedor));
+        if (devedorId == Guid.Empty)
+            throw new ArgumentException("Devedor é obrigatório.", nameof(devedorId));
 
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 200)
             throw new ArgumentException("Descrição deve ter entre 3 e 200 caracteres.", nameof(descricao));
@@ -44,7 +44,7 @@ public class Divida
         {
             Id = Guid.NewGuid(),
             UsuarioId = usuarioId,
-            NomeDevedor = nomeDevedor.Trim(),
+            DevedorId = devedorId,
             Descricao = descricao.Trim(),
             ValorTotal = valorTotal,
             QuantidadeParcelas = quantidadeParcelas,
@@ -79,10 +79,10 @@ public class Divida
         }
     }
 
-    public void Atualizar(string nomeDevedor, string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela)
+    public void Atualizar(Guid devedorId, string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela)
     {
-        if (string.IsNullOrWhiteSpace(nomeDevedor) || nomeDevedor.Length < 2 || nomeDevedor.Length > 100)
-            throw new ArgumentException("Nome do devedor deve ter entre 2 e 100 caracteres.", nameof(nomeDevedor));
+        if (devedorId == Guid.Empty)
+            throw new ArgumentException("Devedor é obrigatório.", nameof(devedorId));
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 200)
             throw new ArgumentException("Descrição deve ter entre 3 e 200 caracteres.", nameof(descricao));
         if (valorTotal <= 0)
@@ -90,7 +90,7 @@ public class Divida
         if (quantidadeParcelas < 1 || quantidadeParcelas > 120)
             throw new ArgumentException("Quantidade de parcelas deve ser entre 1 e 120.", nameof(quantidadeParcelas));
 
-        NomeDevedor = nomeDevedor.Trim();
+        DevedorId = devedorId;
         Descricao = descricao.Trim();
         ValorTotal = valorTotal;
         QuantidadeParcelas = quantidadeParcelas;

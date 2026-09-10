@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Name="RaizPagina"
+    x:Class="MinhasFinancas.Maui.Views.ParcelasPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    xmlns:dtos="clr-namespace:MinhasFinancas.Application.DTOs;assembly=MinhasFinancas.Application"
+    x:DataType="vm:ParcelasViewModel"
+    Title="Minhas Parcelas">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Border Style="{StaticResource CardStyle}" Padding="12">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto" RowSpacing="8">
+                    <Picker Grid.Row="0" Grid.Column="0" Title="Mês" ItemsSource="{Binding NomesMeses}"
+                            SelectedIndex="{Binding MesIndex}" />
+                    <Picker Grid.Row="0" Grid.Column="1" Title="Ano" ItemsSource="{Binding AnosOpcoes}" SelectedItem="{Binding AnoSelecionado}" />
+                    <Button Grid.Row="1" Grid.ColumnSpan="2" Text="🔄 Atualizar" Command="{Binding CarregarCommand}"
+                            BackgroundColor="#4F46E5" TextColor="White" CornerRadius="10" />
+                </Grid>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" Color="#4F46E5" />
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding TotalCount}" FontSize="22" FontAttributes="Bold" TextColor="#4F46E5" HorizontalTextAlignment="Center" />
+                        <Label Text="Total do mês" FontSize="11" TextColor="#64748B" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding TotalValor, StringFormat='{0:C2}'}" FontSize="12" TextColor="#1E293B" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding PagasCount}" FontSize="22" FontAttributes="Bold" TextColor="#2E7D32" HorizontalTextAlignment="Center" />
+                        <Label Text="Pagas" FontSize="11" TextColor="#64748B" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding PagasValor, StringFormat='{0:C2}'}" FontSize="12" TextColor="#2E7D32" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding PendentesCount}" FontSize="22" FontAttributes="Bold" TextColor="#E65100" HorizontalTextAlignment="Center" />
+                        <Label Text="Pendentes" FontSize="11" TextColor="#64748B" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding PendentesValor, StringFormat='{0:C2}'}" FontSize="12" TextColor="#E65100" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding VencidasCount}" FontSize="22" FontAttributes="Bold" TextColor="#C62828" HorizontalTextAlignment="Center" />
+                        <Label Text="Vencidas" FontSize="11" TextColor="#64748B" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding VencidasValor, StringFormat='{0:C2}'}" FontSize="12" TextColor="#C62828" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <HorizontalStackLayout Spacing="6">
+                <Button Text="Todas" CommandParameter="todas" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#4F46E5" TextColor="White" CornerRadius="10" FontSize="12" />
+                <Button Text="Vencidas" CommandParameter="vencidas" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#C62828" TextColor="White" CornerRadius="10" FontSize="12" />
+                <Button Text="Pendentes" CommandParameter="pendentes" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#E65100" TextColor="White" CornerRadius="10" FontSize="12" />
+                <Button Text="Pagas" CommandParameter="pagas" Command="{Binding SelecionarAbaCommand}" BackgroundColor="#2E7D32" TextColor="White" CornerRadius="10" FontSize="12" />
+            </HorizontalStackLayout>
+
+            <CollectionView ItemsSource="{Binding ItensExibidos}">
+                <CollectionView.EmptyView>
+                    <Label Text="Nenhuma parcela nesta categoria." FontSize="13" TextColor="#94A3B8" Margin="0,10" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:ParcelaDto">
+                        <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding DescricaoDespesa}" FontAttributes="Bold" TextColor="#1E293B" />
+                                <Label Grid.Row="1" Grid.Column="0" TextColor="#64748B" FontSize="12">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Parcela " />
+                                            <Span Text="{Binding Numero}" />
+                                            <Span Text="/" />
+                                            <Span Text="{Binding TotalParcelas}" />
+                                            <Span Text="  •  venc. " />
+                                            <Span Text="{Binding DataVencimento, StringFormat='{0:dd/MM/yyyy}'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Valor, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#1E293B" />
+                                <Label Grid.Row="2" Grid.Column="0" Text="{Binding ., Converter={StaticResource ParcelaStatusTextoConverter}}"
+                                       TextColor="{Binding ., Converter={StaticResource ParcelaStatusCorConverter}}" FontSize="12" FontAttributes="Bold" />
+                                <Button Grid.Row="2" Grid.Column="1" FontSize="11" Padding="8,3"
+                                        Text="{Binding Paga, Converter={StaticResource PagaParaTextoConverter}}"
+                                        BackgroundColor="{Binding Paga, Converter={StaticResource PagaParaCorConverter}}" TextColor="White"
+                                        Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ToggleParcelaCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -17,8 +17,11 @@ public class AppDbContext : DbContext
     public DbSet<Parcela> Parcelas => Set<Parcela>();
     public DbSet<Divida> Dividas => Set<Divida>();
     public DbSet<ParcelaDivida> ParcelasDivida => Set<ParcelaDivida>();
+    public DbSet<Devedor> Devedores => Set<Devedor>();
+    public DbSet<Credor> Credores => Set<Credor>();
     public DbSet<CategoriaReceita> CategoriasReceita => Set<CategoriaReceita>();
     public DbSet<CategoriaDespesa> CategoriasDespesa => Set<CategoriaDespesa>();
+    public DbSet<FormaPagamento> FormasPagamento => Set<FormaPagamento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,11 +87,19 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
+            entity.Property(e => e.CredorId).HasColumnName("credor_id");
             entity.Property(e => e.Descricao).HasColumnName("descricao").HasMaxLength(100).IsRequired();
             entity.Property(e => e.ValorTotal).HasColumnName("valor_total").HasColumnType("decimal(15,2)").IsRequired();
             entity.Property(e => e.Categoria).HasColumnName("categoria").HasMaxLength(50).IsRequired();
             entity.Property(e => e.TipoDespesa).HasColumnName("tipo").HasConversion<string>().HasMaxLength(20).IsRequired();
             entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
+
+            entity.HasOne<Credor>()
+                .WithMany()
+                .HasForeignKey(e => e.CredorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.CredorId).HasDatabaseName("idx_despesas_credor");
 
             // Discriminator column for TPH
             entity.HasDiscriminator(e => e.TipoDespesa)
@@ -101,7 +112,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.QuantidadeParcelas).HasColumnName("quantidade_parcelas");
             entity.Property(e => e.DataCompra).HasColumnName("data_compra").IsRequired();
             entity.Property(e => e.DataPrimeiraParcela).HasColumnName("data_primeira_parcela");
-            entity.Property(e => e.FormaPagamento).HasColumnName("forma_pagamento").HasConversion<string>().HasMaxLength(30);
+            entity.Property(e => e.FormaPagamento).HasColumnName("forma_pagamento").HasMaxLength(50).IsRequired();
 
             entity.HasMany(e => e.Parcelas)
                 .WithOne()
@@ -112,7 +123,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DespesaExtra>(entity =>
         {
             entity.Property(e => e.DataDespesa).HasColumnName("data_despesa");
-            entity.Property(e => e.FormaPagamento).HasColumnName("forma_pagamento_extra").HasConversion<string>().HasMaxLength(30);
+            entity.Property(e => e.FormaPagamento).HasColumnName("forma_pagamento_extra").HasMaxLength(50).IsRequired();
             entity.Property(e => e.PagaEm).HasColumnName("paga_em");
             entity.Property(e => e.Paga).HasColumnName("paga_extra").HasDefaultValue(false);
         });
@@ -144,7 +155,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
-            entity.Property(e => e.NomeDevedor).HasColumnName("nome_devedor").HasMaxLength(100).IsRequired();
+            entity.Property(e => e.DevedorId).HasColumnName("devedor_id").IsRequired();
             entity.Property(e => e.Descricao).HasColumnName("descricao").HasMaxLength(200).IsRequired();
             entity.Property(e => e.ValorTotal).HasColumnName("valor_total").HasColumnType("decimal(15,2)").IsRequired();
             entity.Property(e => e.QuantidadeParcelas).HasColumnName("quantidade_parcelas").IsRequired();
@@ -158,7 +169,13 @@ public class AppDbContext : DbContext
                 .HasForeignKey(p => p.DividaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            entity.HasOne<Devedor>()
+                .WithMany()
+                .HasForeignKey(e => e.DevedorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             entity.HasIndex(e => e.UsuarioId).HasDatabaseName("idx_dividas_usuario");
+            entity.HasIndex(e => e.DevedorId).HasDatabaseName("idx_dividas_devedor");
         });
 
         // ==========================
@@ -175,6 +192,36 @@ public class AppDbContext : DbContext
             entity.Property(e => e.DataVencimento).HasColumnName("data_vencimento").IsRequired();
             entity.Property(e => e.Paga).HasColumnName("paga");
             entity.Property(e => e.DataPagamento).HasColumnName("data_pagamento");
+        });
+
+        // ==========================
+        // DEVEDOR
+        // ==========================
+        modelBuilder.Entity<Devedor>(entity =>
+        {
+            entity.ToTable("devedores");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
+            entity.Property(e => e.Nome).HasColumnName("nome").HasMaxLength(100).IsRequired();
+            entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
+
+            entity.HasIndex(e => new { e.UsuarioId, e.Nome }).IsUnique().HasDatabaseName("idx_devedores_usuario_nome");
+        });
+
+        // ==========================
+        // CREDOR
+        // ==========================
+        modelBuilder.Entity<Credor>(entity =>
+        {
+            entity.ToTable("credores");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
+            entity.Property(e => e.Nome).HasColumnName("nome").HasMaxLength(100).IsRequired();
+            entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
+
+            entity.HasIndex(e => new { e.UsuarioId, e.Nome }).IsUnique().HasDatabaseName("idx_credores_usuario_nome");
         });
 
         // ==========================
@@ -205,6 +252,21 @@ public class AppDbContext : DbContext
             entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
 
             entity.HasIndex(e => new { e.UsuarioId, e.Nome }).IsUnique().HasDatabaseName("idx_categorias_despesa_usuario_nome");
+        });
+
+        // ==========================
+        // FORMA DE PAGAMENTO
+        // ==========================
+        modelBuilder.Entity<FormaPagamento>(entity =>
+        {
+            entity.ToTable("formas_pagamento");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id").IsRequired();
+            entity.Property(e => e.Nome).HasColumnName("nome").HasMaxLength(50).IsRequired();
+            entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
+
+            entity.HasIndex(e => new { e.UsuarioId, e.Nome }).IsUnique().HasDatabaseName("idx_formas_pagamento_usuario_nome");
         });
     }
 }

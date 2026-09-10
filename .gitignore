@@ -87,6 +87,7 @@ docker-compose.override.yml
 *.pid.lock
 *.env.local
 .env
+docker/backups/
 
 ##############################
 # Documentação (opcional)
@@ -129,5 +130,6 @@ Desktop.ini
 *.cert
 *.pfx
 *.p12
+*.keystore
 frontend/MinhasFinancas.Web/bin/
 frontend/MinhasFinancas.Web/obj/

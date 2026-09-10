@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MinhasFinancas.Maui.Views.GraficosPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    x:DataType="vm:GraficosViewModel"
+    Title="Gráficos">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Border StrokeShape="RoundRectangle 14" Stroke="Transparent" BackgroundColor="#4F46E5" Padding="6">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Button Grid.Column="0" Text="◀" BackgroundColor="Transparent" TextColor="White" FontSize="18" Command="{Binding MesAnteriorCommand}" />
+                    <Label Grid.Column="1" Text="{Binding LabelPeriodo}" FontSize="18" FontAttributes="Bold" TextColor="White"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Button Grid.Column="2" Text="▶" BackgroundColor="Transparent" TextColor="White" FontSize="18" Command="{Binding MesSeguinteCommand}" />
+                </Grid>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" Color="#4F46E5" />
+
+            <!-- Receitas vs Despesas — barras proporcionais -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="📊 Receitas vs Despesas" Style="{StaticResource SectionTitleStyle}" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding TotalReceitas, StringFormat='💵 Receitas — {0:C2}'}" FontSize="13" TextColor="#2E7D32" />
+                        <BoxView HeightRequest="14" CornerRadius="7" BackgroundColor="#2E7D32" HorizontalOptions="Start" WidthRequest="{Binding LarguraReceitas}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding TotalDespesasFixas, StringFormat='🧾 Despesas Fixas — {0:C2}'}" FontSize="13" TextColor="#5C35CC" />
+                        <BoxView HeightRequest="14" CornerRadius="7" BackgroundColor="#5C35CC" HorizontalOptions="Start" WidthRequest="{Binding LarguraFixas}" />
+                        <Label Text="{Binding PctFixasTexto}" FontSize="11" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding TotalDespesasExtras, StringFormat='🛍️ Despesas Extras — {0:C2}'}" FontSize="13" TextColor="#E65100" />
+                        <BoxView HeightRequest="14" CornerRadius="7" BackgroundColor="#E65100" HorizontalOptions="Start" WidthRequest="{Binding LarguraExtras}" />
+                        <Label Text="{Binding PctExtrasTexto}" FontSize="11" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Resumo geral -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🧮 Resumo Geral" Style="{StaticResource SectionTitleStyle}" />
+                    <Grid ColumnDefinitions="*,*">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Total Despesas" FontSize="12" TextColor="#64748B" />
+                            <Label Text="{Binding TotalDespesas, StringFormat='{0:C2}'}" FontSize="17" FontAttributes="Bold" TextColor="#C62828" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="Saldo (Receitas - Despesas)" FontSize="12" TextColor="#64748B" />
+                            <Label Text="{Binding Saldo, StringFormat='{0:C2}'}" FontSize="17" FontAttributes="Bold"
+                                   TextColor="{Binding Saldo, Converter={StaticResource ValorParaCorConverter}}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Contas a Receber por Devedor -->
+            <Border Style="{StaticResource CardStyle}" Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🤝 Contas a Receber por Devedor" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Nenhuma dívida ativa cadastrada." FontSize="13" TextColor="#94A3B8" IsVisible="{Binding SemDevedores}" />
+
+                    <CollectionView ItemsSource="{Binding Devedores}" IsVisible="{Binding SemDevedores, Converter={StaticResource InversorBoolConverter}}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:GraficosViewModel+DevedorGrafico">
+                                <Border StrokeShape="RoundRectangle 10" Stroke="#E2E8F0" StrokeThickness="1" BackgroundColor="#F8FAFC" Padding="12" Margin="0,5">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Grid.Column="0" Text="{Binding Nome}" FontAttributes="Bold" TextColor="#1E293B" />
+                                            <Label Grid.Column="1" Text="{Binding Quitado, Converter={StaticResource QuitadoParaTextoConverter}}"
+                                                   TextColor="White" BackgroundColor="{Binding Quitado, Converter={StaticResource QuitadoParaCorConverter}}"
+                                                   Padding="8,2" FontSize="11" />
+                                        </Grid>
+                                        <Label FontSize="12" TextColor="#334155">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Total: " />
+                                                    <Span Text="{Binding Total, StringFormat='{0:C2}'}" FontAttributes="Bold" />
+                                                    <Span Text="   Restante: " />
+                                                    <Span Text="{Binding Saldo, StringFormat='{0:C2}'}" FontAttributes="Bold" TextColor="#C62828" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <ProgressBar Progress="{Binding PctRecebido}" ProgressColor="#2E7D32" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -58,10 +58,24 @@ public class Usuario
     public bool RefreshTokenValido(string token)
         => RefreshToken == token && RefreshTokenExpiry > DateTime.UtcNow;
 
-    public void AtualizarPerfil(string nome, string? telefone)
+    public void AtualizarPerfil(string nome, string? telefone, string? email = null, DateOnly? dataNascimento = null)
     {
         if (string.IsNullOrWhiteSpace(nome) || nome.Length < 3 || nome.Length > 100)
             throw new ArgumentException("Nome deve ter entre 3 e 100 caracteres.", nameof(nome));
+
+        if (dataNascimento is DateOnly novaData)
+        {
+            var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
+            var idade = hoje.Year - novaData.Year;
+            if (novaData > hoje.AddYears(-idade)) idade--;
+            if (idade < 18)
+                throw new ArgumentException("Usuário deve ter pelo menos 18 anos.", nameof(dataNascimento));
+            DataNascimento = novaData;
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+            Email = new Email(email);
+
         Nome = nome.Trim();
         Telefone = telefone?.Trim();
     }

@@ -82,6 +82,36 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                     b.ToTable("categorias_receita", (string)null);
                 });
 
+            modelBuilder.Entity("MinhasFinancas.Domain.Entities.Credor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_criacao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nome");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId", "Nome")
+                        .IsUnique()
+                        .HasDatabaseName("idx_credores_usuario_nome");
+
+                    b.ToTable("credores", (string)null);
+                });
+
             modelBuilder.Entity("MinhasFinancas.Domain.Entities.Despesa", b =>
                 {
                     b.Property<Guid>("Id")
@@ -94,6 +124,10 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("categoria");
+
+                    b.Property<Guid?>("CredorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("credor_id");
 
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("timestamp with time zone")
@@ -121,11 +155,44 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CredorId")
+                        .HasDatabaseName("idx_despesas_credor");
+
                     b.ToTable("despesas", (string)null);
 
                     b.HasDiscriminator<string>("TipoDespesa");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("MinhasFinancas.Domain.Entities.Devedor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_criacao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nome");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId", "Nome")
+                        .IsUnique()
+                        .HasDatabaseName("idx_devedores_usuario_nome");
+
+                    b.ToTable("devedores", (string)null);
                 });
 
             modelBuilder.Entity("MinhasFinancas.Domain.Entities.Divida", b =>
@@ -157,11 +224,9 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("descricao");
 
-                    b.Property<string>("NomeDevedor")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("nome_devedor");
+                    b.Property<Guid>("DevedorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("devedor_id");
 
                     b.Property<int>("QuantidadeParcelas")
                         .HasColumnType("integer")
@@ -177,10 +242,43 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DevedorId")
+                        .HasDatabaseName("idx_dividas_devedor");
+
                     b.HasIndex("UsuarioId")
                         .HasDatabaseName("idx_dividas_usuario");
 
                     b.ToTable("dividas", (string)null);
+                });
+
+            modelBuilder.Entity("MinhasFinancas.Domain.Entities.FormaPagamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_criacao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("nome");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId", "Nome")
+                        .IsUnique()
+                        .HasDatabaseName("idx_formas_pagamento_usuario_nome");
+
+                    b.ToTable("formas_pagamento", (string)null);
                 });
 
             modelBuilder.Entity("MinhasFinancas.Domain.Entities.Parcela", b =>
@@ -372,8 +470,8 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
 
                     b.Property<string>("FormaPagamento")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("forma_pagamento_extra");
 
                     b.Property<bool>("Paga")
@@ -403,8 +501,8 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
 
                     b.Property<string>("FormaPagamento")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("forma_pagamento");
 
                     b.Property<int>("QuantidadeParcelas")
@@ -412,6 +510,23 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasColumnName("quantidade_parcelas");
 
                     b.HasDiscriminator().HasValue("Fixa");
+                });
+
+            modelBuilder.Entity("MinhasFinancas.Domain.Entities.Despesa", b =>
+                {
+                    b.HasOne("MinhasFinancas.Domain.Entities.Credor", null)
+                        .WithMany()
+                        .HasForeignKey("CredorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("MinhasFinancas.Domain.Entities.Divida", b =>
+                {
+                    b.HasOne("MinhasFinancas.Domain.Entities.Devedor", null)
+                        .WithMany()
+                        .HasForeignKey("DevedorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MinhasFinancas.Domain.Entities.Parcela", b =>

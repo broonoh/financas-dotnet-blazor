@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Name="RaizPagina"
+    x:Class="MinhasFinancas.Maui.Views.DevedoresPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MinhasFinancas.Maui.ViewModels"
+    xmlns:models="clr-namespace:MinhasFinancas.Application.DTOs;assembly=MinhasFinancas.Application"
+    x:DataType="vm:DevedoresViewModel"
+    Title="Devedores">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Label Text="Cadastre quem deve valores a você. Fica disponível ao registrar uma dívida em Despesas &gt; Contas a Receber."
+                   FontSize="12" TextColor="#64748b" />
+
+            <Border Style="{StaticResource CardStyle}" Padding="16" BackgroundColor="#F8FAFC">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding TituloFormulario}" FontSize="16" FontAttributes="Bold" TextColor="#C62828" />
+                    <Entry Text="{Binding Nome}" Placeholder="Nome do devedor" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Salvar" Command="{Binding SalvarCommand}" BackgroundColor="#C62828" TextColor="White" CornerRadius="10" />
+                        <Button Text="Cancelar" Command="{Binding CancelarEdicaoCommand}" IsVisible="{Binding EmEdicao}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" />
+
+            <CollectionView ItemsSource="{Binding Itens}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DevedorDto">
+                        <Border Style="{StaticResource CardStyle}" Padding="12" Margin="0,5">
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <Label Grid.Column="0" Text="{Binding Nome}" VerticalOptions="Center" FontAttributes="Bold" />
+                                <Button Grid.Column="1" Text="Editar"
+                                        Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.EditarCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Grid.Column="2" Text="Excluir" BackgroundColor="#C62828" TextColor="White"
+                                        Command="{Binding Source={x:Reference RaizPagina}, Path=BindingContext.ExcluirCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

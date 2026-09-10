@@ -6,6 +6,7 @@ public abstract class Despesa
 {
     public Guid Id { get; protected set; }
     public Guid UsuarioId { get; protected set; }
+    public Guid? CredorId { get; protected set; }
     public string Descricao { get; protected set; } = string.Empty;
     public decimal ValorTotal { get; protected set; }
     public string Categoria { get; protected set; } = string.Empty;

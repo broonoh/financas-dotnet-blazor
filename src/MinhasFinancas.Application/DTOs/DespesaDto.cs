@@ -1,5 +1,3 @@
-using MinhasFinancas.Domain.Enums;
-
 namespace MinhasFinancas.Application.DTOs;
 
 public record DespesaFixaDto(
@@ -10,9 +8,11 @@ public record DespesaFixaDto(
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,
     string Categoria,
-    FormaPagamentoDespesaFixa FormaPagamento,
+    string FormaPagamento,
     DateTime DataCriacao,
-    List<ParcelaDto> Parcelas);
+    List<ParcelaDto> Parcelas,
+    Guid? CredorId = null,
+    string? NomeCredor = null);
 
 public record DespesaExtraDto(
     Guid Id,
@@ -20,7 +20,9 @@ public record DespesaExtraDto(
     decimal Valor,
     DateOnly DataDespesa,
     string Categoria,
-    FormaPagamentoDespesaExtra FormaPagamento,
+    string FormaPagamento,
     DateOnly? PagaEm,
     bool Paga,
-    DateTime DataCriacao);
+    DateTime DataCriacao,
+    Guid? CredorId = null,
+    string? NomeCredor = null);
