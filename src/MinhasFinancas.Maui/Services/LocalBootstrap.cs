@@ -166,6 +166,19 @@ public static class LocalBootstrap
                 if (distintos.Count > 0)
                     await db.SaveChangesAsync();
             }
+
+            if (!ExisteColuna("receitas", "mes_referencia"))
+            {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE receitas ADD COLUMN mes_referencia TEXT NULL;");
+
+                // Receitas já existentes não tinham escolha de mês: mantém o mês da própria
+                // data de recebimento (mesmo formato 'yyyy-MM-dd' que o EF já usa para DateOnly).
+                await db.Database.ExecuteSqlRawAsync(
+                    "UPDATE receitas SET mes_referencia = date(data_recebimento, 'start of month');");
+
+                await db.Database.ExecuteSqlRawAsync(
+                    "CREATE INDEX idx_receitas_usuario_mes_referencia ON receitas (usuario_id, mes_referencia);");
+            }
         }
         finally
         {

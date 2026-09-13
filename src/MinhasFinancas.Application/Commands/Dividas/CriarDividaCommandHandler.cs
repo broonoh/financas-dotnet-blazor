@@ -27,7 +27,7 @@ public class CriarDividaCommandHandler : IRequestHandler<CriarDividaCommand, Div
             request.UsuarioId,
             request.DevedorId,
             request.Descricao,
-            request.ValorTotal,
+            request.ValorParcela,
             request.QuantidadeParcelas,
             request.DataCompra,
             request.DataPrimeiraParcela);

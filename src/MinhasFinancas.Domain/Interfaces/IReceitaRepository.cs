@@ -9,7 +9,6 @@ public interface IReceitaRepository
     Task<IEnumerable<Receita>> ListarPorUsuarioAsync(Guid usuarioId, CancellationToken ct = default);
     Task<decimal[]> ObterTotaisMensaisAsync(Guid usuarioId, int quantidadeMeses, CancellationToken ct = default);
     Task AdicionarAsync(Receita receita, CancellationToken ct = default);
-    Task AdicionarVariasAsync(IEnumerable<Receita> receitas, CancellationToken ct = default);
     void Atualizar(Receita receita);
     void Remover(Receita receita);
 }

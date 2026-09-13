@@ -44,10 +44,10 @@ public class CriarDespesaFixaCommandValidatorTests
     [InlineData(-1)]
     public void Validar_ComValorInvalido_DeveFalhar(decimal valor)
     {
-        var command = ComandoValido() with { ValorTotal = valor };
+        var command = ComandoValido() with { ValorParcela = valor };
         var result = _validator.Validate(command);
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "ValorTotal");
+        result.Errors.Should().Contain(e => e.PropertyName == "ValorParcela");
     }
 
     [Theory]

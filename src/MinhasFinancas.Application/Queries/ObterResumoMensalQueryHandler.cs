@@ -80,7 +80,7 @@ public class ObterResumoMensalQueryHandler : IRequestHandler<ObterResumoMensalQu
         // Receitas do mês
         var itensReceitas = receitas
             .Select(r => new ResumoItemReceitaDto(
-                r.Id, r.Descricao, r.Categoria, r.Valor, r.DataRecebimento, r.Recorrente))
+                r.Id, r.Descricao, r.Categoria, r.Valor, r.DataRecebimento))
             .OrderBy(r => r.DataRecebimento)
             .ThenBy(r => r.Descricao)
             .ToList();

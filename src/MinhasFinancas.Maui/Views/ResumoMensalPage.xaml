@@ -249,7 +249,6 @@
                                                     <Span Text="{Binding Categoria}" />
                                                     <Span Text="  •  " />
                                                     <Span Text="{Binding DataRecebimento, StringFormat='{0:dd/MM/yyyy}'}" />
-                                                    <Span Text="{Binding Recorrente, Converter={StaticResource RecorrenteParaTextoConverter}}" />
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>

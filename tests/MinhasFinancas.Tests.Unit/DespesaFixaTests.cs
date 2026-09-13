@@ -13,7 +13,7 @@ public class DespesaFixaTests
     public void Criar_ComDadosValidos_DeveGerarParcelas()
     {
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Financiamento Carro", 1200.00m, 12, DataCompra, DataFutura,
+            UsuarioId, "Financiamento Carro", 100.00m, 12, DataCompra, DataFutura,
             "Transporte", "Cartão de Crédito");
 
         despesa.Parcelas.Should().HaveCount(12);
@@ -21,38 +21,31 @@ public class DespesaFixaTests
     }
 
     [Fact]
-    public void Criar_SomaDasParcelasDeveIgualValorTotal()
+    public void Criar_ValorTotalDeveSerValorDaParcelaVezesQuantidade()
     {
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Notebook", 999.99m, 12, DataCompra, DataFutura,
+            UsuarioId, "Notebook", 83.33m, 12, DataCompra, DataFutura,
             "Educação", "Cartão de Crédito");
 
-        var soma = despesa.Parcelas.Sum(p => p.Valor);
-        soma.Should().Be(999.99m);
+        despesa.ValorTotal.Should().Be(83.33m * 12);
+        despesa.Parcelas.Sum(p => p.Valor).Should().Be(despesa.ValorTotal);
     }
 
     [Fact]
-    public void Criar_UltimaParcela_DeveAbsorverResto()
+    public void Criar_TodasParcelasDevemTerOMesmoValor()
     {
-        // 100 / 3 = 33.33 (centavos: 10000 / 3 = 3333 resto 1)
-        // Parcelas 1 e 2: R$ 33,33; Parcela 3: R$ 33,34
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Curso Online", 100.00m, 3, DataCompra, DataFutura,
+            UsuarioId, "Curso Online", 33.33m, 3, DataCompra, DataFutura,
             "Educação", "Boleto Parcelado");
 
-        var parcelas = despesa.Parcelas.ToList();
-        parcelas[0].Valor.Should().Be(33.33m);
-        parcelas[1].Valor.Should().Be(33.33m);
-        parcelas[2].Valor.Should().Be(33.34m);
-
-        parcelas.Sum(p => p.Valor).Should().Be(100.00m);
+        despesa.Parcelas.Should().AllSatisfy(p => p.Valor.Should().Be(33.33m));
     }
 
     [Fact]
     public void Criar_ParcelasDevemTerDatasSequenciais()
     {
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Academia", 360m, 6, DataCompra, DataFutura,
+            UsuarioId, "Academia", 30m, 6, DataCompra, DataFutura,
             "Saúde", "Cartão de Crédito");
 
         for (int i = 0; i < despesa.Parcelas.Count; i++)
@@ -66,7 +59,7 @@ public class DespesaFixaTests
     public void Criar_TodasParcelasDevemEstarNaoPagas()
     {
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Plano de Saúde", 240m, 12, DataCompra, DataFutura,
+            UsuarioId, "Plano de Saúde", 20m, 12, DataCompra, DataFutura,
             "Saúde", "Cartão de Crédito");
 
         despesa.Parcelas.Should().AllSatisfy(p => p.Paga.Should().BeFalse());
@@ -93,7 +86,7 @@ public class DespesaFixaTests
             "Outros", "Cartão de Crédito");
 
         act.Should().Throw<ArgumentException>()
-            .WithMessage("*Valor total*");
+            .WithMessage("*Valor da parcela*");
     }
 
     [Fact]
@@ -121,12 +114,12 @@ public class DespesaFixaTests
     [Fact]
     public void Criar_ValorExato_NaoDeveHaverDiferencaDeArredondamento()
     {
-        // 1000 / 4 = 250.00 exato, sem resto
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Empréstimo", 1000m, 4, DataCompra, DataFutura,
+            UsuarioId, "Empréstimo", 250m, 4, DataCompra, DataFutura,
             "Outros", "Pix Parcelado");
 
         despesa.Parcelas.Should().AllSatisfy(p => p.Valor.Should().Be(250m));
+        despesa.ValorTotal.Should().Be(1000m);
         despesa.Parcelas.Sum(p => p.Valor).Should().Be(1000m);
     }
 
@@ -137,7 +130,7 @@ public class DespesaFixaTests
         var vencimento = DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(1)).AddDays(9); // dia 10 do mês seguinte
 
         var despesa = DespesaFixa.Criar(
-            UsuarioId, "Cartão Compra", 300m, 3, dataCompra, vencimento,
+            UsuarioId, "Cartão Compra", 100m, 3, dataCompra, vencimento,
             "Outros", "Cartão de Crédito");
 
         despesa.DataCompra.Should().Be(dataCompra);

@@ -187,7 +187,7 @@ public partial class DespesasViewModel(IMediator mediator, UsuarioContexto usuar
     {
         _idEmEdicaoFixa = item.Id;
         DescricaoFixa = item.Descricao;
-        ValorFixaStr = item.ValorTotal.ToString("F2", CultureInfo.InvariantCulture);
+        ValorFixaStr = (item.ValorTotal / item.QuantidadeParcelas).ToString("F2", CultureInfo.InvariantCulture);
         ParcelasFixaStr = item.QuantidadeParcelas.ToString();
         DataCompraFixa = item.DataCompra.ToDateTime(TimeOnly.MinValue);
         DataPrimeiraParcelaFixa = item.DataPrimeiraParcela.ToDateTime(TimeOnly.MinValue);
@@ -358,7 +358,7 @@ public partial class DespesasViewModel(IMediator mediator, UsuarioContexto usuar
         _idEmEdicaoDivida = item.Id;
         DevedorSelecionado = Devedores.FirstOrDefault(d => d.Id == item.DevedorId);
         DescricaoDivida = item.Descricao;
-        ValorDividaStr = item.ValorTotal.ToString("F2", CultureInfo.InvariantCulture);
+        ValorDividaStr = (item.ValorTotal / item.QuantidadeParcelas).ToString("F2", CultureInfo.InvariantCulture);
         ParcelasDividaStr = item.QuantidadeParcelas.ToString();
         DataCompraDivida = item.DataCompra.ToDateTime(TimeOnly.MinValue);
         DataPrimeiraParcelaDivida = item.DataPrimeiraParcela.ToDateTime(TimeOnly.MinValue);

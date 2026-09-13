@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Regras de backup automático do Android (API < 31) — garante que o banco de dados
+    local (única fonte de dados do app, que é offline/single-user) entre no backup
+    para a conta Google do aparelho, mesmo que o Android mude o que inclui por padrão.
+-->
+<full-backup-content>
+    <include domain="file" path="minhas_financas.db3" />
+</full-backup-content>

@@ -30,7 +30,7 @@ public class AtualizarDespesaFixaCommandHandler : IRequestHandler<AtualizarDespe
             nomeCredor = credor.Nome;
         }
 
-        despesa.Atualizar(request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento, request.CredorId);
+        despesa.Atualizar(request.Descricao, request.ValorParcela, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento, request.CredorId);
         await _despesaRepo.AtualizarFixaAsync(despesa, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
 

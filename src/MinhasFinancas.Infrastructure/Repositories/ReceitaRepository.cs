@@ -19,7 +19,7 @@ public class ReceitaRepository : IReceitaRepository
 
     public async Task<IEnumerable<Receita>> ListarPorUsuarioMesAsync(Guid usuarioId, int ano, int mes, CancellationToken ct = default)
         => await _context.Receitas
-            .Where(r => r.UsuarioId == usuarioId && r.DataRecebimento.Year == ano && r.DataRecebimento.Month == mes)
+            .Where(r => r.UsuarioId == usuarioId && r.MesReferencia.Year == ano && r.MesReferencia.Month == mes)
             .OrderBy(r => r.DataRecebimento)
             .ToListAsync(ct);
 
@@ -31,10 +31,11 @@ public class ReceitaRepository : IReceitaRepository
 
     public async Task<decimal[]> ObterTotaisMensaisAsync(Guid usuarioId, int quantidadeMeses, CancellationToken ct = default)
     {
-        var inicio = DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(-quantidadeMeses + 1);
+        var referencia = DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(-quantidadeMeses + 1);
+        var inicio = new DateOnly(referencia.Year, referencia.Month, 1);
         var receitas = await _context.Receitas
-            .Where(r => r.UsuarioId == usuarioId && r.DataRecebimento >= inicio)
-            .GroupBy(r => new { r.DataRecebimento.Year, r.DataRecebimento.Month })
+            .Where(r => r.UsuarioId == usuarioId && r.MesReferencia >= inicio)
+            .GroupBy(r => new { r.MesReferencia.Year, r.MesReferencia.Month })
             .Select(g => g.Sum(r => r.Valor))
             .ToArrayAsync(ct);
         return receitas;
@@ -42,9 +43,6 @@ public class ReceitaRepository : IReceitaRepository
 
     public Task AdicionarAsync(Receita receita, CancellationToken ct = default)
         => _context.Receitas.AddAsync(receita, ct).AsTask();
-
-    public Task AdicionarVariasAsync(IEnumerable<Receita> receitas, CancellationToken ct = default)
-        => _context.Receitas.AddRangeAsync(receitas, ct);
 
     public void Atualizar(Receita receita)
         => _context.Receitas.Update(receita);

@@ -44,10 +44,10 @@
                             <MudTextField @bind-Value="_fixaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_fixaValorStr" Label="Valor Total (R$)" Variant="Variant.Outlined" FullWidth="true" />
+                            <MudTextField @bind-Value="_fixaValorStr" Label="Valor da Parcela (R$)" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_fixaParcelas" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
+                            <MudTextField @bind-Value="_fixaParcelas" Label="Total de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
                             <MudDatePicker @bind-Date="_fixaDataCompra" Label="Data da Compra"
@@ -182,10 +182,10 @@
                                             <MudTextField @bind-Value="_fixaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
                                         </MudItem>
                                         <MudItem xs="12" md="3">
-                                            <MudTextField @bind-Value="_fixaValorStr" Label="Valor Total (R$)" Variant="Variant.Outlined" FullWidth="true" />
+                                            <MudTextField @bind-Value="_fixaValorStr" Label="Valor da Parcela (R$)" Variant="Variant.Outlined" FullWidth="true" />
                                         </MudItem>
                                         <MudItem xs="12" md="3">
-                                            <MudTextField @bind-Value="_fixaParcelas" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
+                                            <MudTextField @bind-Value="_fixaParcelas" Label="Total de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                                         </MudItem>
                                         <MudItem xs="12" md="3">
                                             <MudDatePicker @bind-Date="_fixaDataCompra" Label="Data da Compra"
@@ -562,10 +562,10 @@ else if (_activeTab == 2)
                             <MudTextField @bind-Value="_dividaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_dividaValorStr" Label="Valor Total (R$)" Variant="Variant.Outlined" FullWidth="true" />
+                            <MudTextField @bind-Value="_dividaValorStr" Label="Valor da Parcela (R$)" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
-                            <MudTextField @bind-Value="_dividaParcelasStr" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
+                            <MudTextField @bind-Value="_dividaParcelasStr" Label="Total de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                         </MudItem>
                         <MudItem xs="12" md="3">
                             <MudDatePicker @bind-Date="_dividaDataCompra" Label="Data da Compra"
@@ -700,10 +700,10 @@ else if (_activeTab == 2)
                                                 <MudTextField @bind-Value="_dividaDescricao" Label="Descrição" Variant="Variant.Outlined" FullWidth="true" />
                                             </MudItem>
                                             <MudItem xs="12" md="3">
-                                                <MudTextField @bind-Value="_dividaValorStr" Label="Valor Total (R$)" Variant="Variant.Outlined" FullWidth="true" />
+                                                <MudTextField @bind-Value="_dividaValorStr" Label="Valor da Parcela (R$)" Variant="Variant.Outlined" FullWidth="true" />
                                             </MudItem>
                                             <MudItem xs="12" md="3">
-                                                <MudTextField @bind-Value="_dividaParcelasStr" Label="Nº de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
+                                                <MudTextField @bind-Value="_dividaParcelasStr" Label="Total de Parcelas" Variant="Variant.Outlined" FullWidth="true" />
                                             </MudItem>
                                             <MudItem xs="12" md="3">
                                                 <MudDatePicker @bind-Date="_dividaDataCompra" Label="Data da Compra"
@@ -1120,7 +1120,7 @@ else if (_activeTab == 2)
         _editandoFixaId = d.Id;
         _mostrarFormFixa = false;
         _fixaDescricao = d.Descricao;
-        _fixaValorStr = d.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+        _fixaValorStr = (d.ValorTotal / d.QuantidadeParcelas).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
         _fixaParcelas = d.QuantidadeParcelas.ToString();
         _fixaDataCompra = d.DataCompra.ToDateTime(TimeOnly.MinValue);
         _fixaDataPrimeiraParcela = d.DataPrimeiraParcela.ToDateTime(TimeOnly.MinValue);
@@ -1170,7 +1170,7 @@ else if (_activeTab == 2)
         var payload = new
         {
             Descricao = _fixaDescricao,
-            ValorTotal = valor,
+            ValorParcela = valor,
             QuantidadeParcelas = parcelas,
             DataCompra = DateOnly.FromDateTime(_fixaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_fixaDataPrimeiraParcela!.Value),
@@ -1210,7 +1210,7 @@ else if (_activeTab == 2)
         var payload = new
         {
             Descricao = _fixaDescricao,
-            ValorTotal = valor,
+            ValorParcela = valor,
             QuantidadeParcelas = parcelas,
             DataCompra = DateOnly.FromDateTime(_fixaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_fixaDataPrimeiraParcela!.Value),
@@ -1365,7 +1365,7 @@ else if (_activeTab == 2)
         _mostrarFormDivida = false;
         _dividaDevedorId = d.DevedorId;
         _dividaDescricao = d.Descricao;
-        _dividaValorStr = d.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+        _dividaValorStr = (d.ValorTotal / d.QuantidadeParcelas).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
         _dividaParcelasStr = d.QuantidadeParcelas.ToString();
         _dividaDataCompra = d.DataCompra.ToDateTime(TimeOnly.MinValue);
         _dividaDataPrimeiraParcela = d.DataPrimeiraParcela.ToDateTime(TimeOnly.MinValue);
@@ -1411,7 +1411,7 @@ else if (_activeTab == 2)
         {
             DevedorId = _dividaDevedorId!.Value,
             Descricao = _dividaDescricao,
-            ValorTotal = valor,
+            ValorParcela = valor,
             QuantidadeParcelas = parcelas,
             DataCompra = DateOnly.FromDateTime(_dividaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_dividaDataPrimeiraParcela!.Value)
@@ -1450,7 +1450,7 @@ else if (_activeTab == 2)
         {
             DevedorId = _dividaDevedorId!.Value,
             Descricao = _dividaDescricao,
-            ValorTotal = valor,
+            ValorParcela = valor,
             QuantidadeParcelas = parcelas,
             DataCompra = DateOnly.FromDateTime(_dividaDataCompra!.Value),
             DataPrimeiraParcela = DateOnly.FromDateTime(_dividaDataPrimeiraParcela!.Value)

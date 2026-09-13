@@ -25,8 +25,9 @@ public class DashboardApiService
             new { Paga = paga, DataPagamento = (DateOnly?)null });
     }
 
-    public Task<List<ReceitaDto>?> ListarReceitasAsync()
-        => _http.GetFromJsonAsync<List<ReceitaDto>>("api/receitas");
+    public Task<List<ReceitaDto>?> ListarReceitasAsync(int? ano = null, int? mes = null)
+        => _http.GetFromJsonAsync<List<ReceitaDto>>(
+            ano.HasValue && mes.HasValue ? $"api/receitas?ano={ano}&mes={mes}" : "api/receitas");
 
     public async Task<(bool Sucesso, string? Erro)> CriarReceitaAsync(object payload)
     {
@@ -292,9 +293,12 @@ public class DashboardApiService
         return (false, "Erro ao excluir categoria.");
     }
 
-    public async Task<byte[]?> DownloadReceitasPdfAsync()
+    public async Task<byte[]?> DownloadReceitasPdfAsync(int? ano = null, int? mes = null)
     {
-        var response = await _http.GetAsync("api/receitas/export/pdf");
+        var url = ano.HasValue && mes.HasValue
+            ? $"api/receitas/export/pdf?ano={ano}&mes={mes}"
+            : "api/receitas/export/pdf";
+        var response = await _http.GetAsync(url);
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadAsByteArrayAsync();
     }

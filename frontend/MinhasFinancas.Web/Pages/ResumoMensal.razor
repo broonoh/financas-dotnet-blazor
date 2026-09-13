@@ -287,7 +287,6 @@ else
                             <th>Descrição</th>
                             <th>Categoria</th>
                             <th>Data</th>
-                            <th style="text-align:center;">Recorrente</th>
                             <th style="text-align:right;">Valor</th>
                         </tr>
                     </thead>
@@ -298,16 +297,13 @@ else
                                 <td>@item.Descricao</td>
                                 <td><span class="mud-chip mud-chip-outlined mud-chip-size-small">@item.Categoria</span></td>
                                 <td>@item.DataRecebimento.ToString("dd/MM/yyyy")</td>
-                                <td style="text-align:center;">
-                                    @if (item.Recorrente) { <span style="color:#2196f3;" title="Recorrente">&#8635;</span> }
-                                </td>
                                 <td style="text-align:right; font-weight:600; color:#4caf50;">@item.Valor.ToString("C2", _ptBR)</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot>
                         <tr style="font-weight:700; background:#e8f5e9;">
-                            <td colspan="4" style="text-align:right; padding:6px;">Total</td>
+                            <td colspan="3" style="text-align:right; padding:6px;">Total</td>
                             <td style="text-align:right; color:#4caf50; padding:6px;">@_resumo.TotalReceitas.ToString("C2", _ptBR)</td>
                         </tr>
                     </tfoot>

@@ -31,7 +31,7 @@ public class CriarDespesaFixaCommandHandler : IRequestHandler<CriarDespesaFixaCo
         var despesa = DespesaFixa.Criar(
             request.UsuarioId,
             request.Descricao,
-            request.ValorTotal,
+            request.ValorParcela,
             request.QuantidadeParcelas,
             request.DataCompra,
             request.DataPrimeiraParcela,

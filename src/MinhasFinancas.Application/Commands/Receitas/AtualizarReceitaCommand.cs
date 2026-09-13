@@ -9,4 +9,5 @@ public record AtualizarReceitaCommand(
     string Descricao,
     decimal Valor,
     DateOnly DataRecebimento,
-    string Categoria) : IRequest<ReceitaDto>;
+    string Categoria,
+    bool RegistrarParaProximoMes = false) : IRequest<ReceitaDto>;

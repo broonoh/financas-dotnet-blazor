@@ -24,32 +24,11 @@ public class CriarReceitaCommandHandler : IRequestHandler<CriarReceitaCommand, R
             request.Valor,
             request.DataRecebimento,
             request.Categoria,
-            request.Recorrente);
+            request.RegistrarParaProximoMes);
 
-        if (request.Recorrente)
-        {
-            // Gerar 12 meses de receitas recorrentes
-            var receitas = new List<Receita> { receita };
-            for (int i = 1; i < 12; i++)
-            {
-                var novaData = request.DataRecebimento.AddMonths(i);
-                receitas.Add(Receita.Criar(
-                    request.UsuarioId,
-                    request.Descricao,
-                    request.Valor,
-                    novaData,
-                    request.Categoria,
-                    true));
-            }
-            await _receitaRepo.AdicionarVariasAsync(receitas, cancellationToken);
-        }
-        else
-        {
-            await _receitaRepo.AdicionarAsync(receita, cancellationToken);
-        }
-
+        await _receitaRepo.AdicionarAsync(receita, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
 
-        return new ReceitaDto(receita.Id, receita.Descricao, receita.Valor, receita.DataRecebimento, receita.Categoria, receita.Recorrente, receita.DataCriacao);
+        return new ReceitaDto(receita.Id, receita.Descricao, receita.Valor, receita.DataRecebimento, receita.Categoria, receita.MesReferencia, receita.DataCriacao);
     }
 }

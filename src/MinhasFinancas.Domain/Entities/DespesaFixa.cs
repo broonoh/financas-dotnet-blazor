@@ -18,7 +18,7 @@ public class DespesaFixa : Despesa
     public static DespesaFixa Criar(
         Guid usuarioId,
         string descricao,
-        decimal valorTotal,
+        decimal valorParcela,
         int quantidadeParcelas,
         DateOnly dataCompra,
         DateOnly dataPrimeiraParcela,
@@ -29,8 +29,8 @@ public class DespesaFixa : Despesa
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
 
-        if (valorTotal <= 0)
-            throw new ArgumentException("Valor total deve ser maior que zero.", nameof(valorTotal));
+        if (valorParcela <= 0)
+            throw new ArgumentException("Valor da parcela deve ser maior que zero.", nameof(valorParcela));
 
         if (quantidadeParcelas < 2 || quantidadeParcelas > 48)
             throw new ArgumentException("Quantidade de parcelas deve ser entre 2 e 48.", nameof(quantidadeParcelas));
@@ -47,7 +47,7 @@ public class DespesaFixa : Despesa
             UsuarioId = usuarioId,
             CredorId = credorId,
             Descricao = descricao.Trim(),
-            ValorTotal = valorTotal,
+            ValorTotal = valorParcela * quantidadeParcelas,
             QuantidadeParcelas = quantidadeParcelas,
             DataCompra = dataCompra,
             DataPrimeiraParcela = dataPrimeiraParcela,
@@ -61,17 +61,17 @@ public class DespesaFixa : Despesa
         return despesa;
     }
 
-    public void Atualizar(string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela, string categoria, string formaPagamento, Guid? credorId = null)
+    public void Atualizar(string descricao, decimal valorParcela, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela, string categoria, string formaPagamento, Guid? credorId = null)
     {
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 100)
             throw new ArgumentException("Descrição deve ter entre 3 e 100 caracteres.", nameof(descricao));
-        if (valorTotal <= 0)
-            throw new ArgumentException("Valor total deve ser maior que zero.", nameof(valorTotal));
+        if (valorParcela <= 0)
+            throw new ArgumentException("Valor da parcela deve ser maior que zero.", nameof(valorParcela));
         if (quantidadeParcelas < 2 || quantidadeParcelas > 48)
             throw new ArgumentException("Quantidade de parcelas deve ser entre 2 e 48.", nameof(quantidadeParcelas));
 
         Descricao = descricao.Trim();
-        ValorTotal = valorTotal;
+        ValorTotal = valorParcela * quantidadeParcelas;
         QuantidadeParcelas = quantidadeParcelas;
         DataCompra = dataCompra;
         DataPrimeiraParcela = dataPrimeiraParcela;
@@ -82,26 +82,17 @@ public class DespesaFixa : Despesa
     }
 
     /// <summary>
-    /// Gera parcelas com valor = Math.Floor(total/qtd) e ajuste na última para soma exata.
+    /// Gera parcelas de valor fixo e igual (ValorTotal já é o resultado de valorParcela * QuantidadeParcelas).
     /// </summary>
     private void GerarParcelas()
     {
-        // Trabalha em centavos para evitar problemas de arredondamento
-        var totalCentavos = (long)Math.Round(ValorTotal * 100);
-        var parcelaCentavos = totalCentavos / QuantidadeParcelas;
-        var restoCentavos = totalCentavos - (parcelaCentavos * QuantidadeParcelas);
+        var valorParcela = ValorTotal / QuantidadeParcelas;
 
         _parcelas.Clear();
 
         for (int i = 1; i <= QuantidadeParcelas; i++)
         {
-            var centavosEstaParcela = parcelaCentavos;
-            if (i == QuantidadeParcelas)
-                centavosEstaParcela += restoCentavos; // última parcela absorve o resto
-
             var dataVencimento = DataPrimeiraParcela.AddMonths(i - 1);
-            var valorParcela = centavosEstaParcela / 100m;
-
             _parcelas.Add(Parcela.Criar(Id, i, valorParcela, dataVencimento));
         }
     }

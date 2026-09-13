@@ -41,6 +41,9 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+	<!-- Assinatura de Release: só se aplica se keystore.local.props existir localmente (nunca versionado). -->
+	<Import Project="keystore.local.props" Condition="Exists('keystore.local.props')" />
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#4F46E5" />
@@ -63,6 +66,7 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.3" />
 		<PackageReference Include="SkiaSharp" Version="2.88.9" />
 	</ItemGroup>
 

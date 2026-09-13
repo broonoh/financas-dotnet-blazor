@@ -52,9 +52,9 @@
                         <Label Text="{Binding TituloFormFixa}" FontAttributes="Bold" TextColor="#5C35CC" />
                         <Label Text="Descrição" FontSize="12" TextColor="#64748B" />
                         <Entry Text="{Binding DescricaoFixa}" Placeholder="Descrição" />
-                        <Label Text="Valor Total (R$)" FontSize="12" TextColor="#64748B" />
-                        <Entry Text="{Binding ValorFixaStr}" Placeholder="Valor total (R$)" Keyboard="Numeric" />
-                        <Label Text="Parcelas" FontSize="12" TextColor="#64748B" />
+                        <Label Text="Valor da Parcela (R$)" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ValorFixaStr}" Placeholder="Valor da parcela (R$)" Keyboard="Numeric" />
+                        <Label Text="Total de Parcelas" FontSize="12" TextColor="#64748B" />
                         <Entry Text="{Binding ParcelasFixaStr}" Placeholder="Nº de parcelas" Keyboard="Numeric" />
                         <Label Text="Data da Compra" FontSize="12" TextColor="#64748B" />
                         <DatePicker Date="{Binding DataCompraFixa}" Format="dd/MM/yyyy" />
@@ -209,9 +209,9 @@
                         <Label Text="Nenhum devedor cadastrado ainda — cadastre em &quot;Devedores&quot;." FontSize="12" TextColor="#C62828" />
                         <Label Text="Descrição" FontSize="12" TextColor="#64748B" />
                         <Entry Text="{Binding DescricaoDivida}" Placeholder="Descrição" />
-                        <Label Text="Valor Total (R$)" FontSize="12" TextColor="#64748B" />
-                        <Entry Text="{Binding ValorDividaStr}" Placeholder="Valor total (R$)" Keyboard="Numeric" />
-                        <Label Text="Parcelas" FontSize="12" TextColor="#64748B" />
+                        <Label Text="Valor da Parcela (R$)" FontSize="12" TextColor="#64748B" />
+                        <Entry Text="{Binding ValorDividaStr}" Placeholder="Valor da parcela (R$)" Keyboard="Numeric" />
+                        <Label Text="Total de Parcelas" FontSize="12" TextColor="#64748B" />
                         <Entry Text="{Binding ParcelasDividaStr}" Placeholder="Nº de parcelas" Keyboard="Numeric" />
                         <Label Text="Data da Compra" FontSize="12" TextColor="#64748B" />
                         <DatePicker Date="{Binding DataCompraDivida}" Format="dd/MM/yyyy" />

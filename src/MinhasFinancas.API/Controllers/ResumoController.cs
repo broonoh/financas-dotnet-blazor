@@ -328,7 +328,6 @@ public class ResumoController : ControllerBase
                                     cols.RelativeColumn(5); // Descrição
                                     cols.RelativeColumn(3); // Categoria
                                     cols.RelativeColumn(2); // Data
-                                    cols.RelativeColumn(2); // Recorrente
                                     cols.RelativeColumn(2); // Valor
                                 });
 
@@ -341,7 +340,6 @@ public class ResumoController : ControllerBase
                                     h.Cell().Element(c => TH(c, "Descrição"));
                                     h.Cell().Element(c => TH(c, "Categoria"));
                                     h.Cell().Element(c => TH(c, "Data"));
-                                    h.Cell().Element(c => TH(c, "Recorrente"));
                                     h.Cell().Element(c => TH(c, "Valor"));
                                 });
 
@@ -360,13 +358,12 @@ public class ResumoController : ControllerBase
                                         .Text(item.Descricao).FontSize(8).FontColor("#212121");
                                     table.Cell().Element(c => TD(c, item.Categoria));
                                     table.Cell().Element(c => TD(c, item.DataRecebimento.ToString("dd/MM/yyyy")));
-                                    table.Cell().Element(c => TD(c, item.Recorrente ? "Sim" : "Não", item.Recorrente ? Azul : CinzaTexto));
                                     table.Cell().Element(c => TD(c, item.Valor.ToString("C2", culture), Verde));
                                 }
 
                                 table.Footer(f =>
                                 {
-                                    f.Cell().ColumnSpan(4).Background(VerdeClaro)
+                                    f.Cell().ColumnSpan(3).Background(VerdeClaro)
                                         .PaddingVertical(5).PaddingHorizontal(6)
                                         .Text("TOTAL").Bold().FontSize(8).FontColor(Verde);
                                     f.Cell().Background(VerdeClaro).PaddingVertical(5).PaddingHorizontal(6)

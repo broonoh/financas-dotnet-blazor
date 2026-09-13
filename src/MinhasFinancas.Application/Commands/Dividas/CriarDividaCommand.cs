@@ -7,7 +7,7 @@ public record CriarDividaCommand(
     Guid UsuarioId,
     Guid DevedorId,
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela) : IRequest<DividaDto>;

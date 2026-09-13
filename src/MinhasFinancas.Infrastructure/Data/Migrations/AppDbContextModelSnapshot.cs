@@ -387,9 +387,9 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("descricao");
 
-                    b.Property<bool>("Recorrente")
-                        .HasColumnType("boolean")
-                        .HasColumnName("recorrente");
+                    b.Property<DateOnly>("MesReferencia")
+                        .HasColumnType("date")
+                        .HasColumnName("mes_referencia");
 
                     b.Property<Guid>("UsuarioId")
                         .HasColumnType("uuid")
@@ -403,6 +403,9 @@ namespace MinhasFinancas.Infrastructure.Data.Migrations
 
                     b.HasIndex("UsuarioId", "DataRecebimento")
                         .HasDatabaseName("idx_receitas_usuario_data");
+
+                    b.HasIndex("UsuarioId", "MesReferencia")
+                        .HasDatabaseName("idx_receitas_usuario_mes_referencia");
 
                     b.ToTable("receitas", (string)null);
                 });

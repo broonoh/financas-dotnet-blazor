@@ -9,4 +9,4 @@ public record CriarReceitaCommand(
     decimal Valor,
     DateOnly DataRecebimento,
     string Categoria,
-    bool Recorrente = false) : IRequest<ReceitaDto>;
+    bool RegistrarParaProximoMes = false) : IRequest<ReceitaDto>;

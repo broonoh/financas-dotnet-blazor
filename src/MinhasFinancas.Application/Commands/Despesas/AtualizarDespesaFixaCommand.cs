@@ -7,7 +7,7 @@ public record AtualizarDespesaFixaCommand(
     Guid Id,
     Guid UsuarioId,
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,

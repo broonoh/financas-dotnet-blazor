@@ -242,7 +242,7 @@ public class DividasController : ControllerBase
                 usuarioId.Value,
                 request.DevedorId,
                 request.Descricao,
-                request.ValorTotal,
+                request.ValorParcela,
                 request.QuantidadeParcelas,
                 request.DataCompra,
                 request.DataPrimeiraParcela);
@@ -271,7 +271,7 @@ public class DividasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDividaCommand(id, usuarioId.Value, request.DevedorId, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
+            var command = new AtualizarDividaCommand(id, usuarioId.Value, request.DevedorId, request.Descricao, request.ValorParcela, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -344,7 +344,7 @@ public class DividasController : ControllerBase
 public record AtualizarDividaRequest(
     Guid DevedorId,
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela);
@@ -352,7 +352,7 @@ public record AtualizarDividaRequest(
 public record CriarDividaRequest(
     Guid DevedorId,
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela);

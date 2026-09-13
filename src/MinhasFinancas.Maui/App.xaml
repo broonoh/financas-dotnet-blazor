@@ -17,7 +17,6 @@
             <conv:PagaParaTextoConverter x:Key="PagaParaTextoConverter" />
             <conv:PagaParaCorConverter x:Key="PagaParaCorConverter" />
             <conv:BoolParaOpacidadeConverter x:Key="BoolParaOpacidadeConverter" />
-            <conv:RecorrenteParaTextoConverter x:Key="RecorrenteParaTextoConverter" />
             <conv:ParcelaStatusTextoConverter x:Key="ParcelaStatusTextoConverter" />
             <conv:ParcelaStatusCorConverter x:Key="ParcelaStatusCorConverter" />
             <conv:NullableDateConverter x:Key="NullableDateConverter" />

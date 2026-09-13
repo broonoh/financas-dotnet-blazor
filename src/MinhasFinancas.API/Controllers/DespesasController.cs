@@ -61,7 +61,7 @@ public class DespesasController : ControllerBase
             var command = new CriarDespesaFixaCommand(
                 usuarioId.Value,
                 request.Descricao,
-                request.ValorTotal,
+                request.ValorParcela,
                 request.QuantidadeParcelas,
                 request.DataCompra,
                 request.DataPrimeiraParcela,
@@ -130,7 +130,7 @@ public class DespesasController : ControllerBase
 
         try
         {
-            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento, request.CredorId);
+            var command = new AtualizarDespesaFixaCommand(id, usuarioId.Value, request.Descricao, request.ValorParcela, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela, request.Categoria, request.FormaPagamento, request.CredorId);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -651,7 +651,7 @@ public class DespesasController : ControllerBase
 // Request DTOs (separados do domínio)
 public record AtualizarDespesaFixaRequest(
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,
@@ -670,7 +670,7 @@ public record AtualizarDespesaExtraRequest(
 
 public record CriarDespesaFixaRequest(
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,

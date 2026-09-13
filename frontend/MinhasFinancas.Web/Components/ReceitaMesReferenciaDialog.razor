@@ -1,0 +1,27 @@
+<MudDialog Options="@(new DialogOptions { CloseOnEscapeKey = false, CloseButton = false, BackdropClick = false })">
+    <DialogContent>
+        <MudText Class="mb-3">A receita a ser cadastrada será para o mês atual ou para o próximo mês?</MudText>
+        <MudRadioGroup T="bool" @bind-Value="_registrarParaProximoMes">
+            <MudRadio T="bool" Value="false" Color="Color.Primary">Mês Atual</MudRadio>
+            <MudRadio T="bool" Value="true" Color="Color.Primary">Próximo Mês</MudRadio>
+        </MudRadioGroup>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Salvar">Salvar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public bool RegistrarParaProximoMes { get; set; } = true;
+
+    private bool _registrarParaProximoMes;
+
+    protected override void OnInitialized()
+    {
+        _registrarParaProximoMes = RegistrarParaProximoMes;
+    }
+
+    private void Salvar() => MudDialog.Close(DialogResult.Ok(_registrarParaProximoMes));
+}

@@ -12,6 +12,23 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="16">
 
+            <Border Style="{StaticResource CardStyle}" Padding="10" BackgroundColor="#EEF2FF">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Button Grid.Column="0" Text="◀" Command="{Binding PeriodoAnteriorCommand}" BackgroundColor="#4F46E5" />
+                    <Label Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold" TextColor="#312E81">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="📅 Período: " />
+                                <Span Text="{Binding MesFiltro, StringFormat='{0:D2}'}" />
+                                <Span Text="/" />
+                                <Span Text="{Binding AnoFiltro}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Button Grid.Column="2" Text="▶" Command="{Binding PeriodoSeguinteCommand}" BackgroundColor="#4F46E5" />
+                </Grid>
+            </Border>
+
             <Grid ColumnDefinitions="*,Auto">
                 <Label Grid.Column="0" Text="{Binding TotalGeral, StringFormat='💵 Total: {0:C2}'}" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" VerticalOptions="Center" />
                 <Button Grid.Column="1" Text="📄 PDF" Command="{Binding ExportarPdfCommand}" IsEnabled="{Binding Exportando, Converter={StaticResource InversorBoolConverter}}"
@@ -31,8 +48,8 @@
                     <Picker Title="Categoria" ItemsSource="{Binding Categorias}" ItemDisplayBinding="{Binding Nome}"
                             SelectedItem="{Binding CategoriaSelecionada}" />
                     <HorizontalStackLayout Spacing="8">
-                        <CheckBox IsChecked="{Binding Recorrente}" />
-                        <Label Text="Receita recorrente" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding RegistrarParaProximoMes}" />
+                        <Label Text="Registrar para o próximo mês" VerticalOptions="Center" />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="8">
                         <Button Text="Salvar" Command="{Binding SalvarCommand}" BackgroundColor="#2E7D32" TextColor="White" CornerRadius="10" />

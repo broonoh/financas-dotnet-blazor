@@ -23,7 +23,7 @@ public class Divida
         Guid usuarioId,
         Guid devedorId,
         string descricao,
-        decimal valorTotal,
+        decimal valorParcela,
         int quantidadeParcelas,
         DateOnly dataCompra,
         DateOnly dataPrimeiraParcela)
@@ -34,8 +34,8 @@ public class Divida
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 200)
             throw new ArgumentException("Descrição deve ter entre 3 e 200 caracteres.", nameof(descricao));
 
-        if (valorTotal <= 0)
-            throw new ArgumentException("Valor total deve ser maior que zero.", nameof(valorTotal));
+        if (valorParcela <= 0)
+            throw new ArgumentException("Valor da parcela deve ser maior que zero.", nameof(valorParcela));
 
         if (quantidadeParcelas < 1 || quantidadeParcelas > 120)
             throw new ArgumentException("Quantidade de parcelas deve ser entre 1 e 120.", nameof(quantidadeParcelas));
@@ -46,7 +46,7 @@ public class Divida
             UsuarioId = usuarioId,
             DevedorId = devedorId,
             Descricao = descricao.Trim(),
-            ValorTotal = valorTotal,
+            ValorTotal = valorParcela * quantidadeParcelas,
             QuantidadeParcelas = quantidadeParcelas,
             DataCompra = dataCompra,
             DataPrimeiraParcela = dataPrimeiraParcela,
@@ -58,41 +58,36 @@ public class Divida
         return divida;
     }
 
+    /// <summary>
+    /// Gera parcelas de valor fixo e igual (ValorTotal já é o resultado de valorParcela * QuantidadeParcelas).
+    /// </summary>
     private void GerarParcelas()
     {
-        var totalCentavos = (long)Math.Round(ValorTotal * 100);
-        var parcelaCentavos = totalCentavos / QuantidadeParcelas;
-        var restoCentavos = totalCentavos - (parcelaCentavos * QuantidadeParcelas);
+        var valorParcela = ValorTotal / QuantidadeParcelas;
 
         _parcelas.Clear();
 
         for (int i = 1; i <= QuantidadeParcelas; i++)
         {
-            var centavosEstaParcela = parcelaCentavos;
-            if (i == QuantidadeParcelas)
-                centavosEstaParcela += restoCentavos;
-
             var dataVencimento = DataPrimeiraParcela.AddMonths(i - 1);
-            var valorParcela = centavosEstaParcela / 100m;
-
             _parcelas.Add(ParcelaDivida.Criar(Id, i, valorParcela, dataVencimento));
         }
     }
 
-    public void Atualizar(Guid devedorId, string descricao, decimal valorTotal, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela)
+    public void Atualizar(Guid devedorId, string descricao, decimal valorParcela, int quantidadeParcelas, DateOnly dataCompra, DateOnly dataPrimeiraParcela)
     {
         if (devedorId == Guid.Empty)
             throw new ArgumentException("Devedor é obrigatório.", nameof(devedorId));
         if (string.IsNullOrWhiteSpace(descricao) || descricao.Length < 3 || descricao.Length > 200)
             throw new ArgumentException("Descrição deve ter entre 3 e 200 caracteres.", nameof(descricao));
-        if (valorTotal <= 0)
-            throw new ArgumentException("Valor total deve ser maior que zero.", nameof(valorTotal));
+        if (valorParcela <= 0)
+            throw new ArgumentException("Valor da parcela deve ser maior que zero.", nameof(valorParcela));
         if (quantidadeParcelas < 1 || quantidadeParcelas > 120)
             throw new ArgumentException("Quantidade de parcelas deve ser entre 1 e 120.", nameof(quantidadeParcelas));
 
         DevedorId = devedorId;
         Descricao = descricao.Trim();
-        ValorTotal = valorTotal;
+        ValorTotal = valorParcela * quantidadeParcelas;
         QuantidadeParcelas = quantidadeParcelas;
         DataCompra = dataCompra;
         DataPrimeiraParcela = dataPrimeiraParcela;

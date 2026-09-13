@@ -72,10 +72,11 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Valor).HasColumnName("valor").HasColumnType("decimal(15,2)").IsRequired();
             entity.Property(e => e.DataRecebimento).HasColumnName("data_recebimento").IsRequired();
             entity.Property(e => e.Categoria).HasColumnName("categoria").HasMaxLength(50).IsRequired();
-            entity.Property(e => e.Recorrente).HasColumnName("recorrente");
+            entity.Property(e => e.MesReferencia).HasColumnName("mes_referencia").IsRequired();
             entity.Property(e => e.DataCriacao).HasColumnName("data_criacao");
 
             entity.HasIndex(e => new { e.UsuarioId, e.DataRecebimento }).HasDatabaseName("idx_receitas_usuario_data");
+            entity.HasIndex(e => new { e.UsuarioId, e.MesReferencia }).HasDatabaseName("idx_receitas_usuario_mes_referencia");
         });
 
         // ==========================

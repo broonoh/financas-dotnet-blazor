@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Manual do Usuário — Minhas Finanças (App)</title>
+<style>
+  body { font-family: Calibri, Arial, sans-serif; font-size: 13px; line-height: 1.55; color: #1a1a2e; }
+  h1 { color: #4F46E5; font-size: 30px; margin-bottom: 4px; }
+  h2 { color: #4F46E5; font-size: 20px; border-bottom: 2px solid #4F46E5; padding-bottom: 4px; margin-top: 34px; }
+  h3 { color: #312E81; font-size: 15px; margin-top: 18px; }
+  .subtitle { font-size: 15px; color: #555; margin-bottom: 20px; }
+  .meta { font-size: 11px; color: #777; margin-bottom: 30px; }
+  .box { background: #EEF2FF; border-left: 4px solid #4F46E5; padding: 10px 14px; margin: 12px 0; }
+  .box-warn { background: #FFF3E0; border-left: 4px solid #E65100; padding: 10px 14px; margin: 12px 0; }
+  .box-ok { background: #E8F5E9; border-left: 4px solid #2E7D32; padding: 10px 14px; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 12px; }
+  th { background: #4F46E5; color: white; }
+  ul, ol { margin-top: 4px; margin-bottom: 10px; }
+  li { margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<h1>💰 Minhas Finanças — Manual do Usuário</h1>
+<div class="subtitle">Versão Aplicativo (Android)</div>
+<div class="meta">Documento de uso — explica cada funcionalidade do aplicativo e como utilizá-la.</div>
+
+<h2>1. Visão Geral</h2>
+<p>
+O aplicativo Minhas Finanças é a versão para celular do sistema de controle financeiro pessoal. Ele
+funciona <strong>totalmente offline</strong>: não exige internet nem login — ao abrir o app pela
+primeira vez, um usuário local é criado automaticamente no próprio aparelho.
+</p>
+<div class="box">
+Os dados do app ficam guardados apenas no celular onde ele está instalado, em um banco de dados local.
+Eles <strong>não são os mesmos</strong> dados da versão Web (acessada pelo navegador/computador):
+um lançamento feito no app não aparece na Web, e vice-versa. Cada versão tem sua própria base de dados,
+por enquanto.
+</div>
+<div class="box-warn">
+Por guardar os dados só no aparelho, é importante manter o backup em dia (seção 12) — se o celular for
+perdido, roubado ou quebrar sem um backup salvo, as informações não podem ser recuperadas.
+</div>
+
+<h3>1.1 Navegação</h3>
+<p>
+Toque no ícone de menu (☰, no canto superior esquerdo) para abrir o menu lateral (flyout) com acesso a
+todas as telas: Dashboard, Parcelas, Resumo Mensal, Receitas, Despesas, Gráficos, Devedores, Credores,
+Categorias, Forma de Pagamento e Meu Perfil.
+</p>
+
+<h2>2. Dashboard</h2>
+<p>Tela inicial com a visão geral das suas finanças.</p>
+<ul>
+  <li>Os cartões mostram Saldo do Mês, Receitas, Despesas e a Projeção dos próximos 30 dias.</li>
+  <li>Role a tela para ver os gráficos de evolução dos últimos meses e a distribuição de despesas por categoria.</li>
+</ul>
+
+<h2>3. Parcelas</h2>
+<p>Lista todas as parcelas de despesas fixas com vencimento no mês escolhido.</p>
+<ul>
+  <li>Escolha <strong>Mês</strong> e <strong>Ano</strong> nos seletores e toque em <strong>"🔄 Atualizar"</strong>.</li>
+  <li>Os cartões no topo resumem: total do mês, pagas, pendentes e vencidas.</li>
+  <li>Use os botões <strong>Todas / Vencidas / Pendentes / Pagas</strong> para filtrar a lista.</li>
+  <li>Toque no botão de status em cada parcela para marcá-la como paga ou desfazer.</li>
+</ul>
+
+<h2>4. Resumo Mensal</h2>
+<p>Relatório consolidado do mês: despesas fixas, extras, receitas e contas a receber por devedor.</p>
+<ul>
+  <li>Escolha o período e visualize os totais de cada seção.</li>
+  <li>Toque em <strong>"Mostrar/ocultar"</strong> em cada bloco (Receitas, Despesas, etc.) para expandir
+      e ver os itens detalhados.</li>
+</ul>
+
+<h2>5. Receitas</h2>
+<p>Cadastro de todo dinheiro que entra: salário, freelas, vendas, etc.</p>
+<h3>Como usar</h3>
+<ul>
+  <li>Use o navegador de período (◀ e ▶, no topo da tela) para escolher o mês exibido na lista.</li>
+  <li>Preencha Descrição, Valor (R$), Data de Recebimento e Categoria.</li>
+  <li><strong>Registrar para o próximo mês</strong> (interruptor/switch): define para qual mês a receita
+      conta no Resumo Mensal. Se a data de recebimento cair depois do dia 25, o app pergunta
+      automaticamente (numa caixa de opções) se o valor deve ser considerado no mês atual ou no
+      próximo mês — por exemplo, um recebimento em 26/09 costuma fazer mais sentido como receita
+      de outubro. O interruptor também pode ser ajustado manualmente a qualquer momento.</li>
+  <li>Toque em <strong>"Salvar"</strong>.</li>
+  <li>Toque em <strong>"Editar"</strong> ou <strong>"Excluir"</strong> em qualquer item da lista para alterá-lo.</li>
+  <li><strong>"📄 PDF"</strong>, no topo, gera um relatório em PDF com as receitas do período selecionado
+      e salva o arquivo onde você escolher no aparelho.</li>
+</ul>
+
+<h2>6. Despesas</h2>
+<p>Tela com três abas, selecionadas pelos botões no topo: <strong>🧾 Fixas</strong>,
+<strong>🛍️ Extras</strong> e <strong>🤝 A Receber</strong>.</p>
+
+<h3>6.1 Despesas Fixas</h3>
+<p>Gastos parcelados e recorrentes: financiamentos, assinaturas, compras parceladas, etc.</p>
+<ul>
+  <li>Preencha Descrição, <strong>Valor da Parcela</strong> (valor de cada parcela — o total é calculado
+      automaticamente pela quantidade de parcelas), <strong>Total de Parcelas</strong>, Data da Compra,
+      Vencimento da 1ª Parcela, Categoria, Forma de Pagamento e Credor (opcional).</li>
+  <li>Toque em <strong>"Salvar"</strong>. As parcelas são geradas automaticamente, todas com o mesmo valor.</li>
+  <li>Use as setas ◀ ▶ do período para navegar entre os meses.</li>
+  <li>Toque na seta (▾) do item para ver e marcar as parcelas como pagas.</li>
+  <li><strong>"✅ Confirmação de Pagamento Massivo"</strong> marca de uma vez todas as parcelas
+      pendentes do período selecionado.</li>
+  <li><strong>"📄 PDF"</strong> exporta o relatório do período para um arquivo.</li>
+</ul>
+
+<h3>6.2 Despesas Extras</h3>
+<p>Gastos avulsos, não parcelados.</p>
+<ul>
+  <li>Preencha Descrição, Valor, Data da Despesa, Categoria, Forma de Pagamento, Vencimento
+      (opcional) e Credor (opcional). Toque em <strong>"Salvar"</strong>.</li>
+  <li>Mesmos recursos de navegação por período, edição, exclusão, pagamento em massa e exportação em PDF.</li>
+</ul>
+
+<h3>6.3 Contas a Receber</h3>
+<p>Dinheiro que outras pessoas devem a você.</p>
+<div class="box-warn">Cadastre a pessoa em <strong>Devedores</strong> antes de registrar a dívida.</div>
+<ul>
+  <li>Selecione o Devedor, preencha Descrição, <strong>Valor da Parcela</strong>,
+      <strong>Total de Parcelas</strong>, Data da Compra e Vencimento da 1ª Parcela.</li>
+  <li>Toque em <strong>"Salvar"</strong>.</li>
+  <li>Toque na seta (▾) de cada dívida para ver e marcar as parcelas como pagas.</li>
+  <li>Na seção <strong>"Exportar PDF por devedor"</strong>, escolha um devedor e toque em
+      <strong>"📄 PDF"</strong> para exportar as parcelas dele no período selecionado.</li>
+</ul>
+
+<h2>7. Gráficos</h2>
+<p>Visão gráfica consolidada de receitas, despesas e contas a receber do período escolhido.</p>
+
+<h2>8. Devedores</h2>
+<p>Cadastro das pessoas ou empresas que devem valores a você — usado em Contas a Receber. Adicione,
+edite ou exclua pelo mesmo formulário simples de nome.</p>
+
+<h2>9. Credores</h2>
+<p>Cadastro de pessoas/empresas/instituições para quem você paga — usado (opcionalmente) em Despesas
+Fixas e Extras. Mesmo funcionamento de Devedores.</p>
+
+<h2>10. Categorias</h2>
+<p>Cadastro das categorias usadas para classificar receitas e despesas (ex.: Salário, Moradia,
+Transporte, Saúde...). Adicione, edite ou exclua livremente; elas aparecem depois nos formulários de
+lançamento.</p>
+
+<h2>11. Forma de Pagamento</h2>
+<p>Cadastro das formas de pagamento usadas nas despesas (ex.: Cartão de Crédito, Pix, Boleto, Dinheiro).
+Mesmo funcionamento das telas de cadastro anteriores.</p>
+
+<h2>12. Meu Perfil e Backup</h2>
+<p>Além dos seus dados pessoais (Nome, E-mail, Data de Nascimento, Telefone), esta tela reúne os
+recursos de backup do banco de dados local — a parte mais importante para não perder informações.</p>
+
+<h3>12.1 Backup automático</h3>
+<div class="box-ok">
+O aplicativo já está configurado para que o Android inclua o banco de dados no backup automático da
+sua conta Google (o mesmo backup que o próprio sistema Android faz de tempos em tempos, quando o
+aparelho está carregando e conectado ao Wi-Fi). Isso não exige nenhuma ação sua — mas não acontece na
+hora, e sim quando o Android decidir rodar o backup.
+</div>
+
+<h3>12.2 Backup manual — "Fazer Backup Agora"</h3>
+<p>Para ter certeza de que uma cópia recente foi salva (por exemplo, antes de vender ou trocar de
+aparelho), use o backup manual:</p>
+<ol>
+  <li>Na tela <strong>Meu Perfil</strong>, toque em <strong>"💾 Fazer Backup Agora"</strong>.</li>
+  <li>O Android vai abrir a tela de "Salvar como", perguntando onde guardar o arquivo.</li>
+  <li>Escolha <strong>Google Drive</strong> (ou outro local de sua preferência) e confirme.</li>
+  <li>Guarde esse arquivo em um local seguro — ele é uma cópia completa dos seus dados até aquele momento.</li>
+</ol>
+
+<h3>12.3 Restaurando um backup — "Restaurar Backup"</h3>
+<div class="box-warn">
+Restaurar um backup <strong>substitui todos os dados atuais do aplicativo</strong> pelos dados do
+arquivo escolhido. Use isso ao configurar um aparelho novo, ou para reverter uma perda de dados —
+nunca "só para conferir", pois a ação não pode ser desfeita.
+</div>
+<ol>
+  <li>Na tela <strong>Meu Perfil</strong>, toque em <strong>"📂 Restaurar Backup"</strong>.</li>
+  <li>Selecione o arquivo de backup salvo anteriormente (ex.: baixado do Google Drive para o aparelho).</li>
+  <li>Confirme a substituição dos dados quando o app perguntar.</li>
+  <li>Feche e abra o aplicativo novamente para ver as informações restauradas.</li>
+</ol>
+
+<h2>13. Fechando o aplicativo</h2>
+<p>Na tela <strong>Meu Perfil</strong>, o botão <strong>"🚪 Sair do App"</strong> encerra o aplicativo
+por completo (pede confirmação antes). Os dados continuam salvos normalmente no aparelho — não é
+necessário "sair" para não perder informações; use esse botão apenas se quiser fechar o app.</p>
+
+</body>
+</html>

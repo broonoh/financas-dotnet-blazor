@@ -34,8 +34,11 @@ public record ReceitaDto(
     decimal Valor,
     DateOnly DataRecebimento,
     string Categoria,
-    bool Recorrente,
-    DateTime DataCriacao);
+    DateOnly MesReferencia,
+    DateTime DataCriacao)
+{
+    public bool ParaProximoMes => MesReferencia.Year != DataRecebimento.Year || MesReferencia.Month != DataRecebimento.Month;
+}
 
 public record DespesaFixaListDto(
     Guid Id,
@@ -117,8 +120,7 @@ public record ResumoItemReceitaDto(
     string Descricao,
     string Categoria,
     decimal Valor,
-    DateOnly DataRecebimento,
-    bool Recorrente);
+    DateOnly DataRecebimento);
 
 public record ResumoItemDespesaFixaDto(
     Guid ParcelaId,

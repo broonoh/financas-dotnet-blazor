@@ -53,7 +53,7 @@ public class ReceitasController : ControllerBase
                 request.Valor,
                 request.DataRecebimento,
                 request.Categoria,
-                request.Recorrente);
+                request.RegistrarParaProximoMes);
 
             var resultado = await _mediator.Send(command, ct);
             return CreatedAtAction(nameof(Criar), new { id = resultado.Id }, resultado);
@@ -75,7 +75,7 @@ public class ReceitasController : ControllerBase
 
         try
         {
-            var command = new AtualizarReceitaCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataRecebimento, request.Categoria);
+            var command = new AtualizarReceitaCommand(id, usuarioId.Value, request.Descricao, request.Valor, request.DataRecebimento, request.Categoria, request.RegistrarParaProximoMes);
             var resultado = await _mediator.Send(command, ct);
             return Ok(resultado);
         }
@@ -110,20 +110,31 @@ public class ReceitasController : ControllerBase
 
     [HttpGet("export/pdf")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> ExportarPdf(CancellationToken ct)
+    public async Task<IActionResult> ExportarPdf([FromQuery] int? ano, [FromQuery] int? mes, CancellationToken ct)
     {
         var usuarioId = ObterUsuarioId();
         if (usuarioId == null) return Unauthorized();
 
-        var receitas = (await _receitaRepo.ListarPorUsuarioAsync(usuarioId.Value, ct)).ToList();
-        if (!receitas.Any())
-            return NotFound(new { message = "Nenhuma receita encontrada." });
+        var receitas = (ano.HasValue && mes.HasValue
+            ? await _receitaRepo.ListarPorUsuarioMesAsync(usuarioId.Value, ano.Value, mes.Value, ct)
+            : await _receitaRepo.ListarPorUsuarioAsync(usuarioId.Value, ct)).ToList();
 
-        var pdf = GerarPdfReceitas(receitas);
+        if (!receitas.Any())
+            return NotFound(new { message = "Nenhuma receita encontrada para este período." });
+
+        var culture = new System.Globalization.CultureInfo("pt-BR");
+        var periodo = ano.HasValue && mes.HasValue
+            ? culture.DateTimeFormat.GetMonthName(mes.Value) + $"/{ano.Value}"
+            : "Todas as receitas";
+
+        var pdf = GerarPdfReceitas(receitas, periodo);
         return File(pdf, "application/pdf", "receitas.pdf");
     }
 
-    private static byte[] GerarPdfReceitas(List<MinhasFinancas.Domain.Entities.Receita> receitas)
+    private static bool EhProximoMes(MinhasFinancas.Domain.Entities.Receita r)
+        => r.MesReferencia.Year != r.DataRecebimento.Year || r.MesReferencia.Month != r.DataRecebimento.Month;
+
+    private static byte[] GerarPdfReceitas(List<MinhasFinancas.Domain.Entities.Receita> receitas, string periodo)
     {
         QuestPDF.Settings.License = LicenseType.Community;
         var culture = new System.Globalization.CultureInfo("pt-BR");
@@ -134,7 +145,7 @@ public class ReceitasController : ControllerBase
         const string CinzaTexto = "#546E7A";
 
         var totalGeral   = receitas.Sum(r => r.Valor);
-        var recorrentes  = receitas.Count(r => r.Recorrente);
+        var paraProximoMes = receitas.Count(r => EhProximoMes(r));
         var geradoEm     = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
         return Document.Create(container =>
@@ -152,7 +163,7 @@ public class ReceitasController : ControllerBase
                 {
                     h.Item().Background(Verde).Padding(12).Column(col =>
                     {
-                        col.Item().Text("Minhas Finanças — Relatório de Receitas")
+                        col.Item().Text($"Minhas Finanças — Relatório de Receitas  •  {periodo}")
                             .FontColor("#C8E6C9").FontSize(9).SemiBold();
                         col.Item().Text($"Total: {totalGeral.ToString("C2", culture)}  •  {receitas.Count} receita(s)")
                             .FontColor("#FFFFFF").FontSize(13).Bold();
@@ -172,7 +183,7 @@ public class ReceitasController : ControllerBase
 
                         Card(receitas.Count.ToString(),                                   "Total");
                         Card(totalGeral.ToString("C2", culture),                          "Valor Total");
-                        Card(recorrentes.ToString(),                                       "Recorrentes");
+                        Card(paraProximoMes.ToString(),                                    "P/ Próximo Mês");
                         Card(receitas.Select(r => r.Categoria).Distinct().Count().ToString(), "Categorias");
                     });
 
@@ -187,7 +198,7 @@ public class ReceitasController : ControllerBase
                         cols.RelativeColumn(2);  // Data
                         cols.RelativeColumn(2);  // Valor
                         cols.RelativeColumn(2);  // Categoria
-                        cols.RelativeColumn(1);  // Recorrente
+                        cols.RelativeColumn(2);  // Mês Referência
                     });
 
                     static void TH(IContainer c, string t) =>
@@ -200,7 +211,7 @@ public class ReceitasController : ControllerBase
                         h.Cell().Element(c => TH(c, "Data"));
                         h.Cell().Element(c => TH(c, "Valor"));
                         h.Cell().Element(c => TH(c, "Categoria"));
-                        h.Cell().Element(c => TH(c, "Recorrente"));
+                        h.Cell().Element(c => TH(c, "Mês Ref."));
                     });
 
                     var idx = 0;
@@ -223,7 +234,7 @@ public class ReceitasController : ControllerBase
                             .AlignCenter().Text(r.Valor.ToString("C2", culture))
                             .FontSize(8).Bold().FontColor(Verde);
                         table.Cell().Element(c => TD(c, r.Categoria));
-                        table.Cell().Element(c => TD(c, r.Recorrente ? "Sim" : "Nao"));
+                        table.Cell().Element(c => TD(c, EhProximoMes(r) ? "Próximo Mês" : "Mês Atual"));
                     }
 
                     table.Footer(f =>
@@ -263,11 +274,12 @@ public record AtualizarReceitaRequest(
     string Descricao,
     decimal Valor,
     DateOnly DataRecebimento,
-    string Categoria);
+    string Categoria,
+    bool RegistrarParaProximoMes = false);
 
 public record CriarReceitaRequest(
     string Descricao,
     decimal Valor,
     DateOnly DataRecebimento,
     string Categoria,
-    bool Recorrente = false);
+    bool RegistrarParaProximoMes = false);

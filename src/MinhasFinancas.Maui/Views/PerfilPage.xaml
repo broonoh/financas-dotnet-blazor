@@ -46,6 +46,24 @@
                 </VerticalStackLayout>
             </Border>
 
+            <Border Style="{StaticResource CardStyle}" Padding="18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="☁️ Backup dos Dados" FontSize="18" FontAttributes="Bold" TextColor="#4F46E5" />
+                    <Label Text="Salve uma cópia do seu banco de dados no Google Drive (ou onde preferir) para não perder as informações caso o aparelho quebre, seja perdido ou roubado."
+                           FontSize="12" TextColor="#64748B" />
+
+                    <Button Text="💾 Fazer Backup Agora" Command="{Binding FazerBackupCommand}"
+                            IsEnabled="{Binding FazendoBackup, Converter={StaticResource InversorBoolConverter}}"
+                            BackgroundColor="#2E7D32" TextColor="White" CornerRadius="10" />
+                    <ActivityIndicator IsRunning="{Binding FazendoBackup}" IsVisible="{Binding FazendoBackup}" Color="#2E7D32" />
+
+                    <Button Text="📂 Restaurar Backup" Command="{Binding RestaurarBackupCommand}"
+                            IsEnabled="{Binding Restaurando, Converter={StaticResource InversorBoolConverter}}"
+                            BackgroundColor="#4F46E5" TextColor="White" CornerRadius="10" />
+                    <ActivityIndicator IsRunning="{Binding Restaurando}" IsVisible="{Binding Restaurando}" Color="#4F46E5" />
+                </VerticalStackLayout>
+            </Border>
+
             <Button Text="🚪 Sair do App" Command="{Binding SairDoAppCommand}"
                     BackgroundColor="#C62828" TextColor="White" CornerRadius="10" />
 

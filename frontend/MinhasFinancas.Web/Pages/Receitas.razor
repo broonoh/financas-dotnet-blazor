@@ -2,8 +2,10 @@
 @attribute [Microsoft.AspNetCore.Authorization.Authorize]
 @using MinhasFinancas.Web.Services
 @using MinhasFinancas.Web.Models
+@using MinhasFinancas.Web.Components
 @inject DashboardApiService ApiService
 @inject IJSRuntime JS
+@inject IDialogService DialogService
 
 <MudText Typo="Typo.h4" Class="mb-4">Receitas</MudText>
 
@@ -25,6 +27,27 @@
     </MudPaper>
 }
 
+<MudPaper Elevation="0" Class="pa-3 mb-3" Style="background:var(--mud-palette-background-grey);border-radius:8px;">
+    <div class="d-flex align-center gap-2 flex-wrap">
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-1">Período:</MudText>
+        <MudSelect T="int" @bind-Value="_filtroMes" Label="Mês" Variant="Variant.Outlined" Dense="true" Style="min-width:130px;">
+            @foreach (var (num, nome) in _meses)
+            {
+                <MudSelectItem Value="@num">@nome</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect T="int" @bind-Value="_filtroAno" Label="Ano" Variant="Variant.Outlined" Dense="true" Style="min-width:90px;">
+            @foreach (var ano in _anosOpcoes)
+            {
+                <MudSelectItem Value="@ano">@ano</MudSelectItem>
+            }
+        </MudSelect>
+        <MudButton StartIcon="@Icons.Material.Filled.Search" Color="Color.Primary" Variant="Variant.Filled" Size="Size.Medium" OnClick="Buscar" Disabled="_carregando">
+            Buscar
+        </MudButton>
+    </div>
+</MudPaper>
+
 @if (_carregando)
 {
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
@@ -37,7 +60,7 @@ else if (_receitas?.Count > 0)
             <MudTh>Valor</MudTh>
             <MudTh>Data</MudTh>
             <MudTh>Categoria</MudTh>
-            <MudTh>Recorrente</MudTh>
+            <MudTh>Mês Ref.</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -56,7 +79,7 @@ else if (_receitas?.Count > 0)
                 <MudTd>@context.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</MudTd>
                 <MudTd>@context.DataRecebimento.ToString("dd/MM/yyyy")</MudTd>
                 <MudTd>@context.Categoria</MudTd>
-                <MudTd>@(context.Recorrente ? "Sim" : "Não")</MudTd>
+                <MudTd>@(context.ParaProximoMes ? "Próximo Mês" : "Mês Atual")</MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
                                    OnClick="@(() => IniciarEdicao(context))" Title="Editar" />
@@ -76,7 +99,7 @@ else if (_receitas?.Count > 0)
 }
 else if (!_carregando)
 {
-    <MudAlert Severity="Severity.Info">Nenhuma receita cadastrada ainda.</MudAlert>
+    <MudAlert Severity="Severity.Info">Nenhuma receita em @_meses.First(m => m.Num == _filtroMesAplicado).Nome/@_filtroAnoAplicado.</MudAlert>
 }
 
 @code {
@@ -88,7 +111,7 @@ else if (!_carregando)
             <MudTextField @bind-Value="_valorStr" Label="Valor (R$)" Variant="Variant.Outlined" FullWidth="true" />
         </MudItem>
         <MudItem xs="12" md="3">
-            <MudDatePicker @bind-Date="_dataRecebimento" Label="Data de Recebimento"
+            <MudDatePicker Date="@_dataRecebimento" DateChanged="@(d => OnDataRecebimentoChanged(d, editando))" Label="Data de Recebimento"
                            Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Editable="true" PickerVariant="PickerVariant.Dialog" />
         </MudItem>
         <MudItem xs="12" md="4">
@@ -107,12 +130,12 @@ else if (!_carregando)
                               Placeholder="Nenhuma categoria. Cadastre em Categorias > Receita" />
             }
         </MudItem>
-        @if (!editando)
-        {
-            <MudItem xs="12" md="2" Class="d-flex align-center">
-                <MudCheckBox @bind-Value="_recorrente" Label="Recorrente" />
-            </MudItem>
-        }
+        <MudItem xs="12" md="3">
+            <MudSelect T="bool" @bind-Value="_registrarParaProximoMes" Label="Mês de Referência" Variant="Variant.Outlined" FullWidth="true">
+                <MudSelectItem T="bool" Value="false">Mês Atual</MudSelectItem>
+                <MudSelectItem T="bool" Value="true">Próximo Mês</MudSelectItem>
+            </MudSelect>
+        </MudItem>
         <MudItem xs="12">
             @if (!string.IsNullOrEmpty(_erro))
             {
@@ -134,26 +157,55 @@ else if (!_carregando)
     private bool _carregando = true;
     private bool _mostrarForm;
     private bool _salvando;
-    private bool _baixandoPdf;
     private string _erro = string.Empty;
     private Guid? _excluindoId;
     private Guid? _editandoId;
+    private bool _baixandoPdf;
 
     private string _descricao = string.Empty;
     private string _valorStr = string.Empty;
     private DateTime? _dataRecebimento;
     private string _categoria = string.Empty;
-    private bool _recorrente;
+    private bool _registrarParaProximoMes;
+
+    private int _filtroMes;
+    private int _filtroAno;
+    private int _filtroMesAplicado;
+    private int _filtroAnoAplicado;
+    private int[] _anosOpcoes = [];
+    private readonly (int Num, string Nome)[] _meses =
+    [
+        (1, "Janeiro"), (2, "Fevereiro"), (3, "Março"), (4, "Abril"),
+        (5, "Maio"), (6, "Junho"), (7, "Julho"), (8, "Agosto"),
+        (9, "Setembro"), (10, "Outubro"), (11, "Novembro"), (12, "Dezembro")
+    ];
+
+    protected override void OnInitialized()
+    {
+        var hoje = DateTime.Now;
+        _filtroMes = hoje.Month;
+        _filtroAno = hoje.Year;
+        _filtroMesAplicado = hoje.Month;
+        _filtroAnoAplicado = hoje.Year;
+        _anosOpcoes = Enumerable.Range(hoje.Year - 3, 7).ToArray();
+    }
 
     protected override async Task OnInitializedAsync()
     {
         await Task.WhenAll(Carregar(), CarregarCategorias());
     }
 
+    private async Task Buscar()
+    {
+        _filtroMesAplicado = _filtroMes;
+        _filtroAnoAplicado = _filtroAno;
+        await Carregar();
+    }
+
     private async Task Carregar()
     {
         _carregando = true;
-        _receitas = await ApiService.ListarReceitasAsync() ?? [];
+        _receitas = await ApiService.ListarReceitasAsync(_filtroAnoAplicado, _filtroMesAplicado) ?? [];
         _carregando = false;
     }
 
@@ -164,6 +216,32 @@ else if (!_carregando)
             _categoria = _categorias[0].Nome;
     }
 
+    private async Task OnDataRecebimentoChanged(DateTime? novaData, bool editando)
+    {
+        _dataRecebimento = novaData;
+
+        // A pergunta só é exibida ao cadastrar uma nova receita; ao editar, o campo já fica
+        // disponível diretamente no formulário para ajuste manual.
+        if (editando || novaData is null)
+            return;
+
+        if (novaData.Value.Day > 25)
+        {
+            var parametros = new DialogParameters<ReceitaMesReferenciaDialog>
+            {
+                { x => x.RegistrarParaProximoMes, true }
+            };
+            var dialog = await DialogService.ShowAsync<ReceitaMesReferenciaDialog>(null, parametros);
+            var resultado = await dialog.Result;
+            if (resultado is { Canceled: false, Data: bool escolha })
+                _registrarParaProximoMes = escolha;
+        }
+        else
+        {
+            _registrarParaProximoMes = false;
+        }
+    }
+
     private void IniciarEdicao(ReceitaDto receita)
     {
         _editandoId = receita.Id;
@@ -172,7 +250,7 @@ else if (!_carregando)
         _valorStr = receita.Valor.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
         _dataRecebimento = receita.DataRecebimento.ToDateTime(TimeOnly.MinValue);
         _categoria = receita.Categoria;
-        _recorrente = receita.Recorrente;
+        _registrarParaProximoMes = receita.ParaProximoMes;
         _erro = string.Empty;
     }
 
@@ -184,7 +262,7 @@ else if (!_carregando)
         _valorStr = string.Empty;
         _dataRecebimento = null;
         _categoria = _categorias?.FirstOrDefault()?.Nome ?? string.Empty;
-        _recorrente = false;
+        _registrarParaProximoMes = false;
         _erro = string.Empty;
     }
 
@@ -219,7 +297,7 @@ else if (!_carregando)
             Valor = valor,
             DataRecebimento = DateOnly.FromDateTime(_dataRecebimento!.Value),
             Categoria = _categoria,
-            Recorrente = _recorrente
+            RegistrarParaProximoMes = _registrarParaProximoMes
         };
 
         var (sucesso, erro) = await ApiService.CriarReceitaAsync(payload);
@@ -250,7 +328,8 @@ else if (!_carregando)
             Descricao = _descricao,
             Valor = valor,
             DataRecebimento = DateOnly.FromDateTime(_dataRecebimento!.Value),
-            Categoria = _categoria
+            Categoria = _categoria,
+            RegistrarParaProximoMes = _registrarParaProximoMes
         };
 
         var (sucesso, erro) = await ApiService.AtualizarReceitaAsync(_editandoId!.Value, payload);
@@ -278,7 +357,7 @@ else if (!_carregando)
     private async Task DownloadPdf()
     {
         _baixandoPdf = true;
-        var bytes = await ApiService.DownloadReceitasPdfAsync();
+        var bytes = await ApiService.DownloadReceitasPdfAsync(_filtroAnoAplicado, _filtroMesAplicado);
         _baixandoPdf = false;
         if (bytes is not null)
             await JS.InvokeVoidAsync("downloadFileFromBytes", "receitas.pdf", "application/pdf", Convert.ToBase64String(bytes));

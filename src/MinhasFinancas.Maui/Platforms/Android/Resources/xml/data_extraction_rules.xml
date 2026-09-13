@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Regras de backup/transferência do Android 12+ (API 31+) — equivalente moderno do
+    backup_rules.xml, controla tanto o backup na nuvem (Google Drive) quanto a
+    transferência direta ao trocar de aparelho.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="minhas_financas.db3" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="minhas_financas.db3" />
+    </device-transfer>
+</data-extraction-rules>

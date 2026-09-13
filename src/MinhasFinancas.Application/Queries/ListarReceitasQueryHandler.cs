@@ -23,6 +23,6 @@ public class ListarReceitasQueryHandler : IRequestHandler<ListarReceitasQuery, I
             receitas = await _receitaRepo.ListarPorUsuarioAsync(request.UsuarioId, cancellationToken);
 
         return receitas.Select(r => new ReceitaDto(
-            r.Id, r.Descricao, r.Valor, r.DataRecebimento, r.Categoria, r.Recorrente, r.DataCriacao));
+            r.Id, r.Descricao, r.Valor, r.DataRecebimento, r.Categoria, r.MesReferencia, r.DataCriacao));
     }
 }

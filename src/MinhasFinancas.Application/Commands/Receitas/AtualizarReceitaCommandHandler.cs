@@ -20,10 +20,10 @@ public class AtualizarReceitaCommandHandler : IRequestHandler<AtualizarReceitaCo
         var receita = await _receitaRepo.ObterPorIdAsync(request.Id, request.UsuarioId, cancellationToken)
             ?? throw new KeyNotFoundException("Receita não encontrada.");
 
-        receita.Atualizar(request.Descricao, request.Valor, request.DataRecebimento, request.Categoria);
+        receita.Atualizar(request.Descricao, request.Valor, request.DataRecebimento, request.Categoria, request.RegistrarParaProximoMes);
         _receitaRepo.Atualizar(receita);
         await _uow.CommitAsync(cancellationToken);
 
-        return new ReceitaDto(receita.Id, receita.Descricao, receita.Valor, receita.DataRecebimento, receita.Categoria, receita.Recorrente, receita.DataCriacao);
+        return new ReceitaDto(receita.Id, receita.Descricao, receita.Valor, receita.DataRecebimento, receita.Categoria, receita.MesReferencia, receita.DataCriacao);
     }
 }

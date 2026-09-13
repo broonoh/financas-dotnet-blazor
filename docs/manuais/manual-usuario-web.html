@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Manual do Usuário — Minhas Finanças (Web)</title>
+<style>
+  body { font-family: Calibri, Arial, sans-serif; font-size: 13px; line-height: 1.55; color: #1a1a2e; }
+  h1 { color: #1565C0; font-size: 30px; margin-bottom: 4px; }
+  h2 { color: #1565C0; font-size: 20px; border-bottom: 2px solid #1565C0; padding-bottom: 4px; margin-top: 34px; }
+  h3 { color: #0d47a1; font-size: 15px; margin-top: 18px; }
+  .subtitle { font-size: 15px; color: #555; margin-bottom: 20px; }
+  .meta { font-size: 11px; color: #777; margin-bottom: 30px; }
+  .box { background: #E3F2FD; border-left: 4px solid #1565C0; padding: 10px 14px; margin: 12px 0; }
+  .box-warn { background: #FFF3E0; border-left: 4px solid #E65100; padding: 10px 14px; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 12px; }
+  th { background: #1565C0; color: white; }
+  ul, ol { margin-top: 4px; margin-bottom: 10px; }
+  li { margin-bottom: 3px; }
+  .rota { font-family: Consolas, monospace; background: #eee; padding: 1px 5px; }
+</style>
+</head>
+<body>
+
+<h1>💰 Minhas Finanças — Manual do Usuário</h1>
+<div class="subtitle">Versão Web (navegador)</div>
+<div class="meta">Documento de uso — explica cada funcionalidade do sistema e como utilizá-la.</div>
+
+<h2>1. Visão Geral</h2>
+<p>
+O Minhas Finanças (versão Web) é um sistema de controle financeiro pessoal acessado pelo navegador.
+Os dados ficam armazenados em um servidor central: qualquer pessoa com uma conta pode entrar de
+qualquer computador ou celular e ver as mesmas informações, sempre atualizadas.
+</p>
+<div class="box">
+Esta versão é diferente do aplicativo instalado no celular (MAUI): no app, os dados ficam guardados
+só naquele aparelho. Cadastros feitos na Web não aparecem automaticamente no app do celular, e
+vice-versa. Consulte o manual específico do app para essa versão.
+</div>
+
+<h3>1.1 Criando uma conta e entrando no sistema</h3>
+<p>Ao acessar o endereço do sistema pela primeira vez, você verá a tela de login.</p>
+<ol>
+  <li>Clique em <strong>"Cadastre-se"</strong>, na tela de login.</li>
+  <li>Preencha nome completo, e-mail, senha, data de nascimento e telefone (opcional).</li>
+  <li>A senha deve ter pelo menos 12 caracteres, com letra maiúscula, minúscula, número e caractere especial.</li>
+  <li>Clique em <strong>"Criar Conta"</strong>. Você será redirecionado para a tela de login.</li>
+  <li>Informe e-mail e senha e clique em <strong>"Entrar"</strong>.</li>
+</ol>
+<p>
+Para sair do sistema a qualquer momento, clique no ícone de saída (🔒) no canto superior direito da tela.
+</p>
+
+<h3>1.2 Navegação</h3>
+<p>
+O menu lateral esquerdo (pode ser escondido/mostrado pelo ícone ☰ no topo) dá acesso a todas as telas:
+Dashboard, Parcelas, Resumo Mensal, Receitas, Despesas, Devedores, Credores, Gráficos, Categorias e
+Meu Perfil.
+</p>
+
+<h2>2. Dashboard</h2>
+<p>Tela inicial com a visão geral das suas finanças no mês selecionado.</p>
+<h3>Como usar</h3>
+<ul>
+  <li>Use o seletor <strong>"Mês de Referência"</strong> no topo para escolher o mês/ano que deseja visualizar.</li>
+  <li>Os quatro cartões mostram: <strong>Saldo do Mês</strong> (receitas − despesas), <strong>Receitas</strong>,
+      <strong>Despesas</strong> e <strong>Projeção próximos 30 dias</strong> (estimativa com base nas parcelas futuras).</li>
+  <li><strong>Evolução Últimos 12 Meses</strong>: gráfico de linha comparando receitas, despesas e saldo mês a mês.</li>
+  <li><strong>Despesas por Categoria</strong>: gráfico de pizza mostrando em que categorias o dinheiro foi gasto.</li>
+  <li><strong>Comparativo Últimos 6 Meses</strong>: gráfico de barras de receitas x despesas.</li>
+</ul>
+
+<h2>3. Parcelas</h2>
+<p>Lista todas as parcelas de despesas fixas com vencimento no mês escolhido, com filtros por status.</p>
+<h3>Como usar</h3>
+<ul>
+  <li>Selecione <strong>Mês</strong> e <strong>Ano</strong> e clique em <strong>"Atualizar"</strong>.</li>
+  <li>Os cartões no topo resumem: total do mês, pagas, pendentes e vencidas (com valores).</li>
+  <li>Use as abas <strong>Todas / Vencidas / Pendentes / Pagas</strong> para filtrar a lista.</li>
+  <li>Clique em <strong>"Marcar Paga"</strong> em qualquer linha para confirmar o pagamento (ou
+      <strong>"Desfazer"</strong> para reverter).</li>
+</ul>
+
+<h2>4. Resumo Mensal</h2>
+<p>Relatório consolidado de tudo que aconteceu financeiramente em um mês: despesas fixas, extras,
+receitas e contas a receber, tudo em um só lugar.</p>
+<h3>Como usar</h3>
+<ul>
+  <li>Escolha <strong>Mês</strong> e <strong>Ano</strong> e clique em <strong>"Buscar"</strong>.</li>
+  <li>Os cartões mostram: Despesas Fixas, Despesas Extras, Total de Saídas, A Quitar (saídas ainda não
+      pagas), Receitas e Saldo do Mês.</li>
+  <li>Role a página para ver a lista detalhada de cada despesa fixa (parcelas), despesa extra, receita
+      e as contas a receber agrupadas por devedor.</li>
+  <li>Clique no botão <strong>"PDF"</strong> para baixar esse resumo completo em um arquivo para
+      impressão ou arquivamento.</li>
+</ul>
+
+<h2>5. Receitas</h2>
+<p>Cadastro de todo dinheiro que entra: salário, freelas, vendas, etc.</p>
+<h3>Como usar</h3>
+<ul>
+  <li>Clique em <strong>"Nova Receita"</strong> e preencha Descrição, Valor, Data de Recebimento e Categoria.</li>
+  <li><strong>Mês de Referência (Mês Atual / Próximo Mês)</strong>: define para qual mês essa receita conta
+      nos relatórios e no Resumo Mensal. Se a data de recebimento cair depois do dia 25, o sistema
+      pergunta automaticamente se o valor deve ser considerado no mês atual ou no próximo mês
+      (ex.: um pagamento recebido em 26/09 pode ser mais lógico contar como receita de outubro).
+      Esse campo também pode ser ajustado manualmente a qualquer momento, na criação ou na edição.</li>
+  <li>Clique em <strong>"Salvar"</strong>.</li>
+  <li>Use o filtro de <strong>Período</strong> (Mês/Ano + "Buscar") para ver apenas as receitas daquele mês.</li>
+  <li>A coluna <strong>"Mês Ref."</strong> na tabela mostra se aquela receita está contando para o mês
+      atual ou para o próximo mês.</li>
+  <li>Use os ícones de lápis e lixeira para editar ou excluir uma receita.</li>
+  <li><strong>"Exportar PDF"</strong> baixa a lista de receitas do período selecionado no filtro.</li>
+</ul>
+
+<h2>6. Despesas</h2>
+<p>Tela com três abas: Despesas Fixas, Despesas Extras e Contas a Receber.</p>
+
+<h3>6.1 Despesas Fixas</h3>
+<p>Gastos parcelados e recorrentes: financiamentos, assinaturas, compras parceladas no cartão, etc.</p>
+<ul>
+  <li>Clique em <strong>"Nova Despesa Fixa"</strong>.</li>
+  <li>Preencha Descrição, <strong>Valor da Parcela</strong> (o valor de cada parcela mensal — o sistema
+      calcula o total automaticamente multiplicando pela quantidade), <strong>Total de Parcelas</strong>,
+      Data da Compra, Vencimento da 1ª parcela, Categoria, Forma de Pagamento e Credor (opcional).</li>
+  <li>Clique em <strong>"Salvar"</strong>. As parcelas são geradas automaticamente, todas com o mesmo valor.</li>
+  <li>Use o filtro de <strong>Período</strong> para ver as despesas com parcela vencendo naquele mês.</li>
+  <li>Clique na seta (▾) de cada despesa para ver a lista completa de parcelas e marcá-las como pagas.</li>
+  <li><strong>"Confirmação de Pagamento Massivo"</strong>: marca de uma vez todas as parcelas pendentes
+      do mês filtrado como pagas (pede confirmação antes).</li>
+  <li><strong>"Exportar PDF"</strong> baixa o relatório do mês filtrado.</li>
+</ul>
+
+<h3>6.2 Despesas Extras</h3>
+<p>Gastos avulsos, não parcelados: mercado, lazer, manutenção, etc.</p>
+<ul>
+  <li>Clique em <strong>"Nova Despesa Extra"</strong> e preencha Descrição, Valor, Data da Despesa,
+      Categoria, Forma de Pagamento, Vencimento (opcional) e Credor (opcional).</li>
+  <li>Marque como paga clicando no botão de status dentro do item.</li>
+  <li>Mesmos recursos de filtro por período, edição, exclusão, pagamento em massa e exportação em PDF.</li>
+</ul>
+
+<h3>6.3 Contas a Receber</h3>
+<p>Dinheiro que outras pessoas devem a você.</p>
+<div class="box-warn">Antes de cadastrar uma dívida, cadastre a pessoa em <strong>Devedores</strong>.</div>
+<ul>
+  <li>Clique em <strong>"Nova Dívida"</strong>, escolha o Devedor, preencha Descrição, <strong>Valor da
+      Parcela</strong>, <strong>Total de Parcelas</strong>, Data da Compra e Vencimento da 1ª parcela.</li>
+  <li>Clique em <strong>"Registrar Dívida"</strong>.</li>
+  <li>Quando há mais de um devedor com dívidas, use os botões de nome para alternar entre eles.</li>
+  <li>Os cartões mostram total da dívida, saldo restante, quantidade de dívidas, valor do mês e
+      próxima parcela.</li>
+  <li><strong>"Baixar PDF"</strong> exporta as parcelas do devedor selecionado no mês filtrado.</li>
+</ul>
+
+<h2>7. Devedores</h2>
+<p>Cadastro das pessoas ou empresas que devem valores a você — usado em Contas a Receber.</p>
+<ul>
+  <li>Digite o nome e clique em <strong>"Adicionar"</strong>.</li>
+  <li>Use os ícones para editar ou excluir (só é possível excluir devedores sem dívidas vinculadas).</li>
+</ul>
+
+<h2>8. Credores</h2>
+<p>Cadastro de pessoas/empresas/instituições para quem você deve ou paga (bancos, lojas, etc.) —
+associado a Despesas Fixas e Extras, opcional.</p>
+<ul>
+  <li>Digite o nome e clique em <strong>"Adicionar"</strong>. Edição e exclusão funcionam como em Devedores.</li>
+</ul>
+
+<h2>9. Gráficos</h2>
+<p>Visão gráfica consolidada de receitas, despesas e contas a receber do mês.</p>
+<ul>
+  <li>Selecione Mês e Ano e clique em <strong>"Buscar"</strong>.</li>
+  <li>O gráfico de pizza compara Receitas x Despesas Fixas x Despesas Extras.</li>
+  <li>Os cartões ao lado mostram os totais e percentuais de cada categoria de gasto.</li>
+  <li>Mais abaixo, um resumo por devedor (total, saldo, % recebido) e o gráfico de barras correspondente.</li>
+</ul>
+
+<h2>10. Categorias e Forma de Pagamento</h2>
+<p>No menu <strong>"Categorias"</strong> ficam três cadastros auxiliares, usados para classificar
+receitas e despesas:</p>
+<table>
+  <tr><th>Cadastro</th><th>Para que serve</th></tr>
+  <tr><td>Categorias de Receita</td><td>Ex.: Salário, Freelance, Investimentos...</td></tr>
+  <tr><td>Categorias de Despesa</td><td>Ex.: Moradia, Transporte, Saúde, Educação...</td></tr>
+  <tr><td>Forma de Pagamento</td><td>Ex.: Cartão de Crédito, Pix, Boleto, Dinheiro...</td></tr>
+</table>
+<p>Em todos, o uso é o mesmo: digite o nome, clique em <strong>"Adicionar"</strong>; use os ícones para
+editar ou excluir um item existente. Essas categorias aparecem depois nos formulários de Receitas e Despesas.</p>
+
+<h2>11. Meu Perfil</h2>
+<p>Dados pessoais da sua conta.</p>
+<ul>
+  <li>Você pode alterar Nome e Telefone. E-mail, data de nascimento e data de cadastro não são editáveis
+      aqui.</li>
+  <li>Clique em <strong>"Salvar Alterações"</strong> para confirmar.</li>
+</ul>
+
+<h2>12. Encerrando a sessão</h2>
+<p>Clique no ícone de logout (🔒) no canto superior direito da barra de topo para sair da sua conta com
+segurança, especialmente em computadores compartilhados.</p>
+
+</body>
+</html>

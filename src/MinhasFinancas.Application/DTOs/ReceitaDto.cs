@@ -6,5 +6,5 @@ public record ReceitaDto(
     decimal Valor,
     DateOnly DataRecebimento,
     string Categoria,
-    bool Recorrente,
+    DateOnly MesReferencia,
     DateTime DataCriacao);

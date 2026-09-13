@@ -18,8 +18,7 @@ public record ResumoItemReceitaDto(
     string Descricao,
     string Categoria,
     decimal Valor,
-    DateOnly DataRecebimento,
-    bool Recorrente);
+    DateOnly DataRecebimento);
 
 public record ResumoItemDespesaFixaDto(
     Guid ParcelaId,

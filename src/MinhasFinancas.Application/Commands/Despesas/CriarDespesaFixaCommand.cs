@@ -6,7 +6,7 @@ namespace MinhasFinancas.Application.Commands.Despesas;
 public record CriarDespesaFixaCommand(
     Guid UsuarioId,
     string Descricao,
-    decimal ValorTotal,
+    decimal ValorParcela,
     int QuantidadeParcelas,
     DateOnly DataCompra,
     DateOnly DataPrimeiraParcela,

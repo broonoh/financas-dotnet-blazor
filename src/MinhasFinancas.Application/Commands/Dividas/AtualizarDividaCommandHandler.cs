@@ -25,7 +25,7 @@ public class AtualizarDividaCommandHandler : IRequestHandler<AtualizarDividaComm
         var devedor = await _devedorRepo.ObterPorIdAsync(request.DevedorId, request.UsuarioId, cancellationToken)
             ?? throw new KeyNotFoundException("Devedor não encontrado.");
 
-        divida.Atualizar(request.DevedorId, request.Descricao, request.ValorTotal, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
+        divida.Atualizar(request.DevedorId, request.Descricao, request.ValorParcela, request.QuantidadeParcelas, request.DataCompra, request.DataPrimeiraParcela);
         await _dividaRepo.AtualizarAsync(divida, cancellationToken);
         await _uow.CommitAsync(cancellationToken);
 
